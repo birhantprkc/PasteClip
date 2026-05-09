@@ -45,9 +45,11 @@ final class ClipboardItem {
     }
 
     func dragProvider() -> NSItemProvider {
+        let provider: NSItemProvider
+
         switch contentType {
         case .plainText, .richText, .html, .unknown:
-            return NSItemProvider(object: (textContent ?? "") as NSString)
+            provider = NSItemProvider(object: (textContent ?? "") as NSString)
 
         case .image:
             if let image = NSImage(data: rawData),
@@ -67,24 +69,41 @@ final class ClipboardItem {
                 let filename = "\(appName) \(formatter.string(from: copiedAt)).png"
                 let fileURL = dir.appendingPathComponent(filename)
                 try? pngData.write(to: fileURL)
-                return NSItemProvider(contentsOf: fileURL) ?? NSItemProvider(object: image)
+                provider = NSItemProvider(contentsOf: fileURL) ?? NSItemProvider(object: image)
+            } else {
+                provider = NSItemProvider()
             }
-            return NSItemProvider()
 
         case .url:
             if let text = textContent, let url = URL(string: text) {
-                return NSItemProvider(object: url as NSURL)
+                provider = NSItemProvider(object: url as NSURL)
+            } else {
+                provider = NSItemProvider(object: (textContent ?? "") as NSString)
             }
-            return NSItemProvider(object: (textContent ?? "") as NSString)
 
         case .fileURL:
             if let text = textContent, let url = URL(string: text) {
-                return NSItemProvider(object: url as NSURL)
+                provider = NSItemProvider(object: url as NSURL)
+            } else {
+                provider = NSItemProvider()
             }
-            return NSItemProvider()
 
         case .color:
-            return NSItemProvider(object: (textContent ?? "") as NSString)
+            provider = NSItemProvider(object: (textContent ?? "") as NSString)
         }
+
+        provider.registerDataRepresentation(
+            forTypeIdentifier: UTType.pasteClipClipboardItemID.identifier,
+            visibility: .ownProcess
+        ) { [id] completion in
+            completion(id.uuidString.data(using: .utf8), nil)
+            return nil
+        }
+
+        return provider
     }
+}
+
+extension UTType {
+    static let pasteClipClipboardItemID = UTType(exportedAs: "com.minsang.PasteClip.clipboard-item-id")
 }

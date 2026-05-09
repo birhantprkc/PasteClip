@@ -1,9 +1,9 @@
 import SwiftUI
 
 enum DesignTokens {
-    // MARK: - Card Header Colors (by content type)
+    // MARK: - Content Type Accent Colors
 
-    static func headerColor(for contentType: ContentType, itemColor: String? = nil) -> Color {
+    static func typeTint(for contentType: ContentType, itemColor: String? = nil) -> Color {
         switch contentType {
         case .plainText, .richText, .html:
             return Color(red: 0.247, green: 0.388, blue: 0.886) // #3F63E2
@@ -23,34 +23,56 @@ enum DesignTokens {
         }
     }
 
+    static func headerColor(for contentType: ContentType, itemColor: String? = nil) -> Color {
+        typeTint(for: contentType, itemColor: itemColor)
+    }
+
+    // MARK: - Card
+
+    enum Card {
+        static let cornerRadius: CGFloat = 8
+        static let topPadding: CGFloat = 8
+        static let horizontalPadding: CGFloat = 10
+        static let contentSpacing: CGFloat = 6
+
+        static func backgroundColor(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark
+                ? Color(white: 0.115)
+                : Color(white: 0.99)
+        }
+
+        static func borderColor(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark
+                ? Color.white.opacity(0.10)
+                : Color.black.opacity(0.08)
+        }
+    }
+
     // MARK: - Card Header
 
     enum Header {
-        static let titleFont: Font = .system(size: 16, weight: .bold)
-        static let subtitleFont: Font = .system(size: 12, weight: .regular)
+        static let titleFont: Font = .system(size: 12, weight: .semibold)
+        static let subtitleFont: Font = .system(size: 11, weight: .regular)
         static let subtitleOpacity: Double = 0.8
-        static let appIconSize: CGFloat = 44
-        static let appIconCornerRadius: CGFloat = 11
-        static let heightRatio: CGFloat = 0.30
-        static let minHeight: CGFloat = 72
-        static let paddingTop: CGFloat = 16
-        static let paddingLeading: CGFloat = 16
-        static let paddingBottom: CGFloat = 12
-        static let paddingTrailing: CGFloat = 12
+        static let appIconSize: CGFloat = 26
+        static let appIconCornerRadius: CGFloat = 6
+        static let badgeVerticalPadding: CGFloat = 3
+        static let badgeHorizontalPadding: CGFloat = 7
+        static let badgeCornerRadius: CGFloat = 6
     }
 
     // MARK: - Card Body
 
     enum Body {
-        static let padding: CGFloat = 16
-        static let fontSize: CGFloat = 13
-        static let lineSpacing: CGFloat = 6.5
-        static let maxLines: Int = 6
+        static let padding: CGFloat = 10
+        static let fontSize: CGFloat = 12
+        static let lineSpacing: CGFloat = 4
+        static let maxLines: Int = 4
 
         static func textColor(for colorScheme: ColorScheme) -> Color {
             colorScheme == .dark
                 ? Color(white: 0.88)
-                : Color(red: 0.2, green: 0.2, blue: 0.2) // #333333
+                : Color(white: 0.20)
         }
     }
 
@@ -64,14 +86,14 @@ enum DesignTokens {
 
         static func backgroundColor(for colorScheme: ColorScheme) -> Color {
             colorScheme == .dark
-                ? Color(white: 0.2)
-                : Color(red: 0.949, green: 0.949, blue: 0.969) // #F2F2F7
+                ? Color.white.opacity(0.08)
+                : Color.black.opacity(0.06)
         }
 
         static func textColor(for colorScheme: ColorScheme) -> Color {
             colorScheme == .dark
-                ? Color(white: 0.6)
-                : Color(red: 0.4, green: 0.4, blue: 0.4) // #666666
+                ? Color(white: 0.62)
+                : Color(white: 0.40)
         }
     }
 
@@ -79,44 +101,51 @@ enum DesignTokens {
 
     enum Selection {
         static let borderColor = Color(red: 0.231, green: 0.443, blue: 0.953) // #3B71F3
-        static let borderWidth: CGFloat = 3.5
-        static let defaultBorderWidth: CGFloat = 0.5
-        static let selectedShadowOpacity: Double = 0.18
+        static let borderWidth: CGFloat = 2.25
+        static let defaultBorderWidth: CGFloat = 0.75
+        static let selectedShadowOpacity: Double = 0.24
         static let selectedShadowRadius: CGFloat = 12
-        static let defaultShadowOpacity: Double = 0.09
-        static let defaultShadowRadius: CGFloat = 4
-        static let hoverShadowOpacity: Double = 0.12
-        static let hoverShadowRadius: CGFloat = 8
+        static let defaultShadowOpacity: Double = 0.06
+        static let defaultShadowRadius: CGFloat = 2
+        static let hoverShadowOpacity: Double = 0.11
+        static let hoverShadowRadius: CGFloat = 6
     }
 
     // MARK: - Navigation Bar
 
     enum Nav {
-        static let height: CGFloat = 46
+        static let height: CGFloat = 44
         static let horizontalPadding: CGFloat = 16
         static let tabHeight: CGFloat = 28
-        static let tabCornerRadius: CGFloat = 14
+        static let tabCornerRadius: CGFloat = 8
         static let activeFont: Font = .system(size: 13, weight: .medium)
         static let inactiveFont: Font = .system(size: 13, weight: .regular)
         static let dotSize: CGFloat = 8
         static let searchIconSize: CGFloat = 16
+        static let searchWidth: CGFloat = 260
 
         static func activeBackground(for colorScheme: ColorScheme) -> Color {
             colorScheme == .dark
-                ? Color.white.opacity(0.1)
+                ? Color.white.opacity(0.10)
                 : Color.black.opacity(0.06)
+        }
+
+        static func searchBackground(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark
+                ? Color.white.opacity(0.08)
+                : Color.black.opacity(0.08)
         }
 
         static func activeTextColor(for colorScheme: ColorScheme) -> Color {
             colorScheme == .dark
                 ? Color(white: 0.95)
-                : Color(red: 0.2, green: 0.2, blue: 0.2) // #333333
+                : Color(white: 0.16)
         }
 
         static func inactiveTextColor(for colorScheme: ColorScheme) -> Color {
             colorScheme == .dark
                 ? Color(white: 0.75)
-                : Color(red: 0.4, green: 0.4, blue: 0.4) // #666666
+                : Color(white: 0.38)
         }
     }
 

@@ -6,13 +6,22 @@ import SwiftData
 @Observable
 final class PanelController {
     private var panel: PasteClipPanel?
+    private var quickLookPanel: ClipboardQuickLookPanel?
+    private var quickLookItem: ClipboardItem?
     private(set) var isVisible: Bool = false
     private var clickMonitor: Any?
+    private var mouseMonitor: Any?
     private var keyMonitor: Any?
     var onPanelWillHide: (() -> Void)?
     weak var appState: AppState?
 
-    private let baseHeight: CGFloat = 320
+    private let baseHeight: CGFloat = 280
+    private let minimumPanelWidth: CGFloat = 720
+    private let maximumScreenWidthRatio: CGFloat = 0.90
+    private let estimatedCardWidth: CGFloat = 228
+    private let estimatedCardSpacing: CGFloat = 8
+    private let contentHorizontalPadding: CGFloat = 32
+    private let maximumVisibleCardCount = 6
 
     func toggle(modelContainer: ModelContainer, appState: AppState) {
         if isVisible {
@@ -28,22 +37,9 @@ final class PanelController {
 
         let screen = NSScreen.main ?? NSScreen.screens.first!
         let screenFrame = screen.visibleFrame
-        let panelHeight: CGFloat = 320
-        let panelWidth = screenFrame.width
-
-        let startFrame = NSRect(
-            x: screenFrame.origin.x,
-            y: screenFrame.origin.y - panelHeight,
-            width: panelWidth,
-            height: panelHeight
-        )
-
-        let endFrame = NSRect(
-            x: screenFrame.origin.x,
-            y: screenFrame.origin.y,
-            width: panelWidth,
-            height: panelHeight
-        )
+        let itemCount = visibleItemCount(modelContainer: modelContainer, selectedTab: appState.selectedTab)
+        let endFrame = panelFrame(in: screenFrame, itemCount: itemCount, y: screenFrame.origin.y)
+        let startFrame = endFrame.offsetBy(dx: 0, dy: -endFrame.height)
 
         if panel == nil {
             panel = PasteClipPanel(contentRect: startFrame)
@@ -60,6 +56,7 @@ final class PanelController {
 
         panel?.orderFrontRegardless()
         panel?.makeKey()
+        panel?.makeFirstResponder(nil)
 
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.25
@@ -68,13 +65,50 @@ final class PanelController {
         }
 
         isVisible = true
+        appState.markPanelPresented()
         installClickMonitor()
+        installMouseMonitor()
         installKeyMonitor()
+    }
+
+    func resizeToContentItemCount(_ itemCount: Int, animated: Bool = true) {
+        guard isVisible, let panel else { return }
+
+        let screen = panel.screen ?? NSScreen.main ?? NSScreen.screens.first!
+        let screenFrame = screen.visibleFrame
+        let targetFrame = panelFrame(in: screenFrame, itemCount: itemCount, y: panel.frame.origin.y)
+
+        guard abs(panel.frame.width - targetFrame.width) > 1 ||
+              abs(panel.frame.origin.x - targetFrame.origin.x) > 1 else {
+            return
+        }
+
+        if animated {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.18
+                context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                panel.animator().setFrame(targetFrame, display: true)
+            }
+        } else {
+            panel.setFrame(targetFrame, display: true)
+        }
+    }
+
+    func restoreKeyboardNavigationFocus(activateApp: Bool = false) {
+        guard isVisible, let panel else { return }
+        if activateApp {
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        panel.orderFrontRegardless()
+        panel.makeKeyAndOrderFront(nil)
+        panel.makeFirstResponder(nil)
     }
 
     func hidePanel() {
         guard isVisible, let panel else { return }
+        panel.makeFirstResponder(nil)
         onPanelWillHide?()
+        hideQuickLook()
 
         let screenFrame = (NSScreen.main ?? NSScreen.screens.first!).visibleFrame
         let panelHeight = panel.frame.height
@@ -87,6 +121,7 @@ final class PanelController {
         )
 
         removeClickMonitor()
+        removeMouseMonitor()
         removeKeyMonitor()
 
         NSAnimationContext.runAnimationGroup({ context in
@@ -94,8 +129,8 @@ final class PanelController {
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             panel.animator().setFrame(offscreenFrame, display: true)
         }, completionHandler: { [weak self] in
-            panel.orderOut(nil)
             Task { @MainActor in
+                panel.orderOut(nil)
                 self?.isVisible = false
             }
         })
@@ -105,10 +140,14 @@ final class PanelController {
 
     private func installClickMonitor() {
         clickMonitor = NSEvent.addGlobalMonitorForEvents(
-            matching: [.leftMouseDown, .rightMouseDown]
+            matching: [.leftMouseDown, .rightMouseDown, .leftMouseUp]
         ) { [weak self] event in
             Task { @MainActor in
                 guard let self, self.isVisible else { return }
+                if event.type == .leftMouseUp, self.appState?.draggedClipboardItemID != nil {
+                    self.appState?.finishClipboardDrag()
+                    return
+                }
                 if let panel = self.panel,
                    !panel.frame.contains(NSEvent.mouseLocation) {
                     self.hidePanel()
@@ -124,6 +163,63 @@ final class PanelController {
         }
     }
 
+    // MARK: - Mouse Monitor (release search focus before card clicks)
+
+    private func installMouseMonitor() {
+        mouseMonitor = NSEvent.addLocalMonitorForEvents(
+            matching: [.leftMouseDown, .rightMouseDown, .leftMouseUp]
+        ) { [weak self] event in
+            MainActor.assumeIsolated { [weak self] in
+                guard let self else { return }
+                if event.type == .leftMouseUp, self.appState?.draggedClipboardItemID != nil {
+                    self.appState?.finishClipboardDrag()
+                } else {
+                    self.releaseTextFocusIfNeeded(for: event)
+                }
+            }
+            return event
+        }
+    }
+
+    private func removeMouseMonitor() {
+        if let monitor = mouseMonitor {
+            NSEvent.removeMonitor(monitor)
+            mouseMonitor = nil
+        }
+    }
+
+    private func releaseTextFocusIfNeeded(for event: NSEvent) {
+        guard isVisible, let panel else { return }
+
+        let screenPoint = NSEvent.mouseLocation
+        guard panel.frame.contains(screenPoint) else { return }
+
+        if isTextInputFocused(in: panel),
+           !eventHitsTextInput(event, in: panel) {
+            panel.makeFirstResponder(nil)
+        }
+    }
+
+    private func isTextInputFocused(in panel: NSPanel) -> Bool {
+        guard let firstResponder = panel.firstResponder else { return false }
+        return firstResponder is NSTextView || firstResponder is NSTextField
+    }
+
+    private func eventHitsTextInput(_ event: NSEvent, in panel: NSPanel) -> Bool {
+        guard let contentView = panel.contentView else { return false }
+        let locationInContent = contentView.convert(event.locationInWindow, from: nil)
+        guard let hitView = contentView.hitTest(locationInContent) else { return false }
+
+        var view: NSView? = hitView
+        while let current = view {
+            if current is NSTextField || current is NSTextView {
+                return true
+            }
+            view = current.superview
+        }
+        return false
+    }
+
     // MARK: - Key Monitor (arrow keys, space, esc, return)
 
     private func installKeyMonitor() {
@@ -131,6 +227,10 @@ final class PanelController {
             let keyCode = event.keyCode
             let handled: Bool = MainActor.assumeIsolated { [weak self] in
                 guard let self, self.isVisible else { return false }
+
+                if self.quickLookPanel != nil {
+                    return self.processKey(keyCode)
+                }
 
                 // Check if a text field is focused (search bar) - let it handle the event
                 if let firstResponder = self.panel?.firstResponder,
@@ -155,6 +255,10 @@ final class PanelController {
 
         switch keyCode {
         case 53: // Escape
+            if quickLookPanel != nil {
+                hideQuickLook()
+                return true
+            }
             if appState.previewItem != nil {
                 appState.searchState.selectedIndex = nil
                 appState.selectForPreview(nil)
@@ -173,21 +277,31 @@ final class PanelController {
 
         case 123: // Left arrow
             appState.searchState.moveSelection(by: -1, maxIndex: maxIndex)
-            if appState.previewItem != nil,
-               let idx = appState.searchState.selectedIndex, idx < items.count {
-                appState.previewItem = items[idx]
+            if let idx = appState.searchState.selectedIndex, idx < items.count {
+                if quickLookPanel != nil {
+                    updateQuickLook(for: items[idx])
+                } else if appState.previewItem != nil {
+                    appState.previewItem = items[idx]
+                }
             }
             return true
 
         case 124: // Right arrow
             appState.searchState.moveSelection(by: 1, maxIndex: maxIndex)
-            if appState.previewItem != nil,
-               let idx = appState.searchState.selectedIndex, idx < items.count {
-                appState.previewItem = items[idx]
+            if let idx = appState.searchState.selectedIndex, idx < items.count {
+                if quickLookPanel != nil {
+                    updateQuickLook(for: items[idx])
+                } else if appState.previewItem != nil {
+                    appState.previewItem = items[idx]
+                }
             }
             return true
 
         case 49: // Space - toggle preview
+            if quickLookPanel != nil {
+                hideQuickLook()
+                return true
+            }
             if appState.previewItem != nil {
                 withAnimation(.easeOut(duration: 0.2)) {
                     appState.selectForPreview(nil)
@@ -195,14 +309,20 @@ final class PanelController {
                 return true
             }
             if let idx = appState.searchState.selectedIndex, idx < items.count {
-                withAnimation(.spring(duration: 0.3, bounce: 0.1)) {
-                    appState.selectForPreview(items[idx])
-                }
+                let item = items[idx]
+                showQuickLook(item: item)
                 return true
             }
             return false
 
         case 36: // Return - paste
+            if let item = quickLookItem {
+                appState.clipboardMonitor.skipNextChange()
+                appState.pasteService.paste(item: item)
+                appState.hidePanel()
+                return true
+            }
+
             guard let idx = appState.searchState.selectedIndex,
                   idx < items.count else { return false }
             let item = items[idx]
@@ -216,10 +336,108 @@ final class PanelController {
         }
     }
 
+    // MARK: - Clipboard Quick Look
+
+    private func showQuickLook(item: ClipboardItem) {
+        guard let appState else { return }
+
+        appState.selectForPreview(nil)
+        quickLookItem = item
+
+        let screen = NSScreen.main ?? NSScreen.screens.first!
+        let screenFrame = screen.visibleFrame
+
+        let panel: ClipboardQuickLookPanel
+        if let existing = quickLookPanel {
+            panel = existing
+            panel.setFrame(screenFrame, display: false)
+        } else {
+            panel = ClipboardQuickLookPanel(contentRect: screenFrame)
+            quickLookPanel = panel
+        }
+
+        panel.contentView = NSHostingView(
+            rootView: ClipboardQuickLookView(
+                item: item,
+                shelfHeight: baseHeight,
+                onClose: { [weak self] in
+                    self?.hideQuickLook()
+                },
+                onPaste: { [weak self, weak appState] in
+                    guard let self, let appState else { return }
+                    appState.clipboardMonitor.skipNextChange()
+                    appState.pasteService.paste(item: item)
+                    self.hidePanel()
+                }
+            )
+            .environment(appState)
+        )
+
+        panel.orderFrontRegardless()
+        panel.makeKey()
+    }
+
+    private func updateQuickLook(for item: ClipboardItem) {
+        guard quickLookPanel != nil else { return }
+        showQuickLook(item: item)
+    }
+
+    private func hideQuickLook() {
+        quickLookPanel?.orderOut(nil)
+        quickLookPanel = nil
+        quickLookItem = nil
+        panel?.makeKey()
+    }
+
     private func removeKeyMonitor() {
         if let monitor = keyMonitor {
             NSEvent.removeMonitor(monitor)
             keyMonitor = nil
         }
+    }
+
+    private func visibleItemCount(modelContainer: ModelContainer, selectedTab: PanelTab) -> Int {
+        let context = modelContainer.mainContext
+
+        switch selectedTab {
+        case .history:
+            let descriptor = FetchDescriptor<ClipboardItem>()
+            return (try? context.fetchCount(descriptor)) ?? 0
+
+        case .pinboard(let pinboardId):
+            var descriptor = FetchDescriptor<Pinboard>(
+                predicate: #Predicate { pinboard in
+                    pinboard.id == pinboardId
+                }
+            )
+            descriptor.fetchLimit = 1
+            guard let pinboard = try? context.fetch(descriptor).first else { return 0 }
+            return pinboard.entries.filter { !$0.isDeleted && $0.clipboardItem != nil }.count
+        }
+    }
+
+    private func panelFrame(in screenFrame: NSRect, itemCount: Int, y: CGFloat) -> NSRect {
+        let panelWidth = targetPanelWidth(for: itemCount, screenWidth: screenFrame.width)
+        let panelX = screenFrame.midX - panelWidth / 2
+
+        return NSRect(
+            x: panelX,
+            y: y,
+            width: panelWidth,
+            height: baseHeight
+        )
+    }
+
+    private func targetPanelWidth(for itemCount: Int, screenWidth: CGFloat) -> CGFloat {
+        let screenMaxWidth = max(360, screenWidth - 48)
+        let maxWidth = min(screenMaxWidth, max(minimumPanelWidth, screenWidth * maximumScreenWidthRatio))
+        let minWidth = min(minimumPanelWidth, maxWidth)
+        let visibleCardCount = min(max(itemCount, 1), maximumVisibleCardCount)
+        let cardContentWidth =
+            CGFloat(visibleCardCount) * estimatedCardWidth +
+            CGFloat(max(visibleCardCount - 1, 0)) * estimatedCardSpacing +
+            contentHorizontalPadding
+
+        return min(max(minWidth, cardContentWidth), maxWidth)
     }
 }

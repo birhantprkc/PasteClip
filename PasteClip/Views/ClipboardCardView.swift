@@ -9,18 +9,17 @@ struct ClipboardCardView: View {
     var cardHeight: CGFloat = 240
     var pinboards: [Pinboard] = []
     var enableDrag: Bool = true
+    var showsManagementMenu: Bool = true
     let onSelect: (ClipboardItem) -> Void
     let onPaste: (ClipboardItem) -> Void
+    var onDelete: (() -> Void)? = nil
 
+    @Environment(AppState.self) private var appState
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
     @State private var isHovered = false
     @State private var isRenaming = false
     @State private var renameText = ""
-
-    private var headerHeight: CGFloat {
-        max(DesignTokens.Header.minHeight, cardHeight * DesignTokens.Header.heightRatio)
-    }
 
     var body: some View {
         if item.isDeleted || item.modelContext == nil {
@@ -31,49 +30,7 @@ struct ClipboardCardView: View {
     }
 
     private var cardBody: some View {
-        VStack(spacing: 0) {
-            headerView
-
-            if item.contentType == .image || item.contentType == .color {
-                cardContent
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-            } else {
-                VStack(spacing: 0) {
-                    cardContent
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-
-                    Spacer(minLength: 4)
-
-                    footerView
-                }
-                .padding(.all, DesignTokens.Body.padding)
-            }
-        }
-        .frame(width: cardWidth, height: cardHeight)
-        .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(
-                    isSelected
-                        ? DesignTokens.Selection.borderColor
-                        : (colorScheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.06)),
-                    lineWidth: isSelected ? DesignTokens.Selection.borderWidth : DesignTokens.Selection.defaultBorderWidth
-                )
-        )
-        .shadow(
-            color: .black.opacity(
-                isSelected ? DesignTokens.Selection.selectedShadowOpacity
-                : (isHovered ? DesignTokens.Selection.hoverShadowOpacity : DesignTokens.Selection.defaultShadowOpacity)
-            ),
-            radius: isSelected ? DesignTokens.Selection.selectedShadowRadius
-                : (isHovered ? DesignTokens.Selection.hoverShadowRadius : DesignTokens.Selection.defaultShadowRadius),
-            y: isSelected ? 6 : (isHovered ? 4 : 2)
-        )
-        .brightness(isHovered && !isSelected ? 0.03 : 0)
-        .animation(.easeOut(duration: 0.15), value: isHovered)
-        .animation(.easeInOut(duration: 0.15), value: isSelected)
+        cardSurface
         .onHover { hovering in
             isHovered = hovering
         }
@@ -83,8 +40,13 @@ struct ClipboardCardView: View {
         .onTapGesture(count: 1) {
             onSelect(item)
         }
-        .optionalDrag(enabled: enableDrag) { item.dragProvider() }
-        .contextMenu {
+        .optionalDrag(enabled: enableDrag) {
+            appState.draggedClipboardItemID = item.id
+            return item.dragProvider()
+        } preview: {
+            dragPreview
+        }
+        .optionalContextMenu(enabled: showsManagementMenu) {
             Button("Paste") { onPaste(item) }
             Divider()
             Button("Rename") {
@@ -109,8 +71,9 @@ struct ClipboardCardView: View {
                 }
             }
             Divider()
-            Button("Delete", role: .destructive) {
+            Button("Delete Clip", role: .destructive) {
                 deleteItem()
+                onDelete?()
             }
         }
         .alert("Rename", isPresented: $isRenaming) {
@@ -124,49 +87,94 @@ struct ClipboardCardView: View {
         }
     }
 
+    private var cardSurface: some View {
+        VStack(spacing: DesignTokens.Card.contentSpacing) {
+            headerView
+
+            contentView
+
+            footerView
+        }
+        .padding(.top, DesignTokens.Card.topPadding)
+        .padding(.horizontal, DesignTokens.Card.horizontalPadding)
+        .padding(.bottom, 8)
+        .frame(width: cardWidth, height: cardHeight)
+        .background(cardFillColor)
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Card.cornerRadius, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignTokens.Card.cornerRadius, style: .continuous)
+                .strokeBorder(
+                    isSelected
+                        ? DesignTokens.Selection.borderColor
+                        : DesignTokens.Card.borderColor(for: colorScheme),
+                    lineWidth: isSelected ? DesignTokens.Selection.borderWidth : DesignTokens.Selection.defaultBorderWidth
+                )
+        )
+        .shadow(
+            color: cardShadowColor,
+            radius: isSelected ? DesignTokens.Selection.selectedShadowRadius
+                : (isHovered ? DesignTokens.Selection.hoverShadowRadius : DesignTokens.Selection.defaultShadowRadius),
+            y: isSelected ? 6 : (isHovered ? 4 : 2)
+        )
+        .scaleEffect(isSelected ? 1.01 : (isHovered ? 1.004 : 1.0))
+        .brightness(isHovered && !isSelected ? 0.025 : 0)
+        .animation(.easeOut(duration: 0.15), value: isHovered)
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
+    }
+
+    private var dragPreview: some View {
+        cardSurface
+            .opacity(0.36)
+            .scaleEffect(0.94)
+    }
+
     // MARK: - Header View
 
     private var headerView: some View {
-        ZStack {
-            DesignTokens.headerColor(for: item.contentType, itemColor: item.textContent)
+        HStack(alignment: .center, spacing: 8) {
+            typeBadge
 
-            HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(item.userTitle ?? item.contentType.displayName)
-                        .font(DesignTokens.Header.titleFont)
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
+            Text(RelativeTimeFormatter.string(for: item.copiedAt))
+                .font(DesignTokens.Header.subtitleFont)
+                .foregroundStyle(DesignTokens.Body.textColor(for: colorScheme).opacity(0.62))
+                .lineLimit(1)
 
-                    Text(RelativeTimeFormatter.string(for: item.copiedAt))
-                        .font(DesignTokens.Header.subtitleFont)
-                        .foregroundStyle(.white.opacity(DesignTokens.Header.subtitleOpacity))
-                        .lineLimit(1)
-                }
+            Spacer(minLength: 4)
 
-                Spacer()
-
-                if let bundleId = item.sourceAppBundleId {
-                    Image(nsImage: AppIconProvider.icon(for: bundleId, size: 48))
-                        .resizable()
-                        .frame(
-                            width: DesignTokens.Header.appIconSize,
-                            height: DesignTokens.Header.appIconSize
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Header.appIconCornerRadius, style: .continuous))
-                        .background(
-                            RoundedRectangle(cornerRadius: DesignTokens.Header.appIconCornerRadius, style: .continuous)
-                                .fill(.white)
-                                .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
-                        )
-                }
+            if let bundleId = item.sourceAppBundleId {
+                Image(nsImage: AppIconProvider.icon(for: bundleId, size: 40))
+                    .resizable()
+                    .frame(
+                        width: DesignTokens.Header.appIconSize,
+                        height: DesignTokens.Header.appIconSize
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Header.appIconCornerRadius, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignTokens.Header.appIconCornerRadius, style: .continuous)
+                            .strokeBorder(Color.white.opacity(colorScheme == .dark ? 0.08 : 0.6), lineWidth: 0.5)
+                    )
+                    .shadow(color: .black.opacity(0.14), radius: 3, y: 1)
             }
-            .padding(.top, DesignTokens.Header.paddingTop)
-            .padding(.leading, DesignTokens.Header.paddingLeading)
-            .padding(.bottom, DesignTokens.Header.paddingBottom)
-            .padding(.trailing, DesignTokens.Header.paddingTrailing)
         }
-        .frame(height: headerHeight)
         .frame(maxWidth: .infinity)
+    }
+
+    private var typeBadge: some View {
+        let tint = DesignTokens.typeTint(for: item.contentType, itemColor: item.textContent)
+
+        return HStack(spacing: 5) {
+            Image(systemName: item.contentType.systemImage)
+                .font(.system(size: 10, weight: .semibold))
+
+            Text(item.userTitle ?? item.contentType.displayName)
+                .font(DesignTokens.Header.titleFont)
+                .lineLimit(1)
+        }
+        .foregroundStyle(tint)
+        .padding(.vertical, DesignTokens.Header.badgeVerticalPadding)
+        .padding(.horizontal, DesignTokens.Header.badgeHorizontalPadding)
+        .background(tint.opacity(colorScheme == .dark ? 0.18 : 0.20))
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Header.badgeCornerRadius, style: .continuous))
     }
 
     // MARK: - Footer View (Badge Style)
@@ -174,8 +182,6 @@ struct ClipboardCardView: View {
     @ViewBuilder
     private var footerView: some View {
         HStack(spacing: 6) {
-            Spacer()
-
             Text(footerInfo)
                 .font(DesignTokens.Badge.font)
                 .foregroundStyle(DesignTokens.Badge.textColor(for: colorScheme))
@@ -184,9 +190,13 @@ struct ClipboardCardView: View {
                 .background(DesignTokens.Badge.backgroundColor(for: colorScheme))
                 .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Badge.cornerRadius, style: .continuous))
 
-            Image(systemName: "line.3.horizontal")
-                .font(.system(size: 10, weight: .medium))
+            Spacer()
+
+            Image(systemName: "ellipsis")
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(DesignTokens.Badge.textColor(for: colorScheme))
+                .opacity(isHovered || isSelected ? 0.72 : 0.34)
+                .help("More actions")
         }
     }
 
@@ -212,13 +222,43 @@ struct ClipboardCardView: View {
 
     // MARK: - Card Background
 
-    private var cardBackground: some ShapeStyle {
-        colorScheme == .dark
-            ? AnyShapeStyle(Color(white: 0.13))
-            : AnyShapeStyle(Color(white: 0.99))
+    private var cardFillColor: Color {
+        if isSelected {
+            return colorScheme == .dark
+                ? Color(red: 0.105, green: 0.125, blue: 0.165)
+                : Color(red: 0.965, green: 0.975, blue: 1.0)
+        }
+        return DesignTokens.Card.backgroundColor(for: colorScheme)
+    }
+
+    private var cardShadowColor: Color {
+        if isSelected {
+            return DesignTokens.Selection.borderColor.opacity(DesignTokens.Selection.selectedShadowOpacity)
+        }
+        return .black.opacity(isHovered ? DesignTokens.Selection.hoverShadowOpacity : DesignTokens.Selection.defaultShadowOpacity)
     }
 
     // MARK: - Content
+
+    private var contentView: some View {
+        Group {
+            if item.contentType == .image || item.contentType == .color {
+                cardContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .strokeBorder(DesignTokens.Card.borderColor(for: colorScheme), lineWidth: 0.5)
+                    )
+            } else {
+                cardContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .padding(.vertical, 2)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
+    }
 
     @ViewBuilder
     private var cardContent: some View {
@@ -265,9 +305,25 @@ struct ClipboardCardView: View {
 
 private extension View {
     @ViewBuilder
-    func optionalDrag(enabled: Bool, provider: @escaping () -> NSItemProvider) -> some View {
+    func optionalDrag<Preview: View>(
+        enabled: Bool,
+        provider: @escaping () -> NSItemProvider,
+        @ViewBuilder preview: () -> Preview
+    ) -> some View {
         if enabled {
-            self.onDrag(provider)
+            self.onDrag(provider, preview: preview)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    func optionalContextMenu<Content: View>(
+        enabled: Bool,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        if enabled {
+            self.contextMenu(menuItems: content)
         } else {
             self
         }

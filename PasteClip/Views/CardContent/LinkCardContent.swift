@@ -3,6 +3,7 @@ import SwiftUI
 struct LinkCardContent: View {
     let item: ClipboardItem
     var searchText: String = ""
+    @Environment(\.colorScheme) private var colorScheme
 
     private var urlString: String {
         item.textContent ?? ""
@@ -23,13 +24,13 @@ struct LinkCardContent: View {
                 Text(TextHighlighter.highlight(domain, query: searchText))
                     .font(.system(size: 12, weight: .semibold))
                     .lineLimit(1)
-                    .foregroundStyle(.primary.opacity(0.9))
+                    .foregroundStyle(DesignTokens.Body.textColor(for: colorScheme).opacity(0.95))
             }
 
             Text(TextHighlighter.highlight(urlString, query: searchText))
                 .font(.system(size: 10))
                 .lineLimit(3)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignTokens.Body.textColor(for: colorScheme).opacity(0.58))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }

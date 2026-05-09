@@ -1,33 +1,34 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
+
+private enum DroppedClipResult {
+    case added(String)
+    case alreadyAdded(String)
+    case missing
+}
 
 struct NavigationBarView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Pinboard.displayOrder) private var pinboards: [Pinboard]
+    @Query(sort: \ClipboardItem.copiedAt, order: .reverse) private var historyItems: [ClipboardItem]
+    @Query private var pinboardEntries: [PinboardEntry]
 
-    @State private var isSearchExpanded = false
     @State private var isAddingPinboard = false
     @State private var newPinboardName = ""
     @State private var renamingPinboard: Pinboard?
+    @State private var deletingPinboard: Pinboard?
+    @State private var targetedPinboardID: UUID?
     @State private var renameText = ""
     @State private var isShowingClearAlert = false
     @FocusState private var isSearchFocused: Bool
 
     var body: some View {
-        ZStack {
-            if isSearchExpanded {
-                searchExpandedBar
-                    .transition(.opacity)
-            } else {
-                navigationBar
-                    .transition(.opacity)
-            }
-        }
+        navigationBar
         .frame(height: DesignTokens.Nav.height)
-        .animation(.easeInOut(duration: 0.2), value: isSearchExpanded)
-        .alert("New Pinboard", isPresented: $isAddingPinboard) {
+        .alert("Create Pinboard", isPresented: $isAddingPinboard) {
             TextField("Name", text: $newPinboardName)
             Button("Cancel", role: .cancel) { newPinboardName = "" }
             Button("Create") { createPinboard() }
@@ -35,14 +36,28 @@ struct NavigationBarView: View {
         .onChange(of: appState.clearHistoryRequested) { _, newValue in
             if newValue {
                 appState.clearHistoryRequested = false
-                isShowingClearAlert = true
+                isShowingClearAlert = clearableHistoryCount > 0
             }
         }
-        .alert("Clear All History", isPresented: $isShowingClearAlert) {
+        .alert("Clear Clipboard History?", isPresented: $isShowingClearAlert) {
             Button("Cancel", role: .cancel) { }
-            Button("Delete All", role: .destructive) { clearHistory() }
+            Button("Clear History", role: .destructive) { clearHistory() }
         } message: {
-            Text("This will permanently delete all clipboard history. Pinboard items will not be affected.")
+            Text("This deletes \(clearableHistoryCount) unpinned clips from history. Pinboard items stay available.")
+        }
+        .alert("Delete Pinboard?", isPresented: .init(
+            get: { deletingPinboard != nil },
+            set: { if !$0 { deletingPinboard = nil } }
+        )) {
+            Button("Cancel", role: .cancel) { deletingPinboard = nil }
+            Button("Delete Pinboard", role: .destructive) {
+                if let deletingPinboard {
+                    deletePinboard(deletingPinboard)
+                }
+                deletingPinboard = nil
+            }
+        } message: {
+            Text("This removes the pinboard only. The clips stay in clipboard history.")
         }
         .alert("Rename Pinboard", isPresented: .init(
             get: { renamingPinboard != nil },
@@ -51,9 +66,12 @@ struct NavigationBarView: View {
             TextField("Name", text: $renameText)
             Button("Cancel", role: .cancel) { renamingPinboard = nil }
             Button("Save") {
-                renamingPinboard?.name = renameText
+                let trimmed = renameText.trimmingCharacters(in: .whitespaces)
+                if !trimmed.isEmpty {
+                    renamingPinboard?.name = trimmed
+                    try? modelContext.save()
+                }
                 renamingPinboard = nil
-                try? modelContext.save()
             }
         }
     }
@@ -61,72 +79,85 @@ struct NavigationBarView: View {
     // MARK: - Navigation Bar (default state)
 
     private var navigationBar: some View {
-        HStack(spacing: 8) {
-            // Search icon
-            NavIconButton(
-                icon: "magnifyingglass",
-                iconSize: 12,
-                colorScheme: colorScheme
-            ) {
-                isSearchExpanded = true
-                isSearchFocused = true
-            }
+        HStack(spacing: 12) {
+            searchField
 
-            // Tab scroll area
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 4) {
-                    // History tab
+            toolbarDivider
+
+            tabGroup
+                .frame(minWidth: 120)
+                .layoutPriority(1)
+
+            Spacer(minLength: 8)
+
+            toolbarDivider
+
+            actionGroup
+        }
+        .padding(.horizontal, DesignTokens.Nav.horizontalPadding)
+    }
+
+    private var tabGroup: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 4) {
+                navTab(
+                    label: "History",
+                    icon: "clock",
+                    isActive: appState.selectedTab == .history
+                ) {
+                    appState.selectedTab = .history
+                }
+
+                if !pinboards.isEmpty {
+                    Divider()
+                        .frame(height: 18)
+                        .padding(.horizontal, 2)
+                }
+
+                ForEach(pinboards) { pinboard in
                     navTab(
-                        label: "History",
-                        icon: "clock",
-                        isActive: appState.selectedTab == .history
+                        label: pinboard.name,
+                        icon: "folder",
+                        isActive: appState.selectedTab == .pinboard(pinboard.id),
+                        isDropTargeted: targetedPinboardID == pinboard.id
                     ) {
-                        appState.selectedTab = .history
+                        appState.selectedTab = .pinboard(pinboard.id)
                     }
-
-                    if !pinboards.isEmpty {
+                    .onDrop(
+                        of: [.pasteClipClipboardItemID, .text, .url, .fileURL, .image, .data, .item],
+                        isTargeted: dropTargetBinding(for: pinboard.id)
+                    ) { providers in
+                        addDroppedClip(from: providers, to: pinboard.id)
+                    }
+                    .contextMenu {
+                        Button("Rename Pinboard") {
+                            renameText = pinboard.name
+                            renamingPinboard = pinboard
+                        }
                         Divider()
-                            .frame(height: 18)
-                            .padding(.horizontal, 2)
-                    }
-
-                    // Pinboard tabs
-                    ForEach(pinboards) { pinboard in
-                        navTab(
-                            label: pinboard.name,
-                            dotColor: .orange,
-                            isActive: appState.selectedTab == .pinboard(pinboard.id)
-                        ) {
-                            appState.selectedTab = .pinboard(pinboard.id)
+                        Button("Delete Pinboard", role: .destructive) {
+                            deletingPinboard = pinboard
                         }
-                        .contextMenu {
-                            Button("Rename") {
-                                renameText = pinboard.name
-                                renamingPinboard = pinboard
-                            }
-                            Divider()
-                            Button("Delete", role: .destructive) {
-                                deletePinboard(pinboard)
-                            }
-                        }
-                    }
-
-                    // Add button
-                    NavIconButton(
-                        icon: "plus",
-                        iconSize: 11,
-                        colorScheme: colorScheme
-                    ) {
-                        newPinboardName = ""
-                        isAddingPinboard = true
                     }
                 }
             }
+        }
+    }
 
-            // Options menu
+    private var actionGroup: some View {
+        HStack(spacing: 4) {
             optionsMenuButton
 
-            // Clear history button (only in History tab)
+            NavIconButton(
+                icon: "plus",
+                iconSize: 12,
+                colorScheme: colorScheme
+            ) {
+                newPinboardName = nextPinboardName()
+                isAddingPinboard = true
+            }
+            .help("New Pinboard")
+
             if appState.selectedTab == .history {
                 NavIconButton(
                     icon: "trash",
@@ -135,57 +166,52 @@ struct NavigationBarView: View {
                 ) {
                     isShowingClearAlert = true
                 }
-                .help("Clear All History")
+                .disabled(clearableHistoryCount == 0)
+                .opacity(clearableHistoryCount == 0 ? 0.45 : 1)
+                .help(clearableHistoryCount == 0 ? "No unpinned history to clear" : "Clear Clipboard History")
             }
         }
-        .padding(.horizontal, DesignTokens.Nav.horizontalPadding)
     }
 
-    // MARK: - Search Expanded Bar
+    private var toolbarDivider: some View {
+        Rectangle()
+            .fill(colorScheme == .dark ? Color.white.opacity(0.12) : Color.black.opacity(0.10))
+            .frame(width: 1, height: 20)
+    }
 
-    private var searchExpandedBar: some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 6) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.tertiary)
+    // MARK: - Search Field
 
-                TextField("Search clips...", text: searchTextBinding)
-                    .textFieldStyle(.plain)
-                    .font(.system(size: 13))
-                    .focused($isSearchFocused)
-                    .onAppear {
-                        isSearchFocused = true
-                    }
+    private var searchField: some View {
+        HStack(spacing: 7) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.tertiary)
 
-                if !appState.searchState.searchText.isEmpty {
-                    Button {
-                        appState.searchState.clearSearch()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.tertiary)
-                    }
-                    .buttonStyle(.plain)
+            TextField("Search clipboard...", text: searchTextBinding)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13))
+                .foregroundStyle(DesignTokens.Nav.activeTextColor(for: colorScheme))
+                .focused($isSearchFocused)
+
+            if !appState.searchState.searchText.isEmpty {
+                Button {
+                    appState.searchState.clearSearch()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.tertiary)
                 }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(.quaternary.opacity(0.5))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .frame(maxWidth: 260)
-
-            Button("Cancel") {
-                appState.searchState.clearSearch()
-                isSearchExpanded = false
-            }
-            .buttonStyle(.plain)
-            .font(.system(size: 13, weight: .regular))
-            .foregroundStyle(.blue)
-
-            Spacer()
         }
-        .padding(.horizontal, DesignTokens.Nav.horizontalPadding)
+        .padding(.horizontal, 10)
+        .frame(width: DesignTokens.Nav.searchWidth, height: DesignTokens.Nav.tabHeight)
+        .background(DesignTokens.Nav.searchBackground(for: colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Nav.tabCornerRadius, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignTokens.Nav.tabCornerRadius, style: .continuous)
+                .strokeBorder(Color.white.opacity(colorScheme == .dark ? 0.08 : 0.07), lineWidth: 0.75)
+        )
     }
 
     // MARK: - Tab Component
@@ -193,15 +219,15 @@ struct NavigationBarView: View {
     private func navTab(
         label: String,
         icon: String? = nil,
-        dotColor: Color? = nil,
         isActive: Bool,
+        isDropTargeted: Bool = false,
         action: @escaping () -> Void
     ) -> some View {
         NavTabButton(
             label: label,
             icon: icon,
-            dotColor: dotColor,
             isActive: isActive,
+            isDropTargeted: isDropTargeted,
             colorScheme: colorScheme,
             action: action
         )
@@ -223,9 +249,31 @@ struct NavigationBarView: View {
         )
     }
 
+    private var pinnedItemIDs: Set<UUID> {
+        Set(pinboardEntries.compactMap { $0.clipboardItem?.id })
+    }
+
+    private var clearableHistoryItems: [ClipboardItem] {
+        let pinned = pinnedItemIDs
+        return historyItems.filter { !pinned.contains($0.id) }
+    }
+
+    private var clearableHistoryCount: Int {
+        clearableHistoryItems.count
+    }
+
+    private func dropTargetBinding(for pinboardId: UUID) -> Binding<Bool> {
+        Binding(
+            get: { targetedPinboardID == pinboardId },
+            set: { isTargeted in
+                targetedPinboardID = isTargeted ? pinboardId : nil
+            }
+        )
+    }
+
     private func createPinboard() {
-        let name = newPinboardName.trimmingCharacters(in: .whitespaces)
-        guard !name.isEmpty else { return }
+        let trimmed = newPinboardName.trimmingCharacters(in: .whitespaces)
+        let name = trimmed.isEmpty ? nextPinboardName() : uniquePinboardName(preferred: trimmed)
         let pinboard = Pinboard(name: name, displayOrder: pinboards.count)
         modelContext.insert(pinboard)
         try? modelContext.save()
@@ -234,19 +282,86 @@ struct NavigationBarView: View {
     }
 
     private func clearHistory() {
-        let pinnedDescriptor = FetchDescriptor<PinboardEntry>()
-        let pinnedItemIDs: Set<UUID> = {
-            guard let entries = try? modelContext.fetch(pinnedDescriptor) else { return [] }
-            return Set(entries.compactMap { $0.clipboardItem?.id })
-        }()
-
-        let allItemsDescriptor = FetchDescriptor<ClipboardItem>()
-        guard let allItems = try? modelContext.fetch(allItemsDescriptor) else { return }
-
-        for item in allItems where !pinnedItemIDs.contains(item.id) {
+        for item in clearableHistoryItems {
             modelContext.delete(item)
         }
         try? modelContext.save()
+    }
+
+    private func addDroppedClip(from providers: [NSItemProvider], to pinboardId: UUID) -> Bool {
+        if let draggedID = appState.draggedClipboardItemID {
+            showDropResult(addClip(itemId: draggedID, toPinboard: pinboardId))
+            targetedPinboardID = nil
+            appState.finishClipboardDrag()
+            return true
+        }
+
+        guard let provider = providers.first(where: {
+            $0.hasItemConformingToTypeIdentifier(UTType.pasteClipClipboardItemID.identifier)
+        }) else {
+            return false
+        }
+
+        provider.loadDataRepresentation(forTypeIdentifier: UTType.pasteClipClipboardItemID.identifier) { data, _ in
+            guard
+                let data,
+                let idString = String(data: data, encoding: .utf8),
+                let itemId = UUID(uuidString: idString)
+            else { return }
+
+            Task { @MainActor in
+                showDropResult(addClip(itemId: itemId, toPinboard: pinboardId))
+                targetedPinboardID = nil
+                appState.finishClipboardDrag()
+            }
+        }
+
+        return true
+    }
+
+    private func addClip(itemId: UUID, toPinboard pinboardId: UUID) -> DroppedClipResult {
+        guard
+            let item = historyItems.first(where: { $0.id == itemId }),
+            let pinboard = pinboards.first(where: { $0.id == pinboardId })
+        else {
+            return .missing
+        }
+
+        let alreadyAdded = pinboard.entries.contains { $0.clipboardItem?.id == itemId }
+        guard !alreadyAdded else { return .alreadyAdded(pinboard.name) }
+
+        let nextOrder = (pinboard.entries.map(\.displayOrder).max() ?? -1) + 1
+        let entry = PinboardEntry(clipboardItem: item, pinboard: pinboard, displayOrder: nextOrder)
+        modelContext.insert(entry)
+        item.isPinned = true
+        try? modelContext.save()
+        return .added(pinboard.name)
+    }
+
+    private func showDropResult(_ result: DroppedClipResult) {
+        switch result {
+        case .added(let name):
+            appState.showToast("Added to \(name)")
+        case .alreadyAdded(let name):
+            appState.showToast("Already in \(name)", systemImage: "checkmark.circle")
+        case .missing:
+            appState.showToast("Could not add clip", systemImage: "exclamationmark.triangle.fill")
+        }
+    }
+
+    private func nextPinboardName() -> String {
+        uniquePinboardName(preferred: "Pinboard")
+    }
+
+    private func uniquePinboardName(preferred: String) -> String {
+        let existingNames = Set(pinboards.map(\.name))
+        guard existingNames.contains(preferred) else { return preferred }
+
+        var index = 2
+        while existingNames.contains("\(preferred) \(index)") {
+            index += 1
+        }
+        return "\(preferred) \(index)"
     }
 
     private func deletePinboard(_ pinboard: Pinboard) {
@@ -263,8 +378,8 @@ struct NavigationBarView: View {
 private struct NavTabButton: View {
     let label: String
     let icon: String?
-    let dotColor: Color?
     let isActive: Bool
+    let isDropTargeted: Bool
     let colorScheme: ColorScheme
     let action: () -> Void
 
@@ -276,10 +391,6 @@ private struct NavTabButton: View {
                 if let icon {
                     Image(systemName: icon)
                         .font(.system(size: 11, weight: .medium))
-                } else if let dotColor {
-                    Circle()
-                        .fill(dotColor)
-                        .frame(width: DesignTokens.Nav.dotSize, height: DesignTokens.Nav.dotSize)
                 }
 
                 Text(label)
@@ -294,16 +405,26 @@ private struct NavTabButton: View {
             .padding(.horizontal, 10)
             .frame(height: DesignTokens.Nav.tabHeight)
             .background(
-                isHovered
+                isDropTargeted
+                    ? Color.accentColor.opacity(colorScheme == .dark ? 0.24 : 0.16)
+                    : isActive || isHovered
                     ? DesignTokens.Nav.activeBackground(for: colorScheme)
                     : Color.clear
             )
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignTokens.Nav.tabCornerRadius, style: .continuous)
+                    .strokeBorder(
+                        isDropTargeted ? Color.accentColor.opacity(0.7) : Color.clear,
+                        lineWidth: 1
+                    )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Nav.tabCornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
         .animation(.easeInOut(duration: 0.15), value: isHovered)
         .animation(.easeInOut(duration: 0.15), value: isActive)
+        .animation(.easeInOut(duration: 0.12), value: isDropTargeted)
     }
 }
 

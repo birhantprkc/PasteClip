@@ -71,26 +71,29 @@ final class SearchState {
     }
 
     func filteredItems(from items: [ClipboardItem]) -> [ClipboardItem] {
-        var result = items
+        let startDate = dateFilter.startDate
+        let contentTypes = selectedContentTypes
+        let query = debouncedSearchText
 
-        if let startDate = dateFilter.startDate {
-            result = result.filter { $0.copiedAt >= startDate }
+        guard startDate != nil || !contentTypes.isEmpty || !query.isEmpty else {
+            return items
         }
 
-        if !selectedContentTypes.isEmpty {
-            result = result.filter { selectedContentTypes.contains($0.contentType) }
-        }
-
-        if !debouncedSearchText.isEmpty {
-            let query = debouncedSearchText
-            result = result.filter { item in
-                (item.textContent?.localizedCaseInsensitiveContains(query) ?? false) ||
-                (item.sourceAppName?.localizedCaseInsensitiveContains(query) ?? false) ||
-                (item.userTitle?.localizedCaseInsensitiveContains(query) ?? false)
+        return items.filter { item in
+            if let startDate, item.copiedAt < startDate {
+                return false
             }
-        }
 
-        return result
+            if !contentTypes.isEmpty, !contentTypes.contains(item.contentType) {
+                return false
+            }
+
+            if !query.isEmpty {
+                return item.matchesSearchQuery(query)
+            }
+
+            return true
+        }
     }
 
     func moveSelection(by offset: Int, maxIndex: Int) {
@@ -100,5 +103,26 @@ final class SearchState {
         } else {
             selectedIndex = 0
         }
+    }
+
+    func ensureSelection(itemCount: Int) {
+        guard itemCount > 0 else {
+            selectedIndex = nil
+            return
+        }
+
+        if let current = selectedIndex {
+            selectedIndex = max(0, min(current, itemCount - 1))
+        } else {
+            selectedIndex = 0
+        }
+    }
+}
+
+private extension ClipboardItem {
+    func matchesSearchQuery(_ query: String) -> Bool {
+        textContent?.localizedCaseInsensitiveContains(query) == true ||
+        sourceAppName?.localizedCaseInsensitiveContains(query) == true ||
+        userTitle?.localizedCaseInsensitiveContains(query) == true
     }
 }

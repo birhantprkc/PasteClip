@@ -14,7 +14,6 @@ struct ImageCardContent: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
-                .drawingGroup()
             } else {
                 Image(systemName: "photo")
                     .font(.largeTitle)
@@ -23,11 +22,7 @@ struct ImageCardContent: View {
             }
         }
         .task(id: item.id) {
-            if let thumbnailData = item.thumbnailData {
-                cachedImage = NSImage(data: thumbnailData)
-            } else {
-                cachedImage = NSImage(data: item.rawData)
-            }
+            cachedImage = ThumbnailImageCache.image(for: item)
         }
     }
 }

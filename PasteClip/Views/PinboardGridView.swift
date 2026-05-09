@@ -20,21 +20,21 @@ struct PinboardGridView: View {
     var body: some View {
         Group {
             if orderedEntries.isEmpty {
-                ContentUnavailableView(
-                    "Empty Pinboard",
+                PanelEmptyState(
+                    title: "Empty Pinboard",
                     systemImage: "pin.slash",
-                    description: Text("Right-click a card and select \"Add to Pinboard\"")
+                    message: "Drag clips here or use the card menu"
                 )
             } else {
                 GeometryReader { geo in
-                    let cardH = max(geo.size.height - 24, 100)
-                    let cardW = cardH * 0.8
-                    let rows = [GridItem(.fixed(cardH), spacing: 14)]
+                    let cardH = min(max(geo.size.height - 26, 164), 188)
+                    let cardW = min(max(cardH * 1.16, 206), 228)
+                    let rows = [GridItem(.fixed(cardH), spacing: 10)]
                     let pinboardItems = orderedEntries.compactMap(\.clipboardItem)
 
                     ScrollViewReader { proxy in
                         ScrollView(.horizontal, showsIndicators: true) {
-                            LazyHGrid(rows: rows, spacing: 12) {
+                            LazyHGrid(rows: rows, spacing: 8) {
                                 ForEach(Array(orderedEntries.enumerated()), id: \.element.id) { index, entry in
                                     if let item = entry.clipboardItem {
                                         cardView(
@@ -49,7 +49,7 @@ struct PinboardGridView: View {
                                 }
                             }
                             .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
+                            .padding(.vertical, 9)
                         }
                         .onChange(of: appState.searchState.selectedIndex) { _, newIndex in
                             if let idx = newIndex, idx < orderedEntries.count {
@@ -60,16 +60,21 @@ struct PinboardGridView: View {
                         }
                     }
                     .onAppear {
-                        appState.currentFilteredItems = pinboardItems
+                        syncNavigationItems(pinboardItems)
                     }
                     .onChange(of: orderedEntries.count) { _, _ in
-                        appState.currentFilteredItems = orderedEntries.compactMap(\.clipboardItem)
+                        syncNavigationItems(orderedEntries.compactMap(\.clipboardItem))
                     }
                 }
             }
         }
         .onAppear { syncEntries() }
         .onChange(of: pinboard?.entries.count) { _, _ in syncEntries() }
+        .onChange(of: appState.panelPresentationID) { _, _ in
+            if appState.selectedTab == .pinboard(pinboardId) {
+                syncEntries()
+            }
+        }
     }
 
     @ViewBuilder
@@ -84,6 +89,7 @@ struct PinboardGridView: View {
             cardHeight: cardHeight,
             pinboards: allPinboards,
             enableDrag: false,
+            showsManagementMenu: false,
             onSelect: { _ in
                 appState.searchState.selectedIndex = index
             },
@@ -126,6 +132,13 @@ struct PinboardGridView: View {
         if orderedEntries.map(\.id) != current.map(\.id) {
             orderedEntries = current
         }
+        syncNavigationItems(current.compactMap(\.clipboardItem))
+        appState.panelController.resizeToContentItemCount(current.count)
+    }
+
+    private func syncNavigationItems(_ items: [ClipboardItem]) {
+        appState.currentFilteredItems = items
+        appState.searchState.ensureSelection(itemCount: items.count)
     }
 
     private func commitOrder() {
@@ -135,9 +148,14 @@ struct PinboardGridView: View {
     }
 
     private func removeEntry(_ entry: PinboardEntry) {
+        let removedIndex = orderedEntries.firstIndex { $0.id == entry.id } ?? appState.searchState.selectedIndex ?? 0
         orderedEntries.removeAll { $0.id == entry.id }
         modelContext.delete(entry)
         commitOrder()
+        syncNavigationItems(orderedEntries.compactMap(\.clipboardItem))
+        if !orderedEntries.isEmpty {
+            appState.searchState.selectedIndex = min(removedIndex, orderedEntries.count - 1)
+        }
         try? modelContext.save()
     }
 }

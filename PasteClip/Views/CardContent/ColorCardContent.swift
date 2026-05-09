@@ -3,6 +3,7 @@ import AppKit
 
 struct ColorCardContent: View {
     let item: ClipboardItem
+    @Environment(\.colorScheme) private var colorScheme
 
     private var hexString: String {
         item.textContent ?? "#000000"
@@ -24,7 +25,7 @@ struct ColorCardContent: View {
 
             Text(hexString)
                 .font(.system(size: 11, design: .monospaced))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignTokens.Body.textColor(for: colorScheme).opacity(0.62))
         }
     }
 }

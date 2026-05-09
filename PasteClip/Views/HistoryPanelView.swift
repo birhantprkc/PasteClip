@@ -3,21 +3,18 @@ import SwiftData
 
 struct HistoryPanelView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.colorScheme) private var colorScheme
     @Query(sort: \ClipboardItem.copiedAt, order: .reverse)
     private var items: [ClipboardItem]
 
     var body: some View {
         ZStack {
-            VisualEffectBackground()
+            VisualEffectBackground(
+                material: colorScheme == .dark ? .hudWindow : .popover
+            )
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Capsule()
-                    .fill(.quaternary.opacity(0.6))
-                    .frame(width: 40, height: 4)
-                    .padding(.top, 8)
-                    .padding(.bottom, 2)
-
                 NavigationBarView()
 
                 ZStack {
@@ -59,9 +56,43 @@ struct HistoryPanelView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .onChange(of: appState.selectedTab) { _, _ in
-                appState.searchState.selectedIndex = nil
                 appState.selectForPreview(nil)
             }
+
+            if let toast = appState.panelToast {
+                PanelToastView(toast: toast)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(10)
+            }
         }
+        .animation(.easeOut(duration: 0.16), value: appState.panelToast)
+    }
+}
+
+private struct PanelToastView: View {
+    let toast: PanelToast
+
+    var body: some View {
+        HStack(spacing: 7) {
+            Image(systemName: toast.systemImage)
+                .font(.system(size: 12, weight: .semibold))
+
+            Text(toast.message)
+                .font(.system(size: 12, weight: .semibold))
+                .lineLimit(1)
+        }
+        .foregroundStyle(.primary.opacity(0.86))
+        .padding(.horizontal, 12)
+        .frame(height: 30)
+        .background(.regularMaterial)
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .strokeBorder(Color.white.opacity(0.12), lineWidth: 0.75)
+        )
+        .shadow(color: .black.opacity(0.16), radius: 10, y: 4)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.top, DesignTokens.Nav.height + 8)
+        .allowsHitTesting(false)
     }
 }

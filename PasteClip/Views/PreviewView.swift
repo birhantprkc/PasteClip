@@ -9,6 +9,8 @@ struct PreviewView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var cachedNSImage: NSImage?
     @State private var imageMetadata: (width: Int, height: Int)?
+    @State private var cachedTextMetadata: (chars: Int, words: Int, lines: Int) = (0, 0, 0)
+    @State private var cachedIsCodeLike: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -42,6 +44,18 @@ struct PreviewView: View {
                 if let rep = img?.representations.first {
                     imageMetadata = (rep.pixelsWide, rep.pixelsHigh)
                 }
+                cachedTextMetadata = (0, 0, 0)
+                cachedIsCodeLike = false
+            } else {
+                let text = item.textContent ?? ""
+                let chars = text.count
+                let words = text.split { $0.isWhitespace || $0.isNewline }.count
+                let lines = text.components(separatedBy: .newlines).count
+                cachedTextMetadata = (chars, words, lines)
+
+                let sample = text.prefix(2000)
+                let codeKeywords = ["func ", "var ", "let ", "class ", "struct ", "import ", "def ", "return ", "if ", "for "]
+                cachedIsCodeLike = codeKeywords.contains { sample.contains($0) }
             }
         }
     }
@@ -144,21 +158,14 @@ struct PreviewView: View {
     // MARK: - Text Preview
 
     private var textPreview: some View {
-        ScrollView {
-            Text(item.textContent ?? "...")
-                .font(.system(size: 13.5, design: isCodeLike ? .monospaced : .default))
-                .lineSpacing(5)
-                .textSelection(.enabled)
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-                .padding(16)
-        }
+        SelectableTextView(
+            text: item.textContent ?? "...",
+            isMonospaced: cachedIsCodeLike,
+            fontSize: 13.5,
+            lineSpacing: 5,
+            contentInsets: NSEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        )
         .frame(maxHeight: .infinity)
-    }
-
-    private var isCodeLike: Bool {
-        guard let text = item.textContent else { return false }
-        let codeKeywords = ["func ", "var ", "let ", "class ", "struct ", "import ", "def ", "return ", "if ", "for "]
-        return codeKeywords.contains { text.contains($0) }
     }
 
     // MARK: - Image Preview
@@ -356,10 +363,7 @@ struct PreviewView: View {
     private var metadataText: String {
         switch item.contentType {
         case .plainText, .richText, .html, .unknown:
-            let text = item.textContent ?? ""
-            let charCount = text.count
-            let wordCount = text.split { $0.isWhitespace || $0.isNewline }.count
-            let lineCount = text.components(separatedBy: .newlines).count
+            let (charCount, wordCount, lineCount) = cachedTextMetadata
             return "\(charCount.formatted())자 · \(wordCount.formatted())단어 · \(lineCount.formatted())줄"
         case .image:
             let kb = item.rawData.count / 1024
