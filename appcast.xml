@@ -6,6 +6,30 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>Version 1.1.8</title>
+      <sparkle:version>18</sparkle:version>
+      <sparkle:shortVersionString>1.1.8</sparkle:shortVersionString>
+      <description><![CDATA[
+        <ul>
+          <li>Quick Look preview: press Space on a clip to peek without pasting</li>
+          <li>Drag clips out to other apps and into pinboards</li>
+          <li>Persistent search field replaces expand/collapse toggle</li>
+          <li>Inline toast feedback for pinboard actions</li>
+          <li>Liquid hover style for cards; refined design tokens</li>
+          <li>Faster preview/Quick Look rendering for long text</li>
+          <li>Thumbnail image cache for image cards</li>
+          <li>Pinboard delete confirmation and rename trim</li>
+        </ul>
+      ]]></description>
+      <pubDate>Sat, 09 May 2026 11:00:00 +0900</pubDate>
+      <enclosure
+        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.8/PasteClip-v1.1.8.dmg"
+        type="application/octet-stream"
+        sparkle:edSignature="3Sn38K97Kiqk+ZH6YHvEHZMvAiWutf3keYIjPTVqITqEddCQBBe6C8AYv2EJzXpz8R6QExaH0jvqoDY8UNoLCQ=="
+        length="4822435"
+      />
+    </item>
+    <item>
       <title>Version 1.1.7</title>
       <sparkle:version>17</sparkle:version>
       <sparkle:shortVersionString>1.1.7</sparkle:shortVersionString>
