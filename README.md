@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/pasteclip-demo.gif" width="800" alt="PasteClip instant access and clipboard search demo">
+  <img src="docs/assets/pasteclip-demo.gif" width="800" alt="PasteClip demo: press Cmd Shift V, click a clip once, and it is pasted into the frontmost app">
 </p>
 
 ## Highlights
