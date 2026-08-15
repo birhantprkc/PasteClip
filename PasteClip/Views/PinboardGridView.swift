@@ -97,6 +97,9 @@ struct PinboardGridView: View {
                 appState.clipboardMonitor.skipNextChange()
                 appState.pasteService.paste(item: selected)
                 appState.hidePanel()
+            },
+            onRemoveFromPinboard: {
+                removeEntry(entry)
             }
         )
         .opacity(isDragging ? 0.3 : 1.0)
@@ -112,17 +115,6 @@ struct PinboardGridView: View {
             draggingEntry: $draggingEntry,
             commitOrder: commitOrder
         ))
-        .contextMenu {
-            Button("Paste") {
-                appState.clipboardMonitor.skipNextChange()
-                appState.pasteService.paste(item: item)
-                appState.hidePanel()
-            }
-            Divider()
-            Button("Remove from Pinboard", role: .destructive) {
-                removeEntry(entry)
-            }
-        }
     }
 
     private func syncEntries() {

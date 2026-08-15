@@ -107,8 +107,11 @@ enum DesignTokens {
         static let selectedShadowRadius: CGFloat = 12
         static let defaultShadowOpacity: Double = 0.06
         static let defaultShadowRadius: CGFloat = 2
-        static let hoverShadowOpacity: Double = 0.11
-        static let hoverShadowRadius: CGFloat = 6
+        static let hoverShadowOpacity: Double = 0.20
+        static let hoverShadowRadius: CGFloat = 12
+        static let hoverScale: CGFloat = 1.035
+        static let hoverLift: CGFloat = -3
+        static let hoverBorderWidth: CGFloat = 1.25
     }
 
     // MARK: - Navigation Bar

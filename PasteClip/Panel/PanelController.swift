@@ -225,8 +225,17 @@ final class PanelController {
     private func installKeyMonitor() {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             let keyCode = event.keyCode
+            let eventWindowNumber = event.windowNumber
             let handled: Bool = MainActor.assumeIsolated { [weak self] in
                 guard let self, self.isVisible else { return false }
+
+                // Pass through key events that target other windows (e.g. the rename
+                // alert), so their text fields receive Return/Escape as expected.
+                if eventWindowNumber != 0,
+                   eventWindowNumber != self.panel?.windowNumber,
+                   eventWindowNumber != self.quickLookPanel?.windowNumber {
+                    return false
+                }
 
                 if self.quickLookPanel != nil {
                     return self.processKey(keyCode)

@@ -13,6 +13,7 @@ struct ClipboardCardView: View {
     let onSelect: (ClipboardItem) -> Void
     let onPaste: (ClipboardItem) -> Void
     var onDelete: (() -> Void)? = nil
+    var onRemoveFromPinboard: (() -> Void)? = nil
 
     @Environment(AppState.self) private var appState
     @Environment(\.colorScheme) private var colorScheme
@@ -41,8 +42,28 @@ struct ClipboardCardView: View {
         } preview: {
             dragPreview
         }
-        .optionalContextMenu(enabled: showsManagementMenu) {
-            Button("Paste") { onPaste(item) }
+        .optionalContextMenu(enabled: hasMenu) {
+            menuItems
+        }
+        .alert("Rename", isPresented: $isRenaming) {
+            TextField("Card name", text: $renameText)
+            Button("Cancel", role: .cancel) {}
+            Button("Save") {
+                let trimmed = renameText.trimmingCharacters(in: .whitespaces)
+                item.userTitle = trimmed.isEmpty ? nil : trimmed
+                try? modelContext.save()
+            }
+        }
+    }
+
+    private var hasMenu: Bool {
+        showsManagementMenu || onRemoveFromPinboard != nil
+    }
+
+    @ViewBuilder
+    private var menuItems: some View {
+        Button("Paste") { onPaste(item) }
+        if showsManagementMenu {
             Divider()
             Button("Rename") {
                 renameText = item.userTitle ?? ""
@@ -71,13 +92,10 @@ struct ClipboardCardView: View {
                 onDelete?()
             }
         }
-        .alert("Rename", isPresented: $isRenaming) {
-            TextField("Card name", text: $renameText)
-            Button("Cancel", role: .cancel) {}
-            Button("Save") {
-                let trimmed = renameText.trimmingCharacters(in: .whitespaces)
-                item.userTitle = trimmed.isEmpty ? nil : trimmed
-                try? modelContext.save()
+        if let onRemoveFromPinboard {
+            Divider()
+            Button("Remove from Pinboard", role: .destructive) {
+                onRemoveFromPinboard()
             }
         }
     }
@@ -101,19 +119,25 @@ struct ClipboardCardView: View {
                 .strokeBorder(
                     isSelected
                         ? DesignTokens.Selection.borderColor
-                        : DesignTokens.Card.borderColor(for: colorScheme),
-                    lineWidth: isSelected ? DesignTokens.Selection.borderWidth : DesignTokens.Selection.defaultBorderWidth
+                        : (isHovered
+                            ? DesignTokens.Selection.borderColor.opacity(0.45)
+                            : DesignTokens.Card.borderColor(for: colorScheme)),
+                    lineWidth: isSelected
+                        ? DesignTokens.Selection.borderWidth
+                        : (isHovered ? DesignTokens.Selection.hoverBorderWidth : DesignTokens.Selection.defaultBorderWidth)
                 )
         )
         .shadow(
             color: cardShadowColor,
             radius: isSelected ? DesignTokens.Selection.selectedShadowRadius
                 : (isHovered ? DesignTokens.Selection.hoverShadowRadius : DesignTokens.Selection.defaultShadowRadius),
-            y: isSelected ? 6 : (isHovered ? 4 : 2)
+            y: isSelected ? 6 : (isHovered ? 5 : 2)
         )
-        .scaleEffect(isSelected ? 1.01 : (isHovered ? 1.004 : 1.0))
-        .brightness(isHovered && !isSelected ? 0.025 : 0)
-        .animation(.easeOut(duration: 0.15), value: isHovered)
+        .scaleEffect(isSelected ? 1.01 : (isHovered ? DesignTokens.Selection.hoverScale : 1.0))
+        .offset(y: isHovered && !isSelected ? DesignTokens.Selection.hoverLift : 0)
+        .brightness(isHovered && !isSelected ? 0.04 : 0)
+        .zIndex(isHovered ? 1 : 0)
+        .animation(.spring(response: 0.28, dampingFraction: 0.75), value: isHovered)
         .animation(.easeInOut(duration: 0.15), value: isSelected)
     }
 
@@ -192,11 +216,23 @@ struct ClipboardCardView: View {
 
             Spacer()
 
-            Image(systemName: "ellipsis")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(DesignTokens.Badge.textColor(for: colorScheme))
-                .opacity(isHovered || isSelected ? 0.72 : 0.34)
+            if hasMenu {
+                Menu {
+                    menuItems
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(DesignTokens.Badge.textColor(for: colorScheme))
+                        .opacity(isHovered || isSelected ? 0.72 : 0.34)
+                        .frame(width: 24, height: 18)
+                        .contentShape(Rectangle())
+                }
+                .menuStyle(.button)
+                .buttonStyle(.plain)
+                .menuIndicator(.hidden)
+                .fixedSize()
                 .help("More actions")
+            }
         }
     }
 
