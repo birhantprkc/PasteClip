@@ -6,6 +6,24 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>Version 1.1.10</title>
+      <sparkle:version>20</sparkle:version>
+      <sparkle:shortVersionString>1.1.10</sparkle:shortVersionString>
+      <description><![CDATA[
+        <ul>
+          <li>Pressing Return in the Rename dialog now saves the new name instead of closing the panel</li>
+          <li>The "..." button on clip cards now opens the same actions menu as right-click, including pinboard cards</li>
+        </ul>
+      ]]></description>
+      <pubDate>Sat, 15 Aug 2026 18:04:25 +0900</pubDate>
+      <enclosure
+        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.10/PasteClip-v1.1.10.dmg"
+        type="application/octet-stream"
+        sparkle:edSignature="SEvADkUe+6O9VzNjumuvv4D64iT9IoK9YHGstBuJWlrVpVQ0lPikrl+dwpN8T/14/TRqaKd4WYiORdiNaSaOBw=="
+        length="4829146"
+      />
+    </item>
+    <item>
       <title>Version 1.1.9</title>
       <sparkle:version>19</sparkle:version>
       <sparkle:shortVersionString>1.1.9</sparkle:shortVersionString>
