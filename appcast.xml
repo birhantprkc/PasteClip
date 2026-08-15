@@ -6,6 +6,24 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>Version 1.1.9</title>
+      <sparkle:version>19</sparkle:version>
+      <sparkle:shortVersionString>1.1.9</sparkle:shortVersionString>
+      <description><![CDATA[
+        <ul>
+          <li>Paste a clip directly into the frontmost app with a single click</li>
+          <li>Refreshed documentation and added an animated product demo</li>
+        </ul>
+      ]]></description>
+      <pubDate>Sat, 15 Aug 2026 16:15:53 +0900</pubDate>
+      <enclosure
+        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.9/PasteClip-v1.1.9.dmg"
+        type="application/octet-stream"
+        sparkle:edSignature="C8yJCqdH9zSY7rbzE5BC9YuLtRDHtPUOi/4iU4G1eNdAZflcLIMwwtBsQbrLHZT+n7i8SS46b122U1Jj+Lc8Dw=="
+        length="4821782"
+      />
+    </item>
+    <item>
       <title>Version 1.1.8</title>
       <sparkle:version>18</sparkle:version>
       <sparkle:shortVersionString>1.1.8</sparkle:shortVersionString>
