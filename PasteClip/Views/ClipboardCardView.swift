@@ -34,12 +34,7 @@ struct ClipboardCardView: View {
         .onHover { hovering in
             isHovered = hovering
         }
-        .onTapGesture(count: 2) {
-            onPaste(item)
-        }
-        .onTapGesture(count: 1) {
-            onSelect(item)
-        }
+        .onTapGesture(perform: handleTap)
         .optionalDrag(enabled: enableDrag) {
             appState.draggedClipboardItemID = item.id
             return item.dragProvider()
@@ -126,6 +121,11 @@ struct ClipboardCardView: View {
         cardSurface
             .opacity(0.36)
             .scaleEffect(0.94)
+    }
+
+    private func handleTap() {
+        onSelect(item)
+        onPaste(item)
     }
 
     // MARK: - Header View

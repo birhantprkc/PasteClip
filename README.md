@@ -1,107 +1,148 @@
 <p align="center">
-  <img src="PasteClip/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="PasteClip Icon">
+  <img src="PasteClip/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="PasteClip icon">
 </p>
 
 <h1 align="center">PasteClip</h1>
 
 <p align="center">
-  A lightweight clipboard manager for macOS
+  <strong>A fast, private, open-source clipboard manager for macOS.</strong>
+  <br>
+  Find anything you've copied, organize important clips, and paste without leaving your keyboard.
 </p>
 
 <p align="center">
-  <a href="https://github.com/minsang-alt/PasteClip/releases/latest"><img src="https://img.shields.io/github/v/release/minsang-alt/PasteClip?style=flat-square" alt="Release"></a>
+  <a href="https://github.com/minsang-alt/PasteClip/releases/latest"><img src="https://img.shields.io/github/v/release/minsang-alt/PasteClip?style=flat-square" alt="Latest release"></a>
+  <a href="https://github.com/minsang-alt/PasteClip/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/minsang-alt/PasteClip/build.yml?branch=main&style=flat-square" alt="Build status"></a>
+  <a href="https://github.com/minsang-alt/PasteClip/releases"><img src="https://img.shields.io/github/downloads/minsang-alt/PasteClip/total?style=flat-square" alt="Total downloads"></a>
+  <a href="https://github.com/minsang-alt/PasteClip/stargazers"><img src="https://img.shields.io/github/stars/minsang-alt/PasteClip?style=flat-square" alt="GitHub stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/minsang-alt/PasteClip?style=flat-square" alt="License"></a>
-  <img src="https://img.shields.io/badge/macOS-14%2B-blue?style=flat-square" alt="macOS 14+">
-  <img src="https://img.shields.io/badge/Swift-6-orange?style=flat-square" alt="Swift 6">
+  <img src="https://img.shields.io/badge/macOS-14%2B-blue?style=flat-square" alt="macOS 14 or later">
 </p>
-
----
-
-## Screenshots
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/ab8f7197-c7ed-44ed-9e18-bf7b0e5125cf" width="800" alt="Copy Once, Find Always">
+  <a href="https://github.com/minsang-alt/PasteClip/releases/latest"><strong>Download latest release</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#installation"><strong>Install with Homebrew</strong></a>
 </p>
 
-## Features
+<p align="center">
+  <img src="docs/assets/pasteclip-demo.gif" width="800" alt="PasteClip instant access and clipboard search demo">
+</p>
 
-- **Clipboard History** — Automatically saves text, images, and files you copy
-- **Quick Access Panel** — Open with a global hotkey; non-activating panel keeps your current app focused
-- **Search** — Instantly find items in your clipboard history
-- **Keyboard Navigation** — Navigate and paste entirely from the keyboard
-- **Paste with One Click** — Select an item to paste it directly into the frontmost app
-- **Image Support** — Copies images as PNG + file URL so they work everywhere, including terminals
-- **Lightweight** — Lives in the menu bar, uses minimal resources
-- **Privacy** — All data stays local on your Mac using SwiftData
+## Highlights
+
+- **Complete clipboard history:** Capture plain text, rich text, HTML, images, links, files, colors, and code snippets.
+- **Instant access:** Open the non-activating panel with `⌘ ⇧ V` without losing focus from your current app.
+- **Fast search and filters:** Search clip contents, titles, or source apps, then filter by content type or date.
+- **Pinboards:** Keep important clips in named collections and organize them with drag and drop.
+- **Quick Look:** Press `Space` to preview text, images, links, files, and colors before pasting.
+- **One-click paste:** Click any clip once to paste it directly into the frontmost app.
+- **Keyboard-first workflow:** Search, navigate, preview, and paste without reaching for the mouse.
+- **Flexible settings:** Configure shortcuts, history size, appearance, launch at login, and excluded apps.
+- **Private by default:** Clipboard data stays on your Mac with no account, server, analytics, or tracking.
 
 ## Installation
 
-### Homebrew (Recommended)
+PasteClip requires **macOS 14 Sonoma or later**.
+
+### Homebrew (recommended)
 
 ```bash
 brew install --cask minsang-alt/tap/pasteclip
 ```
 
-### GitHub Releases
+### Manual download
 
-Download the latest `.dmg` from the [Releases](https://github.com/minsang-alt/PasteClip/releases/latest) page.
+1. Download the latest `.dmg` from [GitHub Releases](https://github.com/minsang-alt/PasteClip/releases/latest).
+2. Open the disk image and drag **PasteClip** into **Applications**.
+3. Launch PasteClip from the Applications folder.
 
-> **Gatekeeper Warning:** Since the app is not notarized, macOS may show a warning on first launch.
-> To resolve: **System Settings → Privacy & Security → scroll down → click "Open Anyway"**,
+<details>
+<summary><strong>First launch: macOS Gatekeeper</strong></summary>
 
+PasteClip is currently distributed without Apple notarization, so macOS may block the first launch.
 
-### Build from Source
+1. Try to open PasteClip once.
+2. Open **System Settings → Privacy & Security**.
+3. Scroll to the security section and click **Open Anyway** next to PasteClip.
 
-1. Install [xcodegen](https://github.com/yonaskolb/XcodeGen):
-   ```bash
-   brew install xcodegen
-   ```
+Only allow the app when it was downloaded from this repository's official Releases page or Homebrew tap.
 
-2. Clone and build:
-   ```bash
-   git clone https://github.com/minsang-alt/PasteClip.git
-   cd PasteClip
-   xcodegen generate
-   open PasteClip.xcodeproj
-   ```
+</details>
 
-3. Build and run with `Cmd + R` in Xcode.
+## Quick start
 
-## Usage
+1. Launch PasteClip. It will appear in the menu bar.
+2. Copy anything normally with `⌘ C`.
+3. Press `⌘ ⇧ V` to open your clipboard history.
+4. Start typing to search, or use `←` and `→` to move between clips.
+5. Click a clip once to paste it, or press `Space` to preview and `Return` to paste.
 
-1. **Launch** PasteClip — it appears as an icon in the menu bar.
-2. **Copy** anything as usual (`Cmd + C`).
-3. **Open the panel** with your configured hotkey (set in Preferences).
-4. **Navigate** with arrow keys or search by typing.
-5. **Paste** by pressing `Enter` or clicking an item.
+The global shortcuts can be changed in **Settings → Shortcuts**.
 
-## Tech Stack
+### Keyboard shortcuts
 
-| Component | Technology |
-|-----------|------------|
-| Language | Swift 6 (strict concurrency) |
-| UI | SwiftUI + NSPanel (non-activating) |
-| Data | SwiftData |
-| Target | macOS 14+ |
-| Dependencies | [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) |
-| Build | [XcodeGen](https://github.com/yonaskolb/XcodeGen) |
+| Action | Default shortcut |
+| --- | --- |
+| Open or close clipboard history | `⌘ ⇧ V` |
+| Move between clips | `←` / `→` |
+| Open or close Quick Look | `Space` |
+| Paste selected clip | `Return` |
+| Clear search, go back, or close | `Esc` |
+| Clear unpinned history while the panel is open | `⌘ ⇧ Delete` |
 
-## Contributing
-
-Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md) before submitting a pull request.
-
-## License
-
-This project is licensed under the [GNU General Public License v3.0](LICENSE).
-
-## Acknowledgments
-
-- [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) by Sindre Sorhus — Global keyboard shortcuts for macOS
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) by Yonas Kolb — Xcode project generation from YAML
+Right-click a clip to rename it, add it to a Pinboard, or delete it.
 
 ## Privacy
 
-- **Local-only storage:** Clipboard history is stored on your device.
-- **No servers / no accounts:** PasteClip does not use any backend server and does not require sign-in.
+PasteClip is designed to keep your clipboard private:
+
+- **Local-only storage:** Clipboard history is stored on your Mac using SwiftData.
+- **No account or backend:** There is no sign-in and no server receiving your clipboard data.
 - **No telemetry:** PasteClip does not collect analytics, tracking, or usage data.
-- **No network required:** Core functionality works fully offline and does not require an internet connection.
+- **App exclusions:** Prevent selected apps, such as password managers, from being recorded.
+- **Offline core:** Capture, search, preview, and paste work without an internet connection. Network access is used only for software updates through Sparkle.
+
+## Build from source
+
+### Requirements
+
+- macOS 14 or later
+- Xcode 16 or later
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen)
+
+```bash
+git clone https://github.com/minsang-alt/PasteClip.git
+cd PasteClip
+brew install xcodegen
+xcodegen generate
+open PasteClip.xcodeproj
+```
+
+Build and run the `PasteClip` scheme with `⌘ R` in Xcode.
+
+## Tech stack
+
+| Component | Technology |
+| --- | --- |
+| Language | Swift 6 with strict concurrency |
+| Interface | SwiftUI + AppKit `NSPanel` |
+| Persistence | SwiftData |
+| Global shortcuts | [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) |
+| Updates | [Sparkle](https://github.com/sparkle-project/Sparkle) |
+| Project generation | [XcodeGen](https://github.com/yonaskolb/XcodeGen) |
+| Minimum target | macOS 14 |
+
+## Contributing
+
+Contributions are welcome. Please read the [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before opening a pull request.
+
+Found a bug or have an idea? [Open an issue](https://github.com/minsang-alt/PasteClip/issues/new/choose).
+
+## License
+
+PasteClip is available under the [GNU General Public License v3.0](LICENSE).
+
+<p align="center">
+  If PasteClip is useful to you, consider starring the repository.
+</p>
