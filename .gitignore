@@ -17,3 +17,7 @@ PRD.md
 .DS_Store
 
 .superpowers/
+
+# Local dev files
+.idea/
+AGENTS.md
