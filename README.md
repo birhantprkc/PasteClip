@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/pasteclip-demo.gif" width="800" alt="PasteClip demo: press Cmd Shift V, click a clip once, and it is pasted into the frontmost app">
+  <img src="docs/assets/pasteclip-demo.gif" width="800" alt="PasteClip demo: press Cmd Shift V, click a clip once, and it is on your clipboard ready to paste">
 </p>
 
 ## Highlights
@@ -36,10 +36,41 @@
 - **Fast search and filters:** Search clip contents, titles, or source apps, then filter by content type or date.
 - **Pinboards:** Keep important clips in named collections and organize them with drag and drop.
 - **Quick Look:** Press `Space` to preview text, images, links, files, and colors before pasting.
-- **One-click paste:** Click any clip once to paste it directly into the frontmost app.
+- **One-click copy:** Click any clip once — it lands on your clipboard and the panel closes instantly, ready for `⌘ V`.
 - **Keyboard-first workflow:** Search, navigate, preview, and paste without reaching for the mouse.
 - **Flexible settings:** Configure shortcuts, history size, appearance, launch at login, and excluded apps.
 - **Private by default:** Clipboard data stays on your Mac with no account, server, analytics, or tracking.
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/assets/screenshot-history-panel.png" width="900" alt="PasteClip history panel with clipboard cards at the bottom of the screen">
+</p>
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="docs/assets/screenshot-menubar.png" width="320" alt="PasteClip menu bar dropdown with recent copies"><br>
+      <sub>Menu bar dropdown</sub>
+    </td>
+    <td align="center">
+      <img src="docs/assets/screenshot-settings.png" width="420" alt="PasteClip settings window"><br>
+      <sub>Settings</sub>
+    </td>
+  </tr>
+</table>
+
+## Why PasteClip?
+
+|  | PasteClip | Paste | Maccy |
+| --- | --- | --- | --- |
+| Price | Free, open source (GPL-3.0) | Subscription | Free, open source (MIT) |
+| Interface | Card grid with visual previews | Card grid with visual previews | Compact menu-bar list |
+| Collections | Pinboards | Pinboards | — |
+| Sync across devices | No — 100% local by design | iCloud sync | No |
+| Notarized by Apple | Not yet (see [Installation](#installation)) | Yes | Yes |
+
+If you need clipboard sync across devices, Paste's subscription earns its price. If you want the card-style workflow without one — and want to read every line of code that touches your clipboard — that is why PasteClip exists.
 
 ## Installation
 
@@ -76,7 +107,7 @@ Only allow the app when it was downloaded from this repository's official Releas
 2. Copy anything normally with `⌘ C`.
 3. Press `⌘ ⇧ V` to open your clipboard history.
 4. Start typing to search, or use `←` and `→` to move between clips.
-5. Click a clip once to paste it, or press `Space` to preview and `Return` to paste.
+5. Click a clip once to copy it — the panel closes right away, so just press `⌘ V` where you need it. Or press `Space` to preview and `Return` to copy.
 
 The global shortcuts can be changed in **Settings → Shortcuts**.
 
@@ -87,7 +118,7 @@ The global shortcuts can be changed in **Settings → Shortcuts**.
 | Open or close clipboard history | `⌘ ⇧ V` |
 | Move between clips | `←` / `→` |
 | Open or close Quick Look | `Space` |
-| Paste selected clip | `Return` |
+| Copy selected clip and close | `Return` |
 | Clear search, go back, or close | `Esc` |
 | Clear unpinned history while the panel is open | `⌘ ⇧ Delete` |
 
