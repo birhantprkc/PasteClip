@@ -11,6 +11,10 @@
 </p>
 
 <p align="center">
+  English | <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+<p align="center">
   <a href="https://github.com/minsang-alt/PasteClip/releases/latest"><img src="https://img.shields.io/github/v/release/minsang-alt/PasteClip?style=flat-square" alt="Latest release"></a>
   <a href="https://github.com/minsang-alt/PasteClip/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/minsang-alt/PasteClip/build.yml?branch=main&style=flat-square" alt="Build status"></a>
   <a href="https://github.com/minsang-alt/PasteClip/releases"><img src="https://img.shields.io/github/downloads/minsang-alt/PasteClip/total?style=flat-square" alt="Total downloads"></a>
