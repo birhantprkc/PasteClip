@@ -6,6 +6,24 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>Version 1.1.11</title>
+      <sparkle:version>21</sparkle:version>
+      <sparkle:shortVersionString>1.1.11</sparkle:shortVersionString>
+      <description><![CDATA[
+        <ul>
+          <li>PasteClip is now signed with an Apple Developer ID and notarized by Apple &mdash; no more Gatekeeper warnings on first launch</li>
+          <li>Brand new app icon: clipboard card stack with a &#8984;V motif, following the standard macOS icon shape</li>
+        </ul>
+      ]]></description>
+      <pubDate>Sun, 16 Aug 2026 15:00:00 +0900</pubDate>
+      <enclosure
+        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.11/PasteClip-v1.1.11.dmg"
+        type="application/octet-stream"
+        sparkle:edSignature="PLACEHOLDER"
+        length="0"
+      />
+    </item>
+    <item>
       <title>Version 1.1.10</title>
       <sparkle:version>20</sparkle:version>
       <sparkle:shortVersionString>1.1.10</sparkle:shortVersionString>

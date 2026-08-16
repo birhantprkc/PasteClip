@@ -72,7 +72,7 @@
 | Interface | Card grid with visual previews | Card grid with visual previews | Compact menu-bar list |
 | Collections | Pinboards | Pinboards | — |
 | Sync across devices | No — 100% local by design | iCloud sync | No |
-| Notarized by Apple | Not yet (see [Installation](#installation)) | Yes | Yes |
+| Notarized by Apple | Yes | Yes | Yes |
 
 If you need clipboard sync across devices, Paste's subscription earns its price. If you want the card-style workflow without one — and want to read every line of code that touches your clipboard — that is why PasteClip exists.
 
@@ -92,18 +92,7 @@ brew install --cask minsang-alt/tap/pasteclip
 2. Open the disk image and drag **PasteClip** into **Applications**.
 3. Launch PasteClip from the Applications folder.
 
-<details>
-<summary><strong>First launch: macOS Gatekeeper</strong></summary>
-
-PasteClip is currently distributed without Apple notarization, so macOS may block the first launch.
-
-1. Try to open PasteClip once.
-2. Open **System Settings → Privacy & Security**.
-3. Scroll to the security section and click **Open Anyway** next to PasteClip.
-
-Only allow the app when it was downloaded from this repository's official Releases page or Homebrew tap.
-
-</details>
+PasteClip is signed with an Apple Developer ID and notarized by Apple (as of v1.1.11), so it opens without any security warnings.
 
 ## Quick start
 
