@@ -3,6 +3,17 @@ set -euo pipefail
 
 # PasteClip Release Build & DMG Creation Script
 
+# --- Signing configuration ---------------------------------------------------
+# Default: ad-hoc signing (pre-Apple-Developer-Program fallback).
+# For a notarized Developer ID release, run:
+#   SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID>)" bash scripts/build-release.sh
+# One-time setup for notarization credentials (after enrolling):
+#   xcrun notarytool store-credentials "pasteclip-notary" \
+#     --apple-id <apple-id-email> --team-id <TEAMID> --password <app-specific-password>
+SIGN_IDENTITY="${SIGN_IDENTITY:--}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-pasteclip-notary}"
+# -----------------------------------------------------------------------------
+
 APP_NAME="PasteClip"
 SCHEME="PasteClip"
 PROJECT="PasteClip.xcodeproj"
@@ -13,8 +24,23 @@ ARCHIVE_PATH="${BUILD_DIR}/${APP_NAME}.xcarchive"
 EXPORT_DIR="${BUILD_DIR}/export"
 DMG_DIR="${BUILD_DIR}/dmg"
 DMG_OUTPUT="${BUILD_DIR}/${APP_NAME}.dmg"
+# Distribution entitlements: intentionally NO app sandbox.
+# Shipped builds have always run unsandboxed (data lives in
+# ~/Library/Application Support/com.minsang.PasteClip). Enabling the sandbox
+# here would silently move user data into a container and "lose" history.
+# The sandboxed variant is reserved for the future Mac App Store target.
+DIST_ENTITLEMENTS="${PROJECT_DIR}/PasteClip/PasteClip-Distribution.entitlements"
 
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+
+if [ "${SIGN_IDENTITY}" != "-" ]; then
+    echo "==> Release mode: Developer ID signing + notarization"
+    echo "    Identity: ${SIGN_IDENTITY}"
+    RUNTIME_FLAGS=(--options runtime --timestamp)
+else
+    echo "==> Release mode: ad-hoc signing (NOT notarized)"
+    RUNTIME_FLAGS=()
+fi
 
 # Get version from Info.plist
 VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${PROJECT_DIR}/PasteClip/Info.plist")
@@ -60,23 +86,36 @@ fi
 
 cp -R "${APP_PATH}" "${DMG_DIR}/"
 
-# Re-sign everything with ad-hoc signature (inside-out order)
+# Re-sign everything (inside-out order)
 # Sparkle XPC services must be re-signed so they share the same signing authority
 # as the host app, otherwise XPC connection fails during updates
-echo "==> Re-signing with stable designated requirement..."
+echo "==> Re-signing (inside-out)..."
 BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print CFBundleIdentifier" "${DMG_DIR}/${APP_NAME}.app/Contents/Info.plist")
 SPARKLE_FW="${DMG_DIR}/${APP_NAME}.app/Contents/Frameworks/Sparkle.framework/Versions/B"
 
-# Sign inner components first (inside-out)
+# Sign inner components first (inside-out). --preserve-metadata=entitlements
+# keeps Sparkle's own XPC entitlements intact (per Sparkle signing docs).
 for xpc in "${SPARKLE_FW}/XPCServices/"*.xpc; do
-    codesign --force --sign - "$xpc"
+    codesign --force --sign "${SIGN_IDENTITY}" ${RUNTIME_FLAGS[@]+"${RUNTIME_FLAGS[@]}"} --preserve-metadata=entitlements "$xpc"
 done
-codesign --force --sign - "${SPARKLE_FW}/Autoupdate"
-codesign --force --sign - "${SPARKLE_FW}/Updater.app"
-codesign --force --sign - "${DMG_DIR}/${APP_NAME}.app/Contents/Frameworks/Sparkle.framework"
+codesign --force --sign "${SIGN_IDENTITY}" ${RUNTIME_FLAGS[@]+"${RUNTIME_FLAGS[@]}"} "${SPARKLE_FW}/Autoupdate"
+codesign --force --sign "${SIGN_IDENTITY}" ${RUNTIME_FLAGS[@]+"${RUNTIME_FLAGS[@]}"} "${SPARKLE_FW}/Updater.app"
+codesign --force --sign "${SIGN_IDENTITY}" ${RUNTIME_FLAGS[@]+"${RUNTIME_FLAGS[@]}"} "${DMG_DIR}/${APP_NAME}.app/Contents/Frameworks/Sparkle.framework"
 
-# Sign outer app last with identifier-based designated requirement
-codesign --force --sign - --requirements "=designated => identifier \"${BUNDLE_ID}\"" "${DMG_DIR}/${APP_NAME}.app"
+if [ "${SIGN_IDENTITY}" != "-" ]; then
+    # Developer ID: standard designated requirement (cert chain + identifier)
+    # is stable across versions, so no custom DR needed. Explicit distribution
+    # entitlements prevent the archive's dev entitlements from leaking in.
+    codesign --force --sign "${SIGN_IDENTITY}" "${RUNTIME_FLAGS[@]}" \
+        --entitlements "${DIST_ENTITLEMENTS}" \
+        "${DMG_DIR}/${APP_NAME}.app"
+else
+    # Ad-hoc: identifier-based designated requirement so Sparkle updates keep
+    # matching the installed app's DR across versions.
+    codesign --force --sign - --requirements "=designated => identifier \"${BUNDLE_ID}\"" \
+        --entitlements "${DIST_ENTITLEMENTS}" \
+        "${DMG_DIR}/${APP_NAME}.app"
+fi
 
 # Create symlink to /Applications in DMG staging
 ln -s /Applications "${DMG_DIR}/Applications"
@@ -89,6 +128,31 @@ hdiutil create \
     -ov \
     -format UDZO \
     "${DMG_OUTPUT}"
+
+# Developer ID: sign the DMG, notarize, and staple BEFORE hashing/EdDSA-signing
+# (stapling mutates the DMG bytes, so SHA256 and sparkle:edSignature must be
+# computed afterwards).
+if [ "${SIGN_IDENTITY}" != "-" ]; then
+    echo "==> Signing DMG with Developer ID..."
+    codesign --force --sign "${SIGN_IDENTITY}" --timestamp "${DMG_OUTPUT}"
+
+    echo "==> Submitting to Apple notary service (this can take a few minutes)..."
+    if ! xcrun notarytool submit "${DMG_OUTPUT}" --keychain-profile "${NOTARY_PROFILE}" --wait; then
+        echo "    FATAL: notarization failed or was rejected."
+        echo "    Inspect with: xcrun notarytool log <submission-id> --keychain-profile ${NOTARY_PROFILE}"
+        exit 1
+    fi
+
+    echo "==> Stapling notarization ticket..."
+    xcrun stapler staple "${DMG_OUTPUT}"
+
+    echo "==> Gatekeeper assessment..."
+    if ! spctl --assess --type open --context context:primary-signature -v "${DMG_OUTPUT}"; then
+        echo "    FATAL: Gatekeeper rejected the stapled DMG"
+        exit 1
+    fi
+    echo "    OK: notarized and stapled"
+fi
 
 # Verify code signing inside DMG
 echo "==> Verifying code signing inside DMG..."
@@ -112,6 +176,16 @@ if echo "${VERIFY_FLAGS}" | grep -q "linker-signed"; then
     echo "    FATAL: DMG app is only linker-signed (re-sign was not applied)"
     hdiutil detach "${VERIFY_MOUNT}" -quiet
     exit 1
+fi
+
+# Check 2b: Developer ID builds must carry the Developer ID authority
+if [ "${SIGN_IDENTITY}" != "-" ]; then
+    AUTH_OUTPUT=$(codesign -d -vv "${VERIFY_MOUNT}/${APP_NAME}.app" 2>&1)
+    if ! echo "${AUTH_OUTPUT}" | grep -q "Authority=Developer ID Application"; then
+        echo "    FATAL: app inside DMG is not signed with a Developer ID certificate"
+        hdiutil detach "${VERIFY_MOUNT}" -quiet
+        exit 1
+    fi
 fi
 
 # Check 3: Deep verification
