@@ -15,7 +15,7 @@ Please do not report security vulnerabilities through public GitHub issues.
 
 Instead, use one of the following private channels:
 
-- **GitHub private vulnerability reporting (preferred):** [Report a vulnerability](https://github.com/minsang-alt/PasteClip/security/advisories/new)
+- **GitHub private vulnerability reporting (preferred):** [Report a vulnerability](https://github.com/mobrava/PasteClip/security/advisories/new)
 - **Email:** minseusang@gmail.com
 
 When reporting, please include:

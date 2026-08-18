@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>PasteClip Updates</title>
-    <link>https://raw.githubusercontent.com/minsang-alt/PasteClip/main/appcast.xml</link>
+    <link>https://raw.githubusercontent.com/mobrava/PasteClip/main/appcast.xml</link>
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
@@ -17,7 +17,7 @@
       ]]></description>
       <pubDate>Sun, 16 Aug 2026 15:00:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.11/PasteClip-v1.1.11.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.11/PasteClip-v1.1.11.dmg"
         type="application/octet-stream"
         sparkle:edSignature="cXmrw37hvKoczmu+xzt7r0f5HZpyTp5r2TOR6dED3uyJHwTuPx+fE14SUYpNKaue95U1zBdgg8bBPP/GhWRECg=="
         length="2870150"
@@ -35,7 +35,7 @@
       ]]></description>
       <pubDate>Sat, 15 Aug 2026 18:04:25 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.10/PasteClip-v1.1.10.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.10/PasteClip-v1.1.10.dmg"
         type="application/octet-stream"
         sparkle:edSignature="SEvADkUe+6O9VzNjumuvv4D64iT9IoK9YHGstBuJWlrVpVQ0lPikrl+dwpN8T/14/TRqaKd4WYiORdiNaSaOBw=="
         length="4829146"
@@ -53,7 +53,7 @@
       ]]></description>
       <pubDate>Sat, 15 Aug 2026 16:15:53 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.9/PasteClip-v1.1.9.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.9/PasteClip-v1.1.9.dmg"
         type="application/octet-stream"
         sparkle:edSignature="C8yJCqdH9zSY7rbzE5BC9YuLtRDHtPUOi/4iU4G1eNdAZflcLIMwwtBsQbrLHZT+n7i8SS46b122U1Jj+Lc8Dw=="
         length="4821782"
@@ -77,7 +77,7 @@
       ]]></description>
       <pubDate>Sat, 09 May 2026 11:00:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.8/PasteClip-v1.1.8.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.8/PasteClip-v1.1.8.dmg"
         type="application/octet-stream"
         sparkle:edSignature="3Sn38K97Kiqk+ZH6YHvEHZMvAiWutf3keYIjPTVqITqEddCQBBe6C8AYv2EJzXpz8R6QExaH0jvqoDY8UNoLCQ=="
         length="4822435"
@@ -94,7 +94,7 @@
       ]]></description>
       <pubDate>Tue, 08 Apr 2026 00:10:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.7/PasteClip-v1.1.7.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.7/PasteClip-v1.1.7.dmg"
         type="application/octet-stream"
         sparkle:edSignature="j/cw1M1kl6sHIKwwajFEGr+YpIiSfgj8xNm01s8vvaM4+xRMUly1EtyRt7M0u03mPYaWCFSO+CPpXfXkqjt1CQ=="
         length="4637706"
@@ -111,7 +111,7 @@
       ]]></description>
       <pubDate>Mon, 07 Apr 2026 23:50:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.6/PasteClip-v1.1.6.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.6/PasteClip-v1.1.6.dmg"
         type="application/octet-stream"
         sparkle:edSignature="ElHiqjFUTfBlCd6+gHJfqVdki+b2DgTj2Ew9AVPAvbV5t1U5vlhHJhdZhYoh0AYAK249+Z4dfbL8HgUF9NAlDg=="
         length="4637780"
@@ -128,7 +128,7 @@
       ]]></description>
       <pubDate>Mon, 07 Apr 2026 23:30:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.5/PasteClip-v1.1.5.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.5/PasteClip-v1.1.5.dmg"
         type="application/octet-stream"
         sparkle:edSignature="9neR2Q6CcpoZGZ1uV4romuRJE6G7JcbhpSPXDCqAS/QBCMU5f/hCs9d833w4VRqGA9747tKburJ4j6cTWOxVBw=="
         length="4638289"
@@ -146,7 +146,7 @@
       ]]></description>
       <pubDate>Mon, 07 Apr 2026 22:50:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.4/PasteClip-v1.1.4.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.4/PasteClip-v1.1.4.dmg"
         type="application/octet-stream"
         sparkle:edSignature="de9tbuztQRa5Lvn82CYvJQGef+gFpxKCESQgBJ+EsHYlKmyWboOj1aJPtzvSac2AjFTeCsoavQ2sUwp9d9ENAA=="
         length="4637862"
@@ -166,7 +166,7 @@
       ]]></description>
       <pubDate>Sat, 05 Apr 2026 17:30:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.3/PasteClip-v1.1.3.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.3/PasteClip-v1.1.3.dmg"
         type="application/octet-stream"
         sparkle:edSignature="+wuow78rxsXJyEVi/8/XgdWLwQu2fWePR3QXE9lhXZsDvZnc5jRUCj5iIS2oIQ5CeKyhqfc0GcDCr3JenXmsBA=="
         length="4636676"
@@ -183,7 +183,7 @@
       ]]></description>
       <pubDate>Sat, 05 Apr 2026 00:40:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.2/PasteClip-1.1.2.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.2/PasteClip-1.1.2.dmg"
         type="application/octet-stream"
         sparkle:edSignature="3iqELAq0U4da4s7w1SFOVNitmqNgNJGGNdKWn20w4QhH8AxPmuYIUwPyLmtVoHETeDV1YCa3J4zoLWRUbqF0CA=="
         length="4642732"
@@ -201,7 +201,7 @@
       ]]></description>
       <pubDate>Fri, 04 Apr 2026 00:20:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.1/PasteClip-1.1.1.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.1/PasteClip-1.1.1.dmg"
         type="application/octet-stream"
         sparkle:edSignature="placeholder"
         length="4641120"
@@ -218,7 +218,7 @@
       ]]></description>
       <pubDate>Thu, 03 Apr 2026 10:30:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.1.0/PasteClip-v1.1.0.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.1.0/PasteClip-v1.1.0.dmg"
         type="application/octet-stream"
         sparkle:edSignature="placeholder"
         length="4640000"
@@ -237,7 +237,7 @@
       ]]></description>
       <pubDate>Thu, 03 Apr 2026 10:00:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.0.9/PasteClip-v1.0.9.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.0.9/PasteClip-v1.0.9.dmg"
         type="application/octet-stream"
         sparkle:edSignature="ELLhH28XIxAM90KLqRdH/VH/mFGm7GBvAfd7XuDdoTOMcaTzKxFoJAuG9d1yurngXhGEtcXER1yEgmbTp1rGAg=="
         length="4620378"
@@ -254,7 +254,7 @@
       ]]></description>
       <pubDate>Thu, 03 Apr 2026 09:00:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.0.8/PasteClip-1.0.8.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.0.8/PasteClip-1.0.8.dmg"
         type="application/octet-stream"
         sparkle:edSignature="gfS1m0IZoK4TghgK1//tyOyUBP3R2SRKLojNrUOAJErCrnMLO2mnTAhWLL2wNvOtEu1IxV4mD/xfRvz2ymRxAw=="
         length="4619788"
@@ -272,7 +272,7 @@
       ]]></description>
       <pubDate>Fri, 07 Mar 2026 18:00:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.0.7/PasteClip-1.0.7.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.0.7/PasteClip-1.0.7.dmg"
         type="application/octet-stream"
         sparkle:edSignature="HNaZfBus/HOv9XFNnWygNTePoxUCmFzO6XKs5aE76xsXIOtEPK3R2C4qEFwrmKK+aJ4vM3kCHYaEgisyOTuzDg=="
         length="4616755"
@@ -289,7 +289,7 @@
       ]]></description>
       <pubDate>Fri, 07 Mar 2026 15:00:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.0.6/PasteClip-1.0.6.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.0.6/PasteClip-1.0.6.dmg"
         type="application/octet-stream"
         sparkle:edSignature="/rzQmm73Ejuebt2Ku8u0ktYrz37vtnrIssP+DlUECqkVYWOlbxrACK8YPhxRLZTWR2AI8/bSCncP3+0BBC4KDw=="
         length="4614376"
@@ -309,7 +309,7 @@
       ]]></description>
       <pubDate>Fri, 07 Mar 2026 11:30:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.0.5/PasteClip-1.0.5.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.0.5/PasteClip-1.0.5.dmg"
         type="application/octet-stream"
         sparkle:edSignature="7F231jehpRKMD5w09I4o5XMlqhuz4xI+UxddbAMXPP5uP+Esg1/eqcEspn5YzcZh+3Jy0qBnLPNa8cbayB0IAA=="
         length="4612509"
@@ -328,7 +328,7 @@
       ]]></description>
       <pubDate>Sun, 02 Mar 2026 11:00:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.0.4/PasteClip-1.0.4.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.0.4/PasteClip-1.0.4.dmg"
         type="application/octet-stream"
         sparkle:edSignature="tJAseJXxcFLxqUXBfZkgOyaRzzCCv9cUBm8hFOnJszNmlWR0ROqjMhbfaWWQY0OsnmRM5fsBLwkgpfWp1W6aDw=="
         length="4602594"
@@ -346,7 +346,7 @@
       ]]></description>
       <pubDate>Sat, 01 Mar 2026 15:00:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.0.3/PasteClip-1.0.3.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.0.3/PasteClip-1.0.3.dmg"
         type="application/octet-stream"
         sparkle:edSignature="aKMloGFOalvVTjKPvsLeCK+1LugLUQXSA1Y7IDe5p7aLjhZMzmy/pCkqi2zy3gC91KVdDrQGhHfJYaGkiZpKAA=="
         length="4590458"
@@ -363,7 +363,7 @@
       ]]></description>
       <pubDate>Sat, 01 Mar 2026 12:00:00 +0900</pubDate>
       <enclosure
-        url="https://github.com/minsang-alt/PasteClip/releases/download/v1.0.2/PasteClip-1.0.2.dmg"
+        url="https://github.com/mobrava/PasteClip/releases/download/v1.0.2/PasteClip-1.0.2.dmg"
         type="application/octet-stream"
         sparkle:edSignature="x1BmIrwQki2yQNvSnf64IKPDmmPwdbjPMecbj68C9qZ605IYMENeN/f+WQa6SL4XFvw2aNW1QJA91DEX3O8yCw=="
         length="3898066"

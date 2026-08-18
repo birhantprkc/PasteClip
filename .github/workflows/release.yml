@@ -72,7 +72,7 @@ jobs:
 
             **Homebrew:**
             ```
-            brew install --cask minsang-alt/tap/pasteclip
+            brew install --cask mobrava/tap/pasteclip
             ```
 
             **Manual:** Download `PasteClip-${{ steps.version.outputs.VERSION }}.dmg` below.

@@ -15,10 +15,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/minsang-alt/PasteClip/releases/latest"><img src="https://img.shields.io/github/v/release/minsang-alt/PasteClip?style=flat-square" alt="最新版本"></a>
-  <a href="https://github.com/minsang-alt/PasteClip/releases"><img src="https://img.shields.io/github/downloads/minsang-alt/PasteClip/total?style=flat-square" alt="下载量"></a>
-  <a href="https://github.com/minsang-alt/PasteClip/stargazers"><img src="https://img.shields.io/github/stars/minsang-alt/PasteClip?style=flat-square" alt="GitHub stars"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/minsang-alt/PasteClip?style=flat-square" alt="许可证"></a>
+  <a href="https://github.com/mobrava/PasteClip/releases/latest"><img src="https://img.shields.io/github/v/release/mobrava/PasteClip?style=flat-square" alt="最新版本"></a>
+  <a href="https://github.com/mobrava/PasteClip/releases"><img src="https://img.shields.io/github/downloads/mobrava/PasteClip/total?style=flat-square" alt="下载量"></a>
+  <a href="https://github.com/mobrava/PasteClip/stargazers"><img src="https://img.shields.io/github/stars/mobrava/PasteClip?style=flat-square" alt="GitHub stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/mobrava/PasteClip?style=flat-square" alt="许可证"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-blue?style=flat-square" alt="macOS 14+">
 </p>
 
@@ -53,12 +53,12 @@ PasteClip 是一款免费开源（GPL-3.0）的 macOS 剪贴板管理器，用�
 ### Homebrew（推荐）
 
 ```bash
-brew install --cask minsang-alt/tap/pasteclip
+brew install --cask mobrava/tap/pasteclip
 ```
 
 ### 手动下载
 
-从 [GitHub Releases](https://github.com/minsang-alt/PasteClip/releases/latest) 下载最新 `.dmg`，拖入「应用程序」文件夹。
+从 [GitHub Releases](https://github.com/mobrava/PasteClip/releases/latest) 下载最新 `.dmg`，拖入「应用程序」文件夹。
 
 > **注意**：应用暂未经过 Apple 公证，首次启动可能被 macOS 拦截。请在 **系统设置 → 隐私与安全性** 中点击「仍要打开」。
 

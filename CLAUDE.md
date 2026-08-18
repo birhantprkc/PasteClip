@@ -32,16 +32,16 @@
    gh release download v{VERSION} -p "PasteClip-v{VERSION}.dmg" -D /tmp/verify --clobber
    shasum -a 256 /tmp/verify/PasteClip-v{VERSION}.dmg  # 빌드 스크립트 출력의 SHA256과 일치해야 함
    ```
-7. (선택) Homebrew tap 업데이트 (`minsang-alt/homebrew-tap`):
+7. (선택) Homebrew tap 업데이트 (`mobrava/homebrew-tap`):
    - `Casks/pasteclip.rb`의 `version`과 `sha256` 변경 (sha256은 빌드 스크립트 출력에 나옴)
    - Homebrew cask URL은 `PasteClip-v{VERSION}.dmg` (v 접두사 있음) — 6단계에서 이미 함께 업로드됨
-   - GitHub API로 업데이트: `gh api repos/minsang-alt/homebrew-tap/contents/Casks/pasteclip.rb --method PUT ...`
+   - GitHub API로 업데이트: `gh api repos/mobrava/homebrew-tap/contents/Casks/pasteclip.rb --method PUT ...`
 8. Gatekeeper 문제 시: `xattr -cr /Applications/PasteClip.app`
 
 ## Sparkle 자동 업데이트
 
 - Sparkle 2.x SPM 의존성 사용, 앱 내 자동 업데이트 지원
-- appcast URL: `https://raw.githubusercontent.com/minsang-alt/PasteClip/main/appcast.xml`
+- appcast URL: `https://raw.githubusercontent.com/mobrava/PasteClip/main/appcast.xml`
 - EdDSA 비공개키는 macOS Keychain에 저장됨 (`sign_update`가 자동 접근)
 - 공개키는 Info.plist `SUPublicEDKey`에 설정됨 (노출 안전)
 - `CheckForUpdatesViewModel` (`Services/UpdaterService.swift`): `@EnvironmentObject`로 뷰에 전달

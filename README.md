@@ -15,16 +15,16 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/minsang-alt/PasteClip/releases/latest"><img src="https://img.shields.io/github/v/release/minsang-alt/PasteClip?style=flat-square" alt="Latest release"></a>
-  <a href="https://github.com/minsang-alt/PasteClip/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/minsang-alt/PasteClip/build.yml?branch=main&style=flat-square" alt="Build status"></a>
-  <a href="https://github.com/minsang-alt/PasteClip/releases"><img src="https://img.shields.io/github/downloads/minsang-alt/PasteClip/total?style=flat-square" alt="Total downloads"></a>
-  <a href="https://github.com/minsang-alt/PasteClip/stargazers"><img src="https://img.shields.io/github/stars/minsang-alt/PasteClip?style=flat-square" alt="GitHub stars"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/minsang-alt/PasteClip?style=flat-square" alt="License"></a>
+  <a href="https://github.com/mobrava/PasteClip/releases/latest"><img src="https://img.shields.io/github/v/release/mobrava/PasteClip?style=flat-square" alt="Latest release"></a>
+  <a href="https://github.com/mobrava/PasteClip/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/mobrava/PasteClip/build.yml?branch=main&style=flat-square" alt="Build status"></a>
+  <a href="https://github.com/mobrava/PasteClip/releases"><img src="https://img.shields.io/github/downloads/mobrava/PasteClip/total?style=flat-square" alt="Total downloads"></a>
+  <a href="https://github.com/mobrava/PasteClip/stargazers"><img src="https://img.shields.io/github/stars/mobrava/PasteClip?style=flat-square" alt="GitHub stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/mobrava/PasteClip?style=flat-square" alt="License"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-blue?style=flat-square" alt="macOS 14 or later">
 </p>
 
 <p align="center">
-  <a href="https://github.com/minsang-alt/PasteClip/releases/latest"><strong>Download latest release</strong></a>
+  <a href="https://github.com/mobrava/PasteClip/releases/latest"><strong>Download latest release</strong></a>
   &nbsp;·&nbsp;
   <a href="#installation"><strong>Install with Homebrew</strong></a>
 </p>
@@ -83,12 +83,12 @@ PasteClip requires **macOS 14 Sonoma or later**.
 ### Homebrew (recommended)
 
 ```bash
-brew install --cask minsang-alt/tap/pasteclip
+brew install --cask mobrava/tap/pasteclip
 ```
 
 ### Manual download
 
-1. Download the latest `.dmg` from [GitHub Releases](https://github.com/minsang-alt/PasteClip/releases/latest).
+1. Download the latest `.dmg` from [GitHub Releases](https://github.com/mobrava/PasteClip/releases/latest).
 2. Open the disk image and drag **PasteClip** into **Applications**.
 3. Launch PasteClip from the Applications folder.
 
@@ -136,7 +136,7 @@ PasteClip is designed to keep your clipboard private:
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
 ```bash
-git clone https://github.com/minsang-alt/PasteClip.git
+git clone https://github.com/mobrava/PasteClip.git
 cd PasteClip
 brew install xcodegen
 xcodegen generate
@@ -161,7 +161,7 @@ Build and run the `PasteClip` scheme with `⌘ R` in Xcode.
 
 Contributions are welcome. Please read the [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before opening a pull request.
 
-Found a bug or have an idea? [Open an issue](https://github.com/minsang-alt/PasteClip/issues/new/choose).
+Found a bug or have an idea? [Open an issue](https://github.com/mobrava/PasteClip/issues/new/choose).
 
 ## License
 

@@ -25,7 +25,7 @@
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/minsang-alt/PasteClip/main/appcast.xml</string>
+	<string>https://raw.githubusercontent.com/mobrava/PasteClip/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>efeE/5xL1mDQvymboZUH7HsOsZeGejDyRAkd430s3aU=</string>
 </dict>
