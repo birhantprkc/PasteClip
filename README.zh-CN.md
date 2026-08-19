@@ -37,7 +37,7 @@ PasteClip 是一款免费开源（GPL-3.0）的 macOS 剪贴板管理器，用�
 - **Pinboards 收藏夹**：把常用内容整理成命名收藏夹，支持拖拽排序
 - **快速预览**：按 `空格` 进行 Quick Look 预览，支持全键盘操作
 - **隐私控制**：可排除指定应用（如密码管理器），历史上限可配置、自动清理
-- **对终端友好**：图片以 PNG + file URL 方式写入剪贴板，可以可靠地粘贴到 Ghostty / iTerm2
+- **对终端友好**：图片以 PNG + file URL 方式写入剪贴板，可以可靠地粘贴到 Ghostty / iTerm2（详见下方[终端中的图片剪贴](#终端中的图片剪贴)）
 - **完全本地**：基于 SwiftData 本地存储，唯一的网络请求是 Sparkle 检查更新
 
 ## 截图
@@ -60,7 +60,19 @@ brew install --cask mobrava/tap/pasteclip
 
 从 [GitHub Releases](https://github.com/mobrava/PasteClip/releases/latest) 下载最新 `.dmg`，拖入「应用程序」文件夹。
 
-> **注意**：应用暂未经过 Apple 公证，首次启动可能被 macOS 拦截。请在 **系统设置 → 隐私与安全性** 中点击「仍要打开」。
+应用已使用 Apple Developer ID 签名并通过 Apple 公证（自 v1.1.11 起），首次启动不会出现安全提示。
+
+## 终端中的图片剪贴
+
+选择图片剪贴项会把图片重新放回 macOS 剪贴板，但 shell 提示符本身无法接收图片数据。必须由终端中运行的应用或 CLI 支持剪贴板图片输入。
+
+以 macOS 上的 Codex CLI 为例：
+
+1. 按 `⌘ ⇧ V` 并选择需要复用的图片剪贴项。
+2. 回到 Codex，中途不要再复制其他内容。
+3. 在 Codex 中按 `Control + V` 附加剪贴板图片。
+
+Codex 使用 `Control + V` 附加图片，而不是 macOS 常用的 `⌘ V` 文本粘贴快捷键。其他终端应用可能有不同的图片粘贴方式。
 
 ## 更多内容
 
