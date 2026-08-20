@@ -30,10 +30,12 @@ struct AboutTab: View {
                 .font(.callout)
                 .foregroundStyle(.secondary)
 
+            #if !APPSTORE
             Button("Check for Updates...") {
                 updaterViewModel.checkForUpdates()
             }
             .disabled(!updaterViewModel.canCheckForUpdates)
+            #endif
 
             Spacer()
         }

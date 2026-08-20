@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import Sparkle
 
 @main
 struct ClipbaraApp: App {

@@ -1,4 +1,6 @@
 import Foundation
+
+#if !APPSTORE
 import Sparkle
 
 @MainActor
@@ -30,3 +32,11 @@ final class CheckForUpdatesViewModel: ObservableObject {
         updaterController.checkForUpdates(nil)
     }
 }
+#else
+// Mac App Store build: updates are delivered by the App Store, Sparkle is not linked.
+@MainActor
+final class CheckForUpdatesViewModel: ObservableObject {
+    @Published var canCheckForUpdates = false
+    func checkForUpdates() {}
+}
+#endif
