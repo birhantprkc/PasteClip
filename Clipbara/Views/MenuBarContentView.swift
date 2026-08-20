@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct MenuBarContentView: View {
+    @Environment(\.openSettings) private var openSettings
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var updaterViewModel: CheckForUpdatesViewModel
@@ -72,8 +73,9 @@ struct MenuBarContentView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
 
-            SettingsLink {
-                Text("Settings...")
+            Button("Settings...") {
+                openSettings()
+                NSApp.activate(ignoringOtherApps: true)
             }
             .keyboardShortcut(",", modifiers: .command)
             .padding(.horizontal, 12)
