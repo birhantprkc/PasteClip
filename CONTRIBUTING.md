@@ -92,3 +92,18 @@ Before opening a new issue, please search existing issues to avoid duplicates.
 ## Code of Conduct
 
 This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+
+## Contributor License Agreement
+
+Clipbara is dual-licensed: this repository is GPL-3.0, and the copyright holder also
+distributes a build on the Mac App Store under a separate proprietary license. To keep
+that possible, by submitting a pull request you agree that:
+
+1. You are the author of your contribution, or otherwise have the right to submit it.
+2. You license your contribution under the GPL-3.0.
+3. You grant the project maintainer (@mobrava) a perpetual, worldwide, royalty-free
+   right to relicense your contribution as part of official Clipbara distributions,
+   including the Mac App Store build.
+
+If you cannot agree to these terms, please say so in your pull request and we will
+discuss alternatives.

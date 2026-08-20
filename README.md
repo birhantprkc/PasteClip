@@ -182,6 +182,10 @@ Found a bug or have an idea? [Open an issue](https://github.com/mobrava/Clipbara
 
 Clipbara is available under the [GNU General Public License v3.0](LICENSE).
 
+The Mac App Store edition is distributed by the copyright holder under a separate
+proprietary license (dual licensing). The source code for both editions lives in
+this repository.
+
 <p align="center">
   If Clipbara is useful to you, consider starring the repository.
 </p>
