@@ -1,6 +1,6 @@
-# Contributing to PasteClip
+# Contributing to Clipbara
 
-Thank you for your interest in contributing to PasteClip! This guide will help you get started.
+Thank you for your interest in contributing to Clipbara! This guide will help you get started.
 
 ## Prerequisites
 
@@ -12,8 +12,8 @@ Thank you for your interest in contributing to PasteClip! This guide will help y
 
 1. Fork and clone the repository:
    ```bash
-   git clone https://github.com/<your-username>/PasteClip.git
-   cd PasteClip
+   git clone https://github.com/<your-username>/Clipbara.git
+   cd Clipbara
    ```
 
 2. Generate the Xcode project:
@@ -35,7 +35,7 @@ Thank you for your interest in contributing to PasteClip! This guide will help y
 The project follows a clean separation of concerns:
 
 ```
-PasteClip/
+Clipbara/
 ├── Models/          # SwiftData models (ClipboardItem)
 ├── Services/        # Core logic (ClipboardMonitor, PasteService, etc.)
 ├── Panel/           # NSPanel + NSHostingView hosting layer

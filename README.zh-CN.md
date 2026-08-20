@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="PasteClip/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="PasteClip 图标">
+  <img src="PasteClip/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="Clipbara 图标">
 </p>
 
-<h1 align="center">PasteClip</h1>
+<h1 align="center">Clipbara</h1>
 
 <p align="center">
   <strong>免费开源的 macOS 原生剪贴板管理器</strong>
@@ -15,20 +15,20 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/mobrava/PasteClip/releases/latest"><img src="https://img.shields.io/github/v/release/mobrava/PasteClip?style=flat-square" alt="最新版本"></a>
-  <a href="https://github.com/mobrava/PasteClip/releases"><img src="https://img.shields.io/github/downloads/mobrava/PasteClip/total?style=flat-square" alt="下载量"></a>
-  <a href="https://github.com/mobrava/PasteClip/stargazers"><img src="https://img.shields.io/github/stars/mobrava/PasteClip?style=flat-square" alt="GitHub stars"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/mobrava/PasteClip?style=flat-square" alt="许可证"></a>
+  <a href="https://github.com/mobrava/Clipbara/releases/latest"><img src="https://img.shields.io/github/v/release/mobrava/Clipbara?style=flat-square" alt="最新版本"></a>
+  <a href="https://github.com/mobrava/Clipbara/releases"><img src="https://img.shields.io/github/downloads/mobrava/Clipbara/total?style=flat-square" alt="下载量"></a>
+  <a href="https://github.com/mobrava/Clipbara/stargazers"><img src="https://img.shields.io/github/stars/mobrava/Clipbara?style=flat-square" alt="GitHub stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/mobrava/Clipbara?style=flat-square" alt="许可证"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-blue?style=flat-square" alt="macOS 14+">
 </p>
 
 <p align="center">
-  <img src="docs/assets/pasteclip-demo.gif" width="800" alt="PasteClip 演示：按 ⌘⇧V 打开面板，单击卡片即复制，随后 ⌘V 粘贴">
+  <img src="docs/assets/pasteclip-demo.gif" width="800" alt="Clipbara 演示：按 ⌘⇧V 打开面板，单击卡片即复制，随后 ⌘V 粘贴">
 </p>
 
 ## 简介
 
-PasteClip 是一款免费开源（GPL-3.0）的 macOS 剪贴板管理器，用原生 Swift 6 + SwiftUI 编写，卡片式界面类似付费应用 Paste。数据完全本地存储，无账号、无服务器、无遥测。
+Clipbara 是一款免费开源（GPL-3.0）的 macOS 剪贴板管理器，用原生 Swift 6 + SwiftUI 编写，卡片式界面类似付费应用 Paste。数据完全本地存储，无账号、无服务器、无遥测。
 
 ## 主要功能
 
@@ -43,7 +43,7 @@ PasteClip 是一款免费开源（GPL-3.0）的 macOS 剪贴板管理器，用�
 ## 截图
 
 <p align="center">
-  <img src="docs/assets/screenshot-history-panel.png" width="900" alt="PasteClip 历史面板">
+  <img src="docs/assets/screenshot-history-panel.png" width="900" alt="Clipbara 历史面板">
 </p>
 
 ## 安装
@@ -53,12 +53,12 @@ PasteClip 是一款免费开源（GPL-3.0）的 macOS 剪贴板管理器，用�
 ### Homebrew（推荐）
 
 ```bash
-brew install --cask mobrava/tap/pasteclip
+brew install --cask mobrava/tap/clipbara
 ```
 
 ### 手动下载
 
-从 [GitHub Releases](https://github.com/mobrava/PasteClip/releases/latest) 下载最新 `.dmg`，拖入「应用程序」文件夹。
+从 [GitHub Releases](https://github.com/mobrava/Clipbara/releases/latest) 下载最新 `.dmg`，拖入「应用程序」文件夹。
 
 应用已使用 Apple Developer ID 签名并通过 Apple 公证（自 v1.1.11 起），首次启动不会出现安全提示。
 

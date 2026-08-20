@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="PasteClip/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="PasteClip icon">
+  <img src="PasteClip/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="Clipbara icon">
 </p>
 
-<h1 align="center">PasteClip</h1>
+<h1 align="center">Clipbara</h1>
 
 <p align="center">
   <strong>A fast, private, open-source clipboard manager for macOS.</strong>
@@ -14,23 +14,26 @@
   English | <a href="README.zh-CN.md">简体中文</a>
 </p>
 
+> [!NOTE]
+> **Clipbara was formerly known as PasteClip.** The project was renamed in August 2026 because an unrelated app with the same name exists on the Mac App Store. Releases up to v1.1.11 still ship under the PasteClip name; the app itself is renamed starting with v1.2.0. All old links redirect automatically.
+
 <p align="center">
-  <a href="https://github.com/mobrava/PasteClip/releases/latest"><img src="https://img.shields.io/github/v/release/mobrava/PasteClip?style=flat-square" alt="Latest release"></a>
-  <a href="https://github.com/mobrava/PasteClip/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/mobrava/PasteClip/build.yml?branch=main&style=flat-square" alt="Build status"></a>
-  <a href="https://github.com/mobrava/PasteClip/releases"><img src="https://img.shields.io/github/downloads/mobrava/PasteClip/total?style=flat-square" alt="Total downloads"></a>
-  <a href="https://github.com/mobrava/PasteClip/stargazers"><img src="https://img.shields.io/github/stars/mobrava/PasteClip?style=flat-square" alt="GitHub stars"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/mobrava/PasteClip?style=flat-square" alt="License"></a>
+  <a href="https://github.com/mobrava/Clipbara/releases/latest"><img src="https://img.shields.io/github/v/release/mobrava/Clipbara?style=flat-square" alt="Latest release"></a>
+  <a href="https://github.com/mobrava/Clipbara/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/mobrava/Clipbara/build.yml?branch=main&style=flat-square" alt="Build status"></a>
+  <a href="https://github.com/mobrava/Clipbara/releases"><img src="https://img.shields.io/github/downloads/mobrava/Clipbara/total?style=flat-square" alt="Total downloads"></a>
+  <a href="https://github.com/mobrava/Clipbara/stargazers"><img src="https://img.shields.io/github/stars/mobrava/Clipbara?style=flat-square" alt="GitHub stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/mobrava/Clipbara?style=flat-square" alt="License"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-blue?style=flat-square" alt="macOS 14 or later">
 </p>
 
 <p align="center">
-  <a href="https://github.com/mobrava/PasteClip/releases/latest"><strong>Download latest release</strong></a>
+  <a href="https://github.com/mobrava/Clipbara/releases/latest"><strong>Download latest release</strong></a>
   &nbsp;·&nbsp;
   <a href="#installation"><strong>Install with Homebrew</strong></a>
 </p>
 
 <p align="center">
-  <img src="docs/assets/pasteclip-demo.gif" width="800" alt="PasteClip demo: press Cmd Shift V, click a clip once, and it is on your clipboard ready to paste">
+  <img src="docs/assets/pasteclip-demo.gif" width="800" alt="Clipbara demo: press Cmd Shift V, click a clip once, and it is on your clipboard ready to paste">
 </p>
 
 ## Highlights
@@ -48,25 +51,25 @@
 ## Screenshots
 
 <p align="center">
-  <img src="docs/assets/screenshot-history-panel.png" width="900" alt="PasteClip history panel with clipboard cards at the bottom of the screen">
+  <img src="docs/assets/screenshot-history-panel.png" width="900" alt="Clipbara history panel with clipboard cards at the bottom of the screen">
 </p>
 
 <table align="center">
   <tr>
     <td align="center">
-      <img src="docs/assets/screenshot-menubar.png" width="320" alt="PasteClip menu bar dropdown with recent copies"><br>
+      <img src="docs/assets/screenshot-menubar.png" width="320" alt="Clipbara menu bar dropdown with recent copies"><br>
       <sub>Menu bar dropdown</sub>
     </td>
     <td align="center">
-      <img src="docs/assets/screenshot-settings.png" width="420" alt="PasteClip settings window"><br>
+      <img src="docs/assets/screenshot-settings.png" width="420" alt="Clipbara settings window"><br>
       <sub>Settings</sub>
     </td>
   </tr>
 </table>
 
-## Why PasteClip?
+## Why Clipbara?
 
-|  | PasteClip | Paste | Maccy |
+|  | Clipbara | Paste | Maccy |
 | --- | --- | --- | --- |
 | Price | Free, open source (GPL-3.0) | Subscription | Free, open source (MIT) |
 | Interface | Card grid with visual previews | Card grid with visual previews | Compact menu-bar list |
@@ -74,29 +77,29 @@
 | Sync across devices | No — 100% local by design | iCloud sync | No |
 | Notarized by Apple | Yes | Yes | Yes |
 
-If you need clipboard sync across devices, Paste's subscription earns its price. If you want the card-style workflow without one — and want to read every line of code that touches your clipboard — that is why PasteClip exists.
+If you need clipboard sync across devices, Paste's subscription earns its price. If you want the card-style workflow without one — and want to read every line of code that touches your clipboard — that is why Clipbara exists.
 
 ## Installation
 
-PasteClip requires **macOS 14 Sonoma or later**.
+Clipbara requires **macOS 14 Sonoma or later**.
 
 ### Homebrew (recommended)
 
 ```bash
-brew install --cask mobrava/tap/pasteclip
+brew install --cask mobrava/tap/clipbara
 ```
 
 ### Manual download
 
-1. Download the latest `.dmg` from [GitHub Releases](https://github.com/mobrava/PasteClip/releases/latest).
-2. Open the disk image and drag **PasteClip** into **Applications**.
-3. Launch PasteClip from the Applications folder.
+1. Download the latest `.dmg` from [GitHub Releases](https://github.com/mobrava/Clipbara/releases/latest).
+2. Open the disk image and drag the app into **Applications**.
+3. Launch Clipbara from the Applications folder.
 
-PasteClip is signed with an Apple Developer ID and notarized by Apple (as of v1.1.11), so it opens without any security warnings.
+Clipbara is signed with an Apple Developer ID and notarized by Apple (as of v1.1.11), so it opens without any security warnings.
 
 ## Quick start
 
-1. Launch PasteClip. It will appear in the menu bar.
+1. Launch Clipbara. It will appear in the menu bar.
 2. Copy anything normally with `⌘ C`.
 3. Press `⌘ ⇧ V` to open your clipboard history.
 4. Start typing to search, or use `←` and `→` to move between clips.
@@ -131,11 +134,11 @@ Right-click a clip to rename it, add it to a Pinboard, or delete it.
 
 ## Privacy
 
-PasteClip is designed to keep your clipboard private:
+Clipbara is designed to keep your clipboard private:
 
 - **Local-only storage:** Clipboard history is stored on your Mac using SwiftData.
 - **No account or backend:** There is no sign-in and no server receiving your clipboard data.
-- **No telemetry:** PasteClip does not collect analytics, tracking, or usage data.
+- **No telemetry:** Clipbara does not collect analytics, tracking, or usage data.
 - **App exclusions:** Prevent selected apps, such as password managers, from being recorded.
 - **Offline core:** Capture, search, preview, and paste work without an internet connection. Network access is used only for software updates through Sparkle.
 
@@ -148,8 +151,8 @@ PasteClip is designed to keep your clipboard private:
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
 ```bash
-git clone https://github.com/mobrava/PasteClip.git
-cd PasteClip
+git clone https://github.com/mobrava/Clipbara.git
+cd Clipbara
 brew install xcodegen
 xcodegen generate
 open PasteClip.xcodeproj
@@ -173,12 +176,12 @@ Build and run the `PasteClip` scheme with `⌘ R` in Xcode.
 
 Contributions are welcome. Please read the [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before opening a pull request.
 
-Found a bug or have an idea? [Open an issue](https://github.com/mobrava/PasteClip/issues/new/choose).
+Found a bug or have an idea? [Open an issue](https://github.com/mobrava/Clipbara/issues/new/choose).
 
 ## License
 
-PasteClip is available under the [GNU General Public License v3.0](LICENSE).
+Clipbara is available under the [GNU General Public License v3.0](LICENSE).
 
 <p align="center">
-  If PasteClip is useful to you, consider starring the repository.
+  If Clipbara is useful to you, consider starring the repository.
 </p>

@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Only the latest release of PasteClip receives security updates.
+Only the latest release of Clipbara receives security updates.
 
 | Version | Supported |
 | ------- | --------- |
@@ -15,14 +15,14 @@ Please do not report security vulnerabilities through public GitHub issues.
 
 Instead, use one of the following private channels:
 
-- **GitHub private vulnerability reporting (preferred):** [Report a vulnerability](https://github.com/mobrava/PasteClip/security/advisories/new)
+- **GitHub private vulnerability reporting (preferred):** [Report a vulnerability](https://github.com/mobrava/Clipbara/security/advisories/new)
 - **Email:** minseusang@gmail.com
 
 When reporting, please include:
 
 - A description of the vulnerability and its impact
 - Steps to reproduce or a proof of concept
-- The PasteClip version and macOS version you tested
+- The Clipbara version and macOS version you tested
 
 ## What to Expect
 
@@ -32,7 +32,7 @@ When reporting, please include:
 
 ## Scope
 
-PasteClip is a local-only clipboard manager. Areas of particular interest:
+Clipbara is a local-only clipboard manager. Areas of particular interest:
 
 - Clipboard data being written anywhere other than local SwiftData storage
 - Excluded apps (e.g. password managers) being recorded despite exclusion settings
