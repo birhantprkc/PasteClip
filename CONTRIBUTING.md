@@ -23,7 +23,7 @@ Thank you for your interest in contributing to Clipbara! This guide will help yo
 
 3. Open in Xcode:
    ```bash
-   open PasteClip.xcodeproj
+   open Clipbara.xcodeproj
    ```
 
 4. Build and run with `Cmd + R`.
@@ -74,7 +74,7 @@ The clipboard panel uses a non-activating `NSPanel` to avoid stealing focus from
 3. Ensure the project builds without warnings:
    ```bash
    xcodegen generate
-   xcodebuild -project PasteClip.xcodeproj -scheme PasteClip -configuration Debug build
+   xcodebuild -project Clipbara.xcodeproj -scheme Clipbara -configuration Debug build
    ```
 
 4. Push your branch and open a Pull Request.

@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in PasteClip
+description: Report a bug in Clipbara
 title: "[Bug]: "
 labels: ["bug"]
 body:
@@ -14,8 +14,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: PasteClip Version
-      description: "Which version of PasteClip are you using?"
+      label: Clipbara Version
+      description: "Which version of Clipbara are you using?"
       placeholder: "e.g., 1.0.0"
     validations:
       required: true
@@ -43,7 +43,7 @@ body:
       label: Steps to Reproduce
       description: "Steps to reproduce the behavior."
       placeholder: |
-        1. Open PasteClip
+        1. Open Clipbara
         2. Copy something to clipboard
         3. Press the hotkey to open panel
         4. See error

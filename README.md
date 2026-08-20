@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="PasteClip/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="Clipbara icon">
+  <img src="Clipbara/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="Clipbara icon">
 </p>
 
 <h1 align="center">Clipbara</h1>
@@ -155,10 +155,10 @@ git clone https://github.com/mobrava/Clipbara.git
 cd Clipbara
 brew install xcodegen
 xcodegen generate
-open PasteClip.xcodeproj
+open Clipbara.xcodeproj
 ```
 
-Build and run the `PasteClip` scheme with `⌘ R` in Xcode.
+Build and run the `Clipbara` scheme with `⌘ R` in Xcode.
 
 ## Tech stack
 

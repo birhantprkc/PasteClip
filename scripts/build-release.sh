@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# PasteClip Release Build & DMG Creation Script
+# Clipbara Release Build & DMG Creation Script
 
 # --- Signing configuration ---------------------------------------------------
 # Default: ad-hoc signing (pre-Apple-Developer-Program fallback).
@@ -14,9 +14,9 @@ SIGN_IDENTITY="${SIGN_IDENTITY:--}"
 NOTARY_PROFILE="${NOTARY_PROFILE:-pasteclip-notary}"
 # -----------------------------------------------------------------------------
 
-APP_NAME="PasteClip"
-SCHEME="PasteClip"
-PROJECT="PasteClip.xcodeproj"
+APP_NAME="Clipbara"
+SCHEME="Clipbara"
+PROJECT="Clipbara.xcodeproj"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR="${PROJECT_DIR}/build"
@@ -29,7 +29,7 @@ DMG_OUTPUT="${BUILD_DIR}/${APP_NAME}.dmg"
 # ~/Library/Application Support/com.minsang.PasteClip). Enabling the sandbox
 # here would silently move user data into a container and "lose" history.
 # The sandboxed variant is reserved for the future Mac App Store target.
-DIST_ENTITLEMENTS="${PROJECT_DIR}/PasteClip/PasteClip-Distribution.entitlements"
+DIST_ENTITLEMENTS="${PROJECT_DIR}/Clipbara/Clipbara-Distribution.entitlements"
 
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 
@@ -43,7 +43,7 @@ else
 fi
 
 # Get version from Info.plist
-VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${PROJECT_DIR}/PasteClip/Info.plist")
+VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${PROJECT_DIR}/Clipbara/Info.plist")
 DMG_OUTPUT="${BUILD_DIR}/${APP_NAME}-${VERSION}.dmg"
 
 echo "==> Building ${APP_NAME} v${VERSION} (Release)"
@@ -268,4 +268,4 @@ echo ""
 echo "==> To create a GitHub release:"
 echo "    git tag v${VERSION}"
 echo "    git push origin v${VERSION}"
-echo "    gh release create v${VERSION} \"${DMG_OUTPUT}\" --title \"PasteClip v${VERSION}\" --notes \"Release v${VERSION}\""
+echo "    gh release create v${VERSION} \"${DMG_OUTPUT}\" --title \"Clipbara v${VERSION}\" --notes \"Release v${VERSION}\""

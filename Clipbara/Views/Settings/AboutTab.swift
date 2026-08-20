@@ -19,7 +19,7 @@ struct AboutTab: View {
                 .font(.system(size: 64))
                 .foregroundStyle(.tint)
 
-            Text("PasteClip")
+            Text("Clipbara")
                 .font(.title.bold())
 
             Text("Version \(appVersion) (\(buildNumber))")
