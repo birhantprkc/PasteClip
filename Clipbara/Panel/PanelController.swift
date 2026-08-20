@@ -5,7 +5,7 @@ import SwiftData
 @MainActor
 @Observable
 final class PanelController {
-    private var panel: PasteClipPanel?
+    private var panel: ClipbaraPanel?
     private var quickLookPanel: ClipboardQuickLookPanel?
     private var quickLookItem: ClipboardItem?
     private(set) var isVisible: Bool = false
@@ -42,7 +42,7 @@ final class PanelController {
         let startFrame = endFrame.offsetBy(dx: 0, dy: -endFrame.height)
 
         if panel == nil {
-            panel = PasteClipPanel(contentRect: startFrame)
+            panel = ClipbaraPanel(contentRect: startFrame)
 
             let hostingView = NSHostingView(
                 rootView: HistoryPanelView()

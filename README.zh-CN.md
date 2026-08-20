@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="PasteClip/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="Clipbara 图标">
+  <img src="Clipbara/Resources/Assets.xcassets/AppIcon.appiconset/256.png" width="128" height="128" alt="Clipbara 图标">
 </p>
 
 <h1 align="center">Clipbara</h1>

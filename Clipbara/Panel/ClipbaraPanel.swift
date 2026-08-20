@@ -1,7 +1,7 @@
 import AppKit
 
 @MainActor
-final class PasteClipPanel: NSPanel {
+final class ClipbaraPanel: NSPanel {
 
     init(contentRect: NSRect) {
         super.init(

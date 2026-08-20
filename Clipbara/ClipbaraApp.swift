@@ -3,7 +3,7 @@ import SwiftData
 import Sparkle
 
 @main
-struct PasteClipApp: App {
+struct ClipbaraApp: App {
     @State private var appState = AppState()
     @StateObject private var updaterViewModel = CheckForUpdatesViewModel()
 
@@ -44,7 +44,7 @@ struct PasteClipApp: App {
     }()
 
     var body: some Scene {
-        MenuBarExtra("PasteClip", systemImage: "clipboard") {
+        MenuBarExtra("Clipbara", systemImage: "clipboard") {
             MenuBarContentView()
                 .environment(appState)
                 .environmentObject(updaterViewModel)

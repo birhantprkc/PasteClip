@@ -1,4 +1,4 @@
-name: PasteClip
+name: Clipbara
 options:
   bundleIdPrefix: com.minsang
   deploymentTarget:
@@ -22,19 +22,19 @@ packages:
     from: "2.7.0"
 
 targets:
-  PasteClip:
+  Clipbara:
     type: application
     platform: macOS
     sources:
-      - PasteClip
+      - Clipbara
     resources:
-      - PasteClip/Resources
+      - Clipbara/Resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.minsang.PasteClip
-        PRODUCT_NAME: PasteClip
-        INFOPLIST_FILE: PasteClip/Info.plist
-        CODE_SIGN_ENTITLEMENTS: PasteClip/PasteClip.entitlements
+        PRODUCT_NAME: Clipbara
+        INFOPLIST_FILE: Clipbara/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Clipbara/Clipbara.entitlements
         GENERATE_INFOPLIST_FILE: false
         ENABLE_HARDENED_RUNTIME: "YES"
         SWIFT_STRICT_CONCURRENCY: complete
@@ -43,7 +43,7 @@ targets:
       - package: Sparkle
         product: Sparkle
     entitlements:
-      path: PasteClip/PasteClip.entitlements
+      path: Clipbara/Clipbara.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.files.user-selected.read-only: true

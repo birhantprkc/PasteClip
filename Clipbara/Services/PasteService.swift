@@ -3,7 +3,7 @@ import AppKit
 @MainActor
 struct PasteService {
 
-    private static let tempDir = NSTemporaryDirectory() + "PasteClip/"
+    private static let tempDir = NSTemporaryDirectory() + "Clipbara/"
 
     func paste(item: ClipboardItem) {
         let pasteboard = NSPasteboard.general
@@ -100,7 +100,7 @@ struct PasteService {
             .unicodeScalars.filter { asciiOnly.contains($0) }
             .reduce(into: "") { $0.append(String($1)) }
             .trimmingCharacters(in: .whitespaces)
-        let appName = (safeName?.isEmpty ?? true) ? "PasteClip" : safeName!
+        let appName = (safeName?.isEmpty ?? true) ? "Clipbara" : safeName!
         let timestamp = filenameDateFormatter.string(from: Date())
         let filename = "\(appName) \(timestamp).png" as String
         let url = URL(fileURLWithPath: tempDir + filename)

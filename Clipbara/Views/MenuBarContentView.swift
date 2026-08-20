@@ -79,7 +79,7 @@ struct MenuBarContentView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
 
-            Button("Quit PasteClip") {
+            Button("Quit Clipbara") {
                 NSApplication.shared.terminate(nil)
             }
             .keyboardShortcut("q", modifiers: .command)
