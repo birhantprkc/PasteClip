@@ -6,6 +6,25 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>Version 1.2.0</title>
+      <sparkle:version>22</sparkle:version>
+      <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
+      <description><![CDATA[
+        <ul>
+          <li><strong>PasteClip is now Clipbara!</strong> An unrelated app named PasteClip appeared on the Mac App Store, so the project has a new name. Same app, same features, same local-only privacy.</li>
+          <li>The app bundle is now Clipbara.app &mdash; your clipboard history, pinboards, and settings carry over automatically</li>
+          <li>New home: https://github.com/mobrava/Clipbara (old links redirect)</li>
+        </ul>
+      ]]></description>
+      <pubDate>Wed, 20 Aug 2026 23:30:00 +0900</pubDate>
+      <enclosure
+        url="https://github.com/mobrava/Clipbara/releases/download/v1.2.0/Clipbara-v1.2.0.dmg"
+        type="application/octet-stream"
+        sparkle:edSignature="OFKSR2nMUiCaLE7S3n3BHbxPdq5+ol5NaQZHSNEUB09Acuvw1gaNo36PTmr4s3kNoQsFbw6q0PyMHvYTLw+DDw=="
+        length="2871354"
+      />
+    </item>
+    <item>
       <title>Version 1.1.11</title>
       <sparkle:version>21</sparkle:version>
       <sparkle:shortVersionString>1.1.11</sparkle:shortVersionString>
