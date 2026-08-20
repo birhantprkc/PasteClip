@@ -14,6 +14,8 @@
   <a href="README.md">English</a> | 简体中文
 </p>
 
+> **Clipbara 原名 PasteClip**，因 Mac App Store 上已有同名应用，于 2026 年 8 月改名。v1.1.11 及更早版本仍使用 PasteClip 名称，旧链接会自动跳转。
+
 <p align="center">
   <a href="https://github.com/mobrava/Clipbara/releases/latest"><img src="https://img.shields.io/github/v/release/mobrava/Clipbara?style=flat-square" alt="最新版本"></a>
   <a href="https://github.com/mobrava/Clipbara/releases"><img src="https://img.shields.io/github/downloads/mobrava/Clipbara/total?style=flat-square" alt="下载量"></a>
