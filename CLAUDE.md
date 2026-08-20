@@ -3,45 +3,45 @@
 ## 빌드 & 실행
 
 - xcodegen 사용: `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodegen generate`
-- 빌드: `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project PasteClip.xcodeproj -scheme PasteClip -configuration Debug build`
+- 빌드: `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project Clipbara.xcodeproj -scheme Clipbara -configuration Debug build`
 - **빌드 성공 후 항상 기존 앱 종료 → 재실행까지 자동으로 수행할 것:**
   ```
-  pkill -f PasteClip.app || true
+  pkill -f Clipbara.app || true
   sleep 1
-  open ~/Library/Developer/Xcode/DerivedData/PasteClip-epqqlnynsrzjeabjbaqkemphzwdb/Build/Products/Debug/PasteClip.app
+  open ~/Library/Developer/Xcode/DerivedData/Clipbara-fkhylhcltueskmgbecvzvekxrevf/Build/Products/Debug/Clipbara.app
   ```
 
 ## 릴리스 & 배포
 
-1. `PasteClip/Info.plist`의 `CFBundleShortVersionString`, `CFBundleVersion` 버전 업데이트
+1. `Clipbara/Info.plist`의 `CFBundleShortVersionString`, `CFBundleVersion` 버전 업데이트
 2. 코드 변경사항 커밋
 3. DMG 빌드: `bash scripts/build-release.sh` (EdDSA 서명 + appcast.xml 자동 업데이트 포함)
 4. **`appcast.xml` 수정 (2가지 작업 필수)**:
    - **새 버전 item 추가**: 빌드 스크립트는 첫 번째 item의 서명/크기만 덮어쓸 뿐 새 항목을 생성하지 않음. 새 item을 기존 첫 번째 item 위에 추가하고 `sparkle:version`, `sparkle:shortVersionString`, URL, 릴리스 노트, EdDSA 서명, length를 정확히 기입할 것
-   - **appcast URL은 반드시 v-prefixed 파일명 사용**: `PasteClip-v{VERSION}.dmg` (v 접두사 있는 것). GitHub Releases에서 v 없는 파일명(`PasteClip-{VERSION}.dmg`)은 업로드 시 손상되는 문제가 있어 Sparkle 서명 검증이 실패함
+   - **appcast URL은 반드시 v-prefixed 파일명 사용**: `Clipbara-v{VERSION}.dmg` (v 접두사 있는 것). GitHub Releases에서 v 없는 파일명(`Clipbara-{VERSION}.dmg`)은 업로드 시 손상되는 문제가 있어 Sparkle 서명 검증이 실패함
    - **이전 버전 item의 서명/크기 복원**: 빌드 스크립트가 첫 번째 item의 `sparkle:edSignature`와 `length`를 새 빌드 값으로 덮어쓰므로, `git show HEAD:appcast.xml`로 원래 값을 확인해서 복원할 것. 이걸 빠뜨리면 이전 버전의 Sparkle 업데이트가 깨짐
 5. appcast.xml 커밋 & 푸시
 6. GitHub 릴리스 생성 + DMG 업로드 + **업로드 검증**:
    ```
    git tag v{VERSION} && git push origin v{VERSION}
-   cp build/PasteClip-{VERSION}.dmg /tmp/PasteClip-v{VERSION}.dmg
-   gh release create v{VERSION} build/PasteClip-{VERSION}.dmg /tmp/PasteClip-v{VERSION}.dmg --title "v{VERSION}" --notes "..."
+   cp build/Clipbara-{VERSION}.dmg /tmp/Clipbara-v{VERSION}.dmg
+   gh release create v{VERSION} build/Clipbara-{VERSION}.dmg /tmp/Clipbara-v{VERSION}.dmg --title "v{VERSION}" --notes "..."
    ```
    **반드시 업로드 후 v-prefixed DMG 검증할 것:**
    ```
-   gh release download v{VERSION} -p "PasteClip-v{VERSION}.dmg" -D /tmp/verify --clobber
-   shasum -a 256 /tmp/verify/PasteClip-v{VERSION}.dmg  # 빌드 스크립트 출력의 SHA256과 일치해야 함
+   gh release download v{VERSION} -p "Clipbara-v{VERSION}.dmg" -D /tmp/verify --clobber
+   shasum -a 256 /tmp/verify/Clipbara-v{VERSION}.dmg  # 빌드 스크립트 출력의 SHA256과 일치해야 함
    ```
 7. (선택) Homebrew tap 업데이트 (`mobrava/homebrew-tap`):
    - `Casks/pasteclip.rb`의 `version`과 `sha256` 변경 (sha256은 빌드 스크립트 출력에 나옴)
-   - Homebrew cask URL은 `PasteClip-v{VERSION}.dmg` (v 접두사 있음) — 6단계에서 이미 함께 업로드됨
+   - Homebrew cask URL은 `Clipbara-v{VERSION}.dmg` (v 접두사 있음) — 6단계에서 이미 함께 업로드됨
    - GitHub API로 업데이트: `gh api repos/mobrava/homebrew-tap/contents/Casks/pasteclip.rb --method PUT ...`
-8. Gatekeeper 문제 시: `xattr -cr /Applications/PasteClip.app`
+8. Gatekeeper 문제 시: `xattr -cr /Applications/Clipbara.app`
 
 ## Sparkle 자동 업데이트
 
 - Sparkle 2.x SPM 의존성 사용, 앱 내 자동 업데이트 지원
-- appcast URL: `https://raw.githubusercontent.com/mobrava/PasteClip/main/appcast.xml`
+- appcast URL: `https://raw.githubusercontent.com/mobrava/Clipbara/main/appcast.xml`
 - EdDSA 비공개키는 macOS Keychain에 저장됨 (`sign_update`가 자동 접근)
 - 공개키는 Info.plist `SUPublicEDKey`에 설정됨 (노출 안전)
 - `CheckForUpdatesViewModel` (`Services/UpdaterService.swift`): `@EnvironmentObject`로 뷰에 전달
