@@ -38,7 +38,9 @@ final class OnboardingWindowController: NSObject, NSWindowDelegate {
         newWindow.titleVisibility = .hidden
         newWindow.standardWindowButton(.zoomButton)?.isHidden = true
         newWindow.standardWindowButton(.miniaturizeButton)?.isHidden = true
-        newWindow.isMovableByWindowBackground = true
+        // NOTE: keep isMovableByWindowBackground off — when enabled, clicks on the
+        // KeyboardShortcuts recorder (non-opaque NSSearchField) get swallowed as
+        // window drags and the field never receives focus.
         newWindow.isReleasedWhenClosed = false
         newWindow.setContentSize(NSSize(width: 560, height: 660))
         newWindow.delegate = self
