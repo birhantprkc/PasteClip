@@ -265,13 +265,15 @@ struct OnboardingView: View {
             VStack(spacing: 10) {
                 shortcutRow(
                     title: "Open Clipbara",
-                    detail: "Works globally, in any app."
+                    detail: "Works globally, in any app.",
+                    info: "Combine at least one of \u{2318}, \u{2325} or \u{2303} with a key \u{2014} e.g. \u{2325}V or \u{2303}\u{21e7}P. Function keys (F1\u{2013}F12) work on their own. Shift alone isn't supported by macOS."
                 ) {
                     KeyboardShortcuts.Recorder(for: .toggleHistoryPanel)
                 }
                 shortcutRow(
                     title: "Preview a clip",
-                    detail: "Full-screen Quick Look for the selected card."
+                    detail: "Full-screen Quick Look for the selected card.",
+                    info: "A single key with no modifiers. It only works while the Clipbara panel is open, so it won't clash with other apps."
                 ) {
                     LocalKeyRecorderView()
                 }
@@ -322,12 +324,18 @@ struct OnboardingView: View {
     private func shortcutRow<Control: View>(
         title: String,
         detail: String,
+        info: String? = nil,
         @ViewBuilder control: () -> Control
     ) -> some View {
         HStack(spacing: 13) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: 13, weight: .semibold))
+                HStack(spacing: 5) {
+                    Text(title)
+                        .font(.system(size: 13, weight: .semibold))
+                    if let info {
+                        InfoHoverButton(text: info)
+                    }
+                }
                 Text(detail)
                     .font(.system(size: 11.5))
                     .foregroundStyle(.secondary)
@@ -370,9 +378,12 @@ struct OnboardingView: View {
                         + Text(" in your menu bar — history, pinboards and settings live there."))
                 } action: { EmptyView() }
                 hintRow(symbol: "square.and.arrow.down") {
-                    (Text("Coming from ")
-                        + Text("PasteClip").bold().foregroundStyle(Color.primary)
-                        + Text(" or another Mac?\nRestore your clips from a backup file."))
+                    HStack(spacing: 5) {
+                        (Text("Coming from ")
+                            + Text("PasteClip").bold().foregroundStyle(Color.primary)
+                            + Text(" or another Mac?\nRestore your clips from a backup file."))
+                        InfoHoverButton(text: "In your previous app, choose Settings \u{2192} General \u{2192} Backup \u{2192} Export\u{2026} to save a JSON backup file. Then click Import and select that file \u{2014} existing clips are kept, duplicates are skipped.")
+                    }
                 } action: {
                     Button("Import…") { importBackup() }
                         .buttonStyle(.plain)

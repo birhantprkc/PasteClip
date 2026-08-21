@@ -6,6 +6,7 @@ struct ShortcutSettingsTab: View {
         Form {
             HStack {
                 Text("Toggle History Panel")
+                InfoHoverButton(text: "Combine at least one of \u{2318}, \u{2325} or \u{2303} with a key \u{2014} e.g. \u{2325}V or \u{2303}\u{21e7}P. Function keys (F1\u{2013}F12) work on their own. Shift alone isn't supported by macOS.")
                 Spacer()
                 KeyboardShortcuts.Recorder(for: .toggleHistoryPanel)
             }
@@ -16,7 +17,10 @@ struct ShortcutSettingsTab: View {
             }
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Quick Look Preview")
+                    HStack(spacing: 5) {
+                        Text("Quick Look Preview")
+                        InfoHoverButton(text: "A single key with no modifiers. It only works while the Clipbara panel is open, so it won't clash with other apps.")
+                    }
                     Text("Pressed inside the panel with a card selected.")
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
