@@ -63,6 +63,15 @@ struct ClipbaraApp: App {
         let context = sharedModelContainer.mainContext
         appState.start(modelContext: context, modelContainer: sharedModelContainer)
 
+        // First-run welcome tour (NSApp is not ready in init, defer it)
+        Task { @MainActor [appState, sharedModelContainer] in
+            try? await Task.sleep(for: .milliseconds(400))
+            OnboardingWindowController.shared.showIfNeeded(
+                appState: appState,
+                modelContainer: sharedModelContainer
+            )
+        }
+
         // Apply saved theme on launch (NSApp is not ready in init, defer it)
         DispatchQueue.main.async { [sharedModelContainer] in
             let theme = UserDefaults.standard.string(forKey: "appTheme") ?? "System"

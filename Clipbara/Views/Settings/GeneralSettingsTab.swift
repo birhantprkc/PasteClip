@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 
 struct GeneralSettingsTab: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppState.self) private var appState
     @AppStorage("historyLimit") private var historyLimit: Int = 500
     @State private var launchAtLogin: Bool = SMAppService.mainApp.status == .enabled
     @State private var transferMessage: String?
@@ -42,6 +43,12 @@ struct GeneralSettingsTab: View {
                     Button("Import\u{2026}") { importHistory() }
                 }
             }
+
+            Section {
+                LabeledContent("Replay the first-run welcome tour.") {
+                    Button("Show Welcome Tour\u{2026}") { showWelcomeTour() }
+                }
+            }
         }
         .formStyle(.grouped)
         .padding()
@@ -50,6 +57,11 @@ struct GeneralSettingsTab: View {
         } message: { message in
             Text(message)
         }
+    }
+
+    private func showWelcomeTour() {
+        guard let container = appState.modelContainer else { return }
+        OnboardingWindowController.shared.show(appState: appState, modelContainer: container)
     }
 
     private func exportHistory() {

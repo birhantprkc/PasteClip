@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clipbara Onboarding Mockup</title>
+<style>
+  :root {
+    --accent: #2563EB;
+    --accent-deep: #1C3E96;
+    --accent-soft: #EFF4FE;
+    --ink: #1d2433;
+    --ink-2: #5b6472;
+    --ink-3: #8a93a3;
+    --card-border: rgba(0,0,0,0.08);
+    --win-bg: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+    background: #d8dde6;
+    display: flex;
+    gap: 48px;
+    padding: 48px;
+    align-items: flex-start;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== Window chrome ===== */
+  .window {
+    width: 560px;
+    height: 660px;
+    background: var(--win-bg);
+    border-radius: 12px;
+    box-shadow: 0 22px 70px rgba(15,23,42,0.35), 0 0 0 0.5px rgba(0,0,0,0.15);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .traffic { position: absolute; top: 14px; left: 14px; display: flex; gap: 8px; z-index: 10; }
+  .traffic span { width: 12px; height: 12px; border-radius: 50%; }
+  .traffic .r { background: #ff5f57; } .traffic .y { background: #febc2e; } .traffic .g { background: #28c840; }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative;
+    height: 240px;
+    background:
+      radial-gradient(120% 90% at 18% -10%, rgba(90,147,250,0.28), transparent 60%),
+      radial-gradient(110% 100% at 85% 0%, rgba(37,99,235,0.16), transparent 55%),
+      linear-gradient(180deg, #F4F8FF 0%, #FDFEFF 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(29,36,51,0.05);
+  }
+  .hero.short { height: 190px; }
+  .app-icon { width: 108px; height: 108px; filter: drop-shadow(0 12px 22px rgba(28,62,150,0.28)); }
+  .hero.short .app-icon { width: 84px; height: 84px; }
+
+  /* floating mini cards behind icon */
+  .float-card {
+    position: absolute;
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(15,23,42,0.10);
+    padding: 8px 10px;
+    font-size: 10px;
+    color: var(--ink-2);
+  }
+  .float-card .bar { height: 4px; border-radius: 2px; background: #e3e9f2; margin-top: 5px; }
+  .float-card .bar.w60 { width: 60%; }
+  .float-card .tag {
+    display: inline-block; font-size: 8.5px; font-weight: 600; color: var(--accent);
+    background: var(--accent-soft); border-radius: 4px; padding: 2px 5px; margin-bottom: 4px;
+  }
+  .fc1 { width: 120px; left: 52px; top: 46px; transform: rotate(-7deg); opacity: .9; }
+  .fc2 { width: 132px; right: 48px; top: 62px; transform: rotate(6deg); opacity: .9; }
+  .fc3 { width: 104px; left: 84px; bottom: 30px; transform: rotate(4deg); opacity: .75; }
+  .fc4 { width: 96px; right: 84px; bottom: 24px; transform: rotate(-5deg); opacity: .75; }
+
+  /* ===== Body ===== */
+  .content { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 30px 44px 0; text-align: center; }
+  h1 { font-size: 27px; font-weight: 700; letter-spacing: -0.4px; color: var(--ink); }
+  h1 .brand { color: var(--accent); }
+  .subtitle { font-size: 14px; line-height: 1.55; color: var(--ink-2); margin-top: 9px; max-width: 400px; }
+
+  /* feature rows (step 1) */
+  .features { width: 100%; margin-top: 26px; display: flex; flex-direction: column; gap: 6px; }
+  .feature { display: flex; align-items: center; gap: 14px; text-align: left; padding: 9px 12px; border-radius: 10px; }
+  .feature .ic {
+    width: 34px; height: 34px; flex-shrink: 0; border-radius: 9px;
+    background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .feature .ic svg { width: 18px; height: 18px; }
+  .feature .tt { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .feature .dd { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+
+  /* ===== Keycaps (step 2) ===== */
+  .keycap-row { display: flex; gap: 12px; margin-top: 22px; align-items: center; }
+  .keycap {
+    width: 66px; height: 66px; border-radius: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f2f4f8 100%);
+    border: 1px solid rgba(29,36,51,0.13);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 0 #d9dee7, 0 10px 22px rgba(15,23,42,0.12);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--ink);
+  }
+  .keycap .sym { font-size: 27px; font-weight: 500; line-height: 1; }
+  .keycap .name { font-size: 9.5px; font-weight: 500; color: var(--ink-3); margin-top: 5px; text-transform: lowercase; letter-spacing: .3px; }
+  .keycap.letter .sym { font-size: 30px; font-weight: 600; color: var(--accent); }
+
+  .shortcut-rows { width: 100%; margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .shortcut-row {
+    display: flex; align-items: center; gap: 13px;
+    border: 1px solid var(--card-border); border-radius: 10px;
+    background: #fafbfd; padding: 12px 14px; text-align: left;
+  }
+  .shortcut-row .info { flex: 1; }
+  .shortcut-row .tt { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .shortcut-row .dd { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+  .minicap {
+    min-width: 30px; height: 30px; padding: 0 8px; border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #f2f4f8 100%);
+    border: 1px solid rgba(29,36,51,0.13);
+    box-shadow: 0 2px 0 #d9dee7, 0 3px 8px rgba(15,23,42,0.08);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: var(--ink);
+  }
+  .minicap.space { min-width: 68px; font-size: 11px; font-weight: 500; color: var(--ink-2); }
+  .shortcut-row .change {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    background: var(--accent-soft); border-radius: 6px; padding: 5px 11px; flex-shrink: 0;
+  }
+
+  /* ===== Step 3 ===== */
+  .done-check {
+    width: 72px; height: 72px; border-radius: 50%; margin-top: 6px;
+    background: linear-gradient(180deg, #5A93FA, #2563EB);
+    box-shadow: 0 10px 26px rgba(37,99,235,0.35);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .done-check svg { width: 34px; height: 34px; stroke: #fff; }
+  .hint-stack { width: 100%; margin-top: 26px; display: flex; flex-direction: column; gap: 10px; }
+  .menubar-hint {
+    width: 100%;
+    border: 1px solid var(--card-border); border-radius: 10px;
+    background: #fafbfd; padding: 13px 16px;
+    display: flex; align-items: center; gap: 13px; text-align: left;
+  }
+  .menubar-hint .ic {
+    width: 34px; height: 34px; flex-shrink: 0; border-radius: 9px;
+    background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .menubar-hint .ic svg { width: 18px; height: 18px; }
+  .menubar-hint .tt { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
+  .menubar-hint b { color: var(--ink); font-weight: 600; }
+  .menubar-hint .action {
+    margin-left: auto; flex-shrink: 0;
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    background: var(--accent-soft); border-radius: 6px; padding: 5px 11px;
+  }
+
+  /* ===== Footer ===== */
+  .footer { padding: 0 44px 26px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .dots { display: flex; gap: 7px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(29,36,51,0.14); }
+  .dot.on { background: var(--accent); }
+  .btn-primary {
+    width: 100%; height: 42px; border-radius: 10px;
+    background: linear-gradient(180deg, #3B71F3, #2563EB);
+    box-shadow: 0 6px 16px rgba(37,99,235,0.30), 0 1px 0 rgba(255,255,255,0.25) inset;
+    color: #fff; font-size: 14.5px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn-ghost { font-size: 12.5px; color: var(--ink-3); font-weight: 500; }
+  .footer-links { display: flex; gap: 20px; }
+
+  .label { position: absolute; top: -34px; left: 0; font-size: 13px; font-weight: 600; color: #495261; }
+  .frame { position: relative; }
+</style>
+</head>
+<body>
+
+<!-- ============ STEP 1: Welcome ============ -->
+<div class="frame" id="step1">
+  <div class="label">Step 1 · Welcome</div>
+  <div class="window">
+    <div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+    <div class="hero">
+      <div class="float-card fc1"><span class="tag">TEXT</span><div class="bar"></div><div class="bar w60"></div></div>
+      <div class="float-card fc2"><span class="tag" style="color:#009688;background:#E5F4F2;">LINK</span><div class="bar"></div><div class="bar w60"></div></div>
+      <div class="float-card fc3"><div class="bar" style="margin-top:2px"></div><div class="bar w60"></div></div>
+      <div class="float-card fc4"><div class="bar" style="margin-top:2px"></div><div class="bar w60"></div></div>
+      <img class="app-icon" src="../icon/pasteclip-icon.svg" alt="">
+    </div>
+    <div class="content">
+      <h1>Welcome to <span class="brand">Clipbara</span></h1>
+      <p class="subtitle">Everything you copy, saved automatically.<br>Find it and paste it again whenever you need.</p>
+      <div class="features">
+        <div class="feature">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="8" height="14" rx="2"/><rect x="13" y="5" width="8" height="9" rx="2"/></svg></div>
+          <div><div class="tt">Clipboard history as cards</div><div class="dd">Text, links, images, files &amp; colors — one click to copy back.</div></div>
+        </div>
+        <div class="feature">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17l-5 3 1-5.5L4 10.5l5.5-.5L12 5l2.5 5 5.5.5-4 4L17 20z"/></svg></div>
+          <div><div class="tt">Pinboards for keepers</div><div class="dd">Drag frequently used clips to boards so they never expire.</div></div>
+        </div>
+        <div class="feature">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+          <div><div class="tt">100% local &amp; private</div><div class="dd">No account, no cloud, no telemetry. Your data stays on this Mac.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+      <div class="btn-primary">Continue</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STEP 2: Shortcut ============ -->
+<div class="frame" id="step2">
+  <div class="label">Step 2 · Shortcut</div>
+  <div class="window">
+    <div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+    <div class="hero short">
+      <img class="app-icon" src="../icon/pasteclip-icon.svg" alt="">
+    </div>
+    <div class="content">
+      <h1>One shortcut away</h1>
+      <p class="subtitle">Press this anywhere, in any app,<br>to open your clipboard history.</p>
+      <div class="keycap-row">
+        <div class="keycap"><div class="sym">⌘</div><div class="name">command</div></div>
+        <div class="keycap"><div class="sym">⇧</div><div class="name">shift</div></div>
+        <div class="keycap letter"><div class="sym">V</div><div class="name">&nbsp;</div></div>
+      </div>
+      <div class="shortcut-rows">
+        <div class="shortcut-row">
+          <div class="info"><div class="tt">Open Clipbara</div><div class="dd">Works globally, in any app.</div></div>
+          <span class="minicap">⌘⇧V</span>
+          <span class="change">Change…</span>
+        </div>
+        <div class="shortcut-row">
+          <div class="info"><div class="tt">Preview a clip</div><div class="dd">Full-screen Quick Look for the selected card.</div></div>
+          <span class="minicap space">space</span>
+          <span class="change">Change…</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="dots"><span class="dot"></span><span class="dot on"></span><span class="dot"></span></div>
+      <div class="btn-primary">Continue</div>
+      <div class="footer-links"><span class="btn-ghost">Back</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STEP 3: Ready ============ -->
+<div class="frame" id="step3">
+  <div class="label">Step 3 · Ready</div>
+  <div class="window">
+    <div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+    <div class="hero short">
+      <div class="done-check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l5 5L19 7"/></svg></div>
+    </div>
+    <div class="content">
+      <h1>You're all set</h1>
+      <p class="subtitle">Copy something, press <b style="color:var(--ink)">⌘⇧V</b>, and it'll be there.<br>Clipbara runs quietly in your menu bar.</p>
+      <div class="hint-stack">
+        <div class="menubar-hint">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.2V3.4A1.4 1.4 0 0 1 10.4 2h3.2A1.4 1.4 0 0 1 15 3.4v.8"/><path d="M9 10h6M9 14h4"/></svg></div>
+          <div class="tt">Find Clipbara anytime via the <b>clipboard icon</b> in your menu bar — history, pinboards and settings live there.</div>
+        </div>
+        <div class="menubar-hint">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v10"/><path d="M8 9l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+          <div class="tt">Coming from <b>PasteClip</b> or another Mac?<br>Restore your clips from a backup file.</div>
+          <div class="action">Import…</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot on"></span></div>
+      <div class="btn-primary">Start Using Clipbara</div>
+      <div class="footer-links"><span class="btn-ghost">Back</span></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

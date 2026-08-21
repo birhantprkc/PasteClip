@@ -262,6 +262,26 @@ final class PanelController {
         let items = appState.currentFilteredItems
         let maxIndex = items.count - 1
 
+        // Quick Look toggle (user-configurable key, default Space)
+        if keyCode == QuickLookKeySetting.keyCode {
+            if quickLookPanel != nil {
+                hideQuickLook()
+                return true
+            }
+            if appState.previewItem != nil {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    appState.selectForPreview(nil)
+                }
+                return true
+            }
+            if let idx = appState.searchState.selectedIndex, idx < items.count {
+                let item = items[idx]
+                showQuickLook(item: item)
+                return true
+            }
+            return false
+        }
+
         switch keyCode {
         case 53: // Escape
             if quickLookPanel != nil {
@@ -305,24 +325,6 @@ final class PanelController {
                 }
             }
             return true
-
-        case 49: // Space - toggle preview
-            if quickLookPanel != nil {
-                hideQuickLook()
-                return true
-            }
-            if appState.previewItem != nil {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    appState.selectForPreview(nil)
-                }
-                return true
-            }
-            if let idx = appState.searchState.selectedIndex, idx < items.count {
-                let item = items[idx]
-                showQuickLook(item: item)
-                return true
-            }
-            return false
 
         case 36: // Return - paste
             if let item = quickLookItem {

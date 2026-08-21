@@ -14,6 +14,16 @@ struct ShortcutSettingsTab: View {
                 Spacer()
                 KeyboardShortcuts.Recorder(for: .clearHistory)
             }
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Quick Look Preview")
+                    Text("Pressed inside the panel with a card selected.")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                LocalKeyRecorderView()
+            }
         }
         .formStyle(.grouped)
         .padding()
