@@ -266,7 +266,7 @@ struct OnboardingView: View {
                 shortcutRow(
                     title: "Open Clipbara",
                     detail: "Works globally, in any app.",
-                    info: "Combine at least one of \u{2318}, \u{2325} or \u{2303} with a key \u{2014} e.g. \u{2325}V or \u{2303}\u{21e7}P. Function keys (F1\u{2013}F12) work on their own. Shift alone isn't supported by macOS."
+                    info: "Combine at least one of \u{2318}, \u{2325} or \u{2303} with a key, like \u{2325}V or \u{2303}\u{21e7}P. Function keys (F1\u{2013}F12) work on their own. Shift alone isn't supported by macOS."
                 ) {
                     KeyboardShortcuts.Recorder(for: .toggleHistoryPanel)
                 }
@@ -382,7 +382,7 @@ struct OnboardingView: View {
                         (Text("Coming from ")
                             + Text("PasteClip").bold().foregroundStyle(Color.primary)
                             + Text(" or another Mac?\nRestore your clips from a backup file."))
-                        InfoHoverButton(text: "In your previous app, choose Settings \u{2192} General \u{2192} Backup \u{2192} Export\u{2026} to save a JSON backup file. Then click Import and select that file \u{2014} existing clips are kept, duplicates are skipped.")
+                        InfoHoverButton(text: "In your previous app, go to Settings > General > Backup > Export to save a JSON backup file. Then click Import and select that file. Existing clips are kept and duplicates are skipped.")
                     }
                 } action: {
                     Button("Import…") { importBackup() }

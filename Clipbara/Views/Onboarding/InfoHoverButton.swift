@@ -23,6 +23,5 @@ struct InfoHoverButton: View {
                     .frame(width: width, alignment: .leading)
             }
             .accessibilityLabel("More info")
-            .help(text)
     }
 }
