@@ -65,6 +65,14 @@ final class AppState {
         }
     }
 
+    /// Shared paste path for panel and pinboard cards.
+    /// - Parameter asPlainText: `nil` resolves from the setting combined with the Shift modifier.
+    func paste(_ item: ClipboardItem, asPlainText: Bool? = nil) {
+        clipboardMonitor.skipNextChange()
+        pasteService.paste(item: item, asPlainText: asPlainText)
+        hidePanel()
+    }
+
     func hidePanel() {
         previewItem = nil
         panelToast = nil
