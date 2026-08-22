@@ -6,6 +6,27 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>Version 1.3.0</title>
+      <sparkle:version>24</sparkle:version>
+      <sparkle:shortVersionString>1.3.0</sparkle:shortVersionString>
+      <description><![CDATA[
+        <ul>
+          <li><strong>Paste as plain text</strong> &mdash; hold Shift while clicking a rich-text or HTML clip to strip its formatting, or use the new Paste with Formatting / Paste as Plain Text context menu. Turn on &ldquo;Always Paste as Plain Text&rdquo; in Settings &gt; General to make it the default.</li>
+          <li><strong>Backup and restore</strong> &mdash; export your clipboard history to a JSON file and import it back, so you can move it between Macs.</li>
+          <li><strong>First-run onboarding tour</strong> that walks you through the panel shortcut, search, pinboards, and Quick Look.</li>
+          <li>The Quick Look preview key is now configurable.</li>
+          <li>Settings polish: hover balloons explain the shortcut rules and backup import, and the Settings window now comes to the front when opened from the menu bar.</li>
+        </ul>
+      ]]></description>
+      <pubDate>Sat, 22 Aug 2026 18:30:00 +0900</pubDate>
+      <enclosure
+        url="https://github.com/mobrava/Clipbara/releases/download/v1.3.0/Clipbara-v1.3.0.dmg"
+        type="application/octet-stream"
+        sparkle:edSignature="kSSW7X63AjLFBui/BWAqa4I9pagGP6coEtOxMSAr+Qd8yNSC8hjupQNYVeA2ijqYc9MHKLnOfglozv1kTnl6Ag=="
+        length="3107225"
+      />
+    </item>
+    <item>
       <title>Version 1.2.0</title>
       <sparkle:version>22</sparkle:version>
       <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
