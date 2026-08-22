@@ -5,7 +5,34 @@ struct PasteService {
 
     private static let tempDir = NSTemporaryDirectory() + "Clipbara/"
 
-    func paste(item: ClipboardItem) {
+    /// Backing key for the "Always Paste as Plain Text" setting (Settings > General).
+    nonisolated static let alwaysPlainTextDefaultsKey = "alwaysPastePlainText"
+
+    /// Whether stripping formatting is meaningful for this item (RTF/HTML only).
+    static func supportsPlainText(_ item: ClipboardItem) -> Bool {
+        switch item.contentType {
+        case .richText, .html:
+            return !(item.textContent?.isEmpty ?? true)
+        default:
+            return false
+        }
+    }
+
+    /// Combines the setting with the Shift modifier using XOR.
+    /// Setting off: Shift strips formatting. Setting on: Shift keeps formatting.
+    static func resolvePlainText() -> Bool {
+        let always = UserDefaults.standard.bool(forKey: alwaysPlainTextDefaultsKey)
+        let shiftHeld = NSEvent.modifierFlags.contains(.shift)
+        return always != shiftHeld
+    }
+
+    /// - Parameter asPlainText: `nil` resolves from the setting combined with the Shift modifier.
+    func paste(item: ClipboardItem, asPlainText: Bool? = nil) {
+        if asPlainText ?? Self.resolvePlainText(), Self.supportsPlainText(item) {
+            pastePlainText(item: item)
+            return
+        }
+
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
 
