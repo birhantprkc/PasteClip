@@ -6,6 +6,26 @@
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
+      <title>Version 1.3.1</title>
+      <sparkle:version>25</sparkle:version>
+      <sparkle:shortVersionString>1.3.1</sparkle:shortVersionString>
+      <description><![CDATA[
+        <ul>
+          <li><strong>The panel now opens on the display you are working on.</strong> On multi-display setups it could slide in on whichever screen last held focus, and with a display stacked below the primary one it could get stuck there for good.</li>
+          <li><strong>The first shortcut press after launch opens the panel.</strong> It used to take up to three presses because the panel was still being built.</li>
+          <li>The reveal animation now plays from the start instead of appearing part way through.</li>
+          <li>Pinboard tabs no longer show a horizontal scrollbar.</li>
+        </ul>
+      ]]></description>
+      <pubDate>Wed, 02 Sep 2026 23:36:36 +0900</pubDate>
+      <enclosure
+        url="https://github.com/mobrava/Clipbara/releases/download/v1.3.1/Clipbara-v1.3.1.dmg"
+        type="application/octet-stream"
+        sparkle:edSignature="D1WbH9ylf5D9pEmrWxDhh/MMBq5iXGJRXtTjySh4eGTfQNyqFXv81CRSbpVQsLo7c81Vw3RgrrqeKI0Fb0UxDg=="
+        length="3117399"
+      />
+    </item>
+    <item>
       <title>Version 1.3.0</title>
       <sparkle:version>24</sparkle:version>
       <sparkle:shortVersionString>1.3.0</sparkle:shortVersionString>
