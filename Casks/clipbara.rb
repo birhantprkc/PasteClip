@@ -1,6 +1,6 @@
 cask "clipbara" do
-  version "1.2.0"
-  sha256 "9fcb1ac2d071a722a65cd8334c185c79958f2a9cce3623929685fc973307eb48"
+  version "1.3.1"
+  sha256 "6aef40de39acc56f061bf2f0df2ce056c8dd6db752c824510399fda2dae62b91"
 
   url "https://github.com/mobrava/Clipbara/releases/download/v#{version}/Clipbara-v#{version}.dmg"
   name "Clipbara"
