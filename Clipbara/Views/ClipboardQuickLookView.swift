@@ -6,13 +6,30 @@ struct ClipboardQuickLookView: View {
     let shelfHeight: CGFloat
     let onClose: () -> Void
     let onPaste: () -> Void
+    @ObservedObject var zoom: ImageZoomController
 
     @Environment(\.colorScheme) private var colorScheme
     @State private var cachedImage: NSImage?
     @State private var imageMetadata: (width: Int, height: Int)?
-    @State private var showActualSize = false
     @State private var cachedCharCount: Int = 0
     @State private var cachedIsCodeLike: Bool = false
+
+    init(
+        item: ClipboardItem,
+        shelfHeight: CGFloat,
+        zoom: ImageZoomController,
+        onClose: @escaping () -> Void,
+        onPaste: @escaping () -> Void
+    ) {
+        self.item = item
+        self.shelfHeight = shelfHeight
+        self.zoom = zoom
+        self.onClose = onClose
+        self.onPaste = onPaste
+        // Decode up front so the bubble is sized to the image on the very first frame
+        // instead of flashing at full size and then shrinking.
+        _cachedImage = State(initialValue: item.contentType == .image ? NSImage(data: item.rawData) : nil)
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -28,7 +45,7 @@ struct ClipboardQuickLookView: View {
         }
         .task(id: item.id) {
             if item.contentType == .image {
-                let image = NSImage(data: item.rawData)
+                let image = cachedImage ?? NSImage(data: item.rawData)
                 cachedImage = image
                 if let rep = image?.representations.first {
                     imageMetadata = (rep.pixelsWide, rep.pixelsHigh)
@@ -38,7 +55,6 @@ struct ClipboardQuickLookView: View {
             } else {
                 cachedImage = nil
                 imageMetadata = nil
-                showActualSize = false
 
                 let text = item.textContent ?? ""
                 cachedCharCount = text.count
@@ -49,10 +65,38 @@ struct ClipboardQuickLookView: View {
         }
     }
 
-    private func quickLookBubble(in size: CGSize) -> some View {
-        let maxBubbleWidth = min(size.width * 0.72, 1080)
+    private static let toolbarHeight: CGFloat = 48
+    private static let footerHeight: CGFloat = 36
+    private static let minImageBubbleWidth: CGFloat = 520
+    private static let minImageBubbleHeight: CGFloat = 300
+
+    /// Text and other types keep the large fixed bubble. Images get a bubble shaped
+    /// like the image at its fitted size, so there is no dead checkerboard around it.
+    private func bubbleSize(in size: CGSize) -> CGSize {
+        let maxWidth = min(size.width * 0.72, 1080)
         let availableHeight = max(size.height - shelfHeight - 68, 360)
-        let bubbleHeight = min(max(availableHeight * 0.86, 360), 720)
+        let maxHeight = min(max(availableHeight * 0.86, 360), 720)
+
+        guard item.contentType == .image,
+              let image = cachedImage,
+              image.size.width > 0, image.size.height > 0 else {
+            return CGSize(width: maxWidth, height: maxHeight)
+        }
+
+        let chrome = Self.toolbarHeight + Self.footerHeight + 2
+        let margin = ZoomingImageScrollView.fitMargin * 2
+        let maxContent = CGSize(width: maxWidth - margin, height: maxHeight - chrome - margin)
+        let scale = min(1, maxContent.width / image.size.width, maxContent.height / image.size.height)
+        let width = image.size.width * scale + margin
+        let height = image.size.height * scale + margin + chrome
+        return CGSize(
+            width: min(max(width, Self.minImageBubbleWidth), maxWidth),
+            height: min(max(height, Self.minImageBubbleHeight), maxHeight)
+        )
+    }
+
+    private func quickLookBubble(in size: CGSize) -> some View {
+        let bubble = bubbleSize(in: size)
 
         return VStack(spacing: 0) {
             VStack(spacing: 0) {
@@ -62,7 +106,7 @@ struct ClipboardQuickLookView: View {
                 Divider().opacity(0.35)
                 footer
             }
-            .frame(width: maxBubbleWidth, height: bubbleHeight)
+            .frame(width: bubble.width, height: bubble.height)
             .background(.regularMaterial)
             .background(bubbleTint)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
@@ -118,19 +162,8 @@ struct ClipboardQuickLookView: View {
 
             Spacer()
 
-            if item.contentType == .image {
-                Button {
-                    showActualSize.toggle()
-                } label: {
-                    Image(systemName: showActualSize ? "arrow.down.right.and.arrow.up.left" : "1.magnifyingglass")
-                        .font(.system(size: 12, weight: .medium))
-                        .frame(width: 28, height: 26)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                .background(toolbarButtonBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                .help(showActualSize ? "Fit" : "Actual Size")
+            if item.contentType == .image, cachedImage != nil {
+                zoomControls
             }
 
             if let bundleId = item.sourceAppBundleId {
@@ -156,7 +189,47 @@ struct ClipboardQuickLookView: View {
             .buttonStyle(.plain)
         }
         .padding(.horizontal, 16)
-        .frame(height: 48)
+        .frame(height: Self.toolbarHeight)
+    }
+
+    private var zoomControls: some View {
+        HStack(spacing: 0) {
+            zoomButton(systemImage: "minus", help: "Zoom Out (⌘-)", enabled: zoom.canZoomOut) {
+                zoom.perform(.zoomOut)
+            }
+
+            Button {
+                zoom.toggleFitAndActualSize()
+            } label: {
+                Text(zoom.isFitted ? "Fit" : "\(Int((zoom.magnification * 100).rounded()))%")
+                    .font(.system(size: 11, weight: .medium).monospacedDigit())
+                    .frame(width: 44, height: 26)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
+            .help(zoom.isFitted ? "Actual Size (double-click image)" : "Fit to Window (⌘0)")
+
+            zoomButton(systemImage: "plus", help: "Zoom In (⌘+)", enabled: zoom.canZoomIn) {
+                zoom.perform(.zoomIn)
+            }
+        }
+        .background(toolbarButtonBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+    }
+
+    private func zoomButton(systemImage: String, help: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 11, weight: .semibold))
+                .frame(width: 26, height: 26)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.secondary)
+        .opacity(enabled ? 1 : 0.35)
+        .disabled(!enabled)
+        .help(help)
     }
 
     @ViewBuilder
@@ -187,26 +260,15 @@ struct ClipboardQuickLookView: View {
     }
 
     private var imageContent: some View {
-        ZStack {
-            checkerboardBackground
-
+        Group {
             if let cachedImage {
-                ScrollView([.horizontal, .vertical], showsIndicators: showActualSize) {
-                    Image(nsImage: cachedImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(
-                            width: showActualSize ? actualWidth(for: cachedImage) : nil,
-                            height: showActualSize ? actualHeight(for: cachedImage) : nil
-                        )
-                        .frame(maxWidth: showActualSize ? nil : .infinity, maxHeight: showActualSize ? nil : .infinity)
-                        .padding(showActualSize ? 24 : 18)
-                }
+                ZoomableImageView(image: cachedImage, controller: zoom)
             } else {
                 placeholder(systemImage: "photo", text: "Unable to load image")
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(contentBackground)
         .clipped()
     }
 
@@ -318,7 +380,7 @@ struct ClipboardQuickLookView: View {
         .font(.system(size: 12, weight: .medium))
         .foregroundStyle(.secondary)
         .padding(.horizontal, 16)
-        .frame(height: 36)
+        .frame(height: Self.footerHeight)
     }
 
     private func placeholder(systemImage: String, text: String) -> some View {
@@ -340,31 +402,6 @@ struct ClipboardQuickLookView: View {
             Image(systemName: systemImage)
                 .font(.system(size: 28, weight: .medium))
                 .foregroundStyle(tint)
-        }
-    }
-
-    private var checkerboardBackground: some View {
-        Canvas { context, size in
-            let cellSize: CGFloat = 10
-            let rows = Int(ceil(size.height / cellSize))
-            let cols = Int(ceil(size.width / cellSize))
-            for row in 0..<rows {
-                for col in 0..<cols {
-                    let isLight = (row + col) % 2 == 0
-                    let rect = CGRect(
-                        x: CGFloat(col) * cellSize,
-                        y: CGFloat(row) * cellSize,
-                        width: cellSize,
-                        height: cellSize
-                    )
-                    context.fill(
-                        Path(rect),
-                        with: .color(isLight
-                            ? Color(white: colorScheme == .dark ? 0.21 : 0.78)
-                            : Color(white: colorScheme == .dark ? 0.16 : 0.70))
-                    )
-                }
-            }
         }
     }
 
@@ -412,14 +449,6 @@ struct ClipboardQuickLookView: View {
 
     private var bubblePointerFill: Color {
         colorScheme == .dark ? Color(white: 0.16) : Color(white: 0.30)
-    }
-
-    private func actualWidth(for image: NSImage) -> CGFloat {
-        min(max(image.size.width, 120), 1600)
-    }
-
-    private func actualHeight(for image: NSImage) -> CGFloat {
-        min(max(image.size.height, 120), 1200)
     }
 }
 

@@ -14,6 +14,7 @@ final class PanelController {
     private var presentedScreen: NSScreen?
     private var quickLookPanel: ClipboardQuickLookPanel?
     private var quickLookItem: ClipboardItem?
+    private var quickLookZoom: ImageZoomController?
     private(set) var isVisible: Bool = false
     private var clickMonitor: Any?
     private var mouseMonitor: Any?
@@ -302,6 +303,12 @@ final class PanelController {
               window === panel || window === quickLookPanel,
               let scrollView = horizontalScrollView(under: event, in: window) else { return false }
 
+        // Cmd/Option + wheel zooms a Quick Look image; leave it to the image view.
+        if scrollView is ZoomingImageScrollView,
+           !event.modifierFlags.intersection([.command, .option]).isEmpty {
+            return false
+        }
+
         let clip = scrollView.contentView.bounds.size
         let document = scrollView.documentView?.frame.size ?? .zero
         let input = WheelScrollTranslation.Input(
@@ -410,6 +417,11 @@ final class PanelController {
                 }
 
                 if self.quickLookPanel != nil {
+                    if let zoom = self.quickLookZoom,
+                       let action = ImageZoomController.action(keyCode: keyCode, modifiers: event.modifierFlags) {
+                        zoom.perform(action)
+                        return true
+                    }
                     return self.processKey(keyCode)
                 }
 
@@ -539,10 +551,14 @@ final class PanelController {
             quickLookPanel = panel
         }
 
+        let zoom = ImageZoomController()
+        quickLookZoom = zoom
+
         panel.contentView = NSHostingView(
             rootView: ClipboardQuickLookView(
                 item: item,
                 shelfHeight: baseHeight,
+                zoom: zoom,
                 onClose: { [weak self] in
                     self?.hideQuickLook()
                 },
@@ -569,6 +585,7 @@ final class PanelController {
         quickLookPanel?.orderOut(nil)
         quickLookPanel = nil
         quickLookItem = nil
+        quickLookZoom = nil
         panel?.makeKey()
     }
 
