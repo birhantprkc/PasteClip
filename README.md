@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="https://apps.apple.com/app/clipbara/id6803537696?mt=12"><img src="https://img.shields.io/badge/Mac%20App%20Store-free-0D96F6?style=flat-square&logo=apple&logoColor=white" alt="Clipbara on the Mac App Store"></a>
+  <a href="https://apps.apple.com/app/clipbara/id6803537696?mt=12"><img src="https://img.shields.io/badge/Mac%20App%20Store-%247.99-0D96F6?style=flat-square&logo=apple&logoColor=white" alt="Clipbara on the Mac App Store"></a>
   <a href="https://github.com/mobrava/Clipbara/releases/latest"><img src="https://img.shields.io/github/v/release/mobrava/Clipbara?style=flat-square" alt="Latest release"></a>
   <a href="https://github.com/mobrava/Clipbara/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/mobrava/Clipbara/build.yml?branch=main&style=flat-square" alt="Build status"></a>
   <a href="https://github.com/mobrava/Clipbara/releases"><img src="https://img.shields.io/github/downloads/mobrava/Clipbara/total?style=flat-square" alt="Total downloads"></a>
@@ -34,7 +34,7 @@
 
 Clipbara keeps a history of what you copy. Press `⌘ ⇧ V` and a panel slides up at the bottom of the screen without pulling focus from the app you are in. Click a clip once and it is back on your clipboard.
 
-It runs on macOS 14 Sonoma or later and is free on both the Mac App Store and GitHub.
+It runs on macOS 14 Sonoma or later. The DMG and Homebrew builds are free. The Mac App Store build is a one-time purchase.
 
 ## Install
 
@@ -55,7 +55,9 @@ Download the latest `.dmg` from [Releases](https://github.com/mobrava/Clipbara/r
 <details>
 <summary><strong>App Store build or DMG build?</strong></summary>
 
-Both are free and built from this repository. The App Store build is sandboxed and updates through the App Store. The DMG build updates itself through Sparkle and gets new features first, because App Store releases wait for review.
+Both are built from this repository. The App Store build is a one-time purchase, is sandboxed, and updates through the App Store. New releases reach it first. The DMG build is free, updates itself through Sparkle, and gets each release a few weeks later.
+
+The App Store build is not offered in EU storefronts. If you are in the EU, use the DMG or Homebrew build.
 
 The two use different bundle identifiers, so they keep separate histories. To carry your clips across, open **Settings > General > Backup > Export** in one build and **Import** in the other. Existing clips are kept and duplicates are skipped.
 
@@ -152,7 +154,7 @@ Build and run the `Clipbara` scheme with <kbd>⌘</kbd> <kbd>R</kbd>. The app is
 
 ## Motivation
 
-I wanted the card-style clipboard history that Paste has, without the subscription. Once I had built it for myself, charging for the same thing felt off, so Clipbara is free on the App Store and here.
+I wanted the card-style clipboard history that Paste has, without the subscription. The code and the DMG build stay free here. The App Store build is a one-time purchase for anyone who wants updates first and through the App Store, or who wants to support the work.
 
 A clipboard manager sees everything you copy, including the things you would rather it did not. That is reason enough to be able to read the code that touches it.
 
