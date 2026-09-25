@@ -54,6 +54,19 @@ enum TransferService {
         var importedBoards = 0
         var importedEntries = 0
         var importedExclusions = 0
+
+        /// User-facing result shown after an import, one sentence per line so
+        /// each part translates on its own.
+        var localizedMessage: String {
+            var lines = [String(localized: "Imported \(importedItems) clips.")]
+            if skippedItems > 0 {
+                lines.append(String(localized: "Skipped \(skippedItems) duplicates."))
+            }
+            if importedBoards > 0 {
+                lines.append(String(localized: "Imported \(importedBoards) pinboards."))
+            }
+            return lines.joined(separator: "\n")
+        }
     }
 
     // MARK: - Export

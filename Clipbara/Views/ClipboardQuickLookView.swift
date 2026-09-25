@@ -201,14 +201,16 @@ struct ClipboardQuickLookView: View {
             Button {
                 zoom.toggleFitAndActualSize()
             } label: {
-                Text(zoom.isFitted ? "Fit" : "\(Int((zoom.magnification * 100).rounded()))%")
+                Text(zoom.isFitted ? String(localized: "Fit") : "\(Int((zoom.magnification * 100).rounded()))%")
                     .font(.system(size: 11, weight: .medium).monospacedDigit())
                     .frame(width: 44, height: 26)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
-            .help(zoom.isFitted ? "Actual Size (double-click image)" : "Fit to Window (⌘0)")
+            .help(zoom.isFitted
+                ? String(localized: "Actual Size (double-click image)")
+                : String(localized: "Fit to Window (⌘0)"))
 
             zoomButton(systemImage: "plus", help: "Zoom In (⌘+)", enabled: zoom.canZoomIn) {
                 zoom.perform(.zoomIn)
@@ -218,7 +220,7 @@ struct ClipboardQuickLookView: View {
         .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
     }
 
-    private func zoomButton(systemImage: String, help: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+    private func zoomButton(systemImage: String, help: LocalizedStringKey, enabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.system(size: 11, weight: .semibold))
@@ -310,7 +312,7 @@ struct ClipboardQuickLookView: View {
             }
             return NSWorkspace.shared.icon(for: .data)
         }()
-        let fileName = item.textContent?.components(separatedBy: "/").last ?? "File"
+        let fileName = item.textContent?.components(separatedBy: "/").last ?? String(localized: "File")
 
         return VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 14) {
@@ -355,7 +357,7 @@ struct ClipboardQuickLookView: View {
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Text(item.textContent ?? "Color")
+            Text(item.textContent ?? String(localized: "Color"))
                 .font(.system(size: 18, weight: .semibold, design: .monospaced))
                 .textSelection(.enabled)
         }
@@ -383,7 +385,7 @@ struct ClipboardQuickLookView: View {
         .frame(height: Self.footerHeight)
     }
 
-    private func placeholder(systemImage: String, text: String) -> some View {
+    private func placeholder(systemImage: String, text: LocalizedStringKey) -> some View {
         VStack(spacing: 8) {
             Image(systemName: systemImage)
                 .font(.system(size: 34))
@@ -408,18 +410,18 @@ struct ClipboardQuickLookView: View {
     private var primaryMetadata: String {
         switch item.contentType {
         case .plainText, .richText, .html, .unknown:
-            return "\(cachedCharCount) chars"
+            return String(localized: "\(cachedCharCount) chars")
         case .image:
             if let imageMetadata {
                 return "\(imageMetadata.width) x \(imageMetadata.height) · \(fileSizeText)"
             }
             return fileSizeText
         case .url:
-            return "URL"
+            return String(localized: "URL")
         case .fileURL:
-            return "File"
+            return String(localized: "File")
         case .color:
-            return item.textContent ?? "Color"
+            return item.textContent ?? String(localized: "Color")
         }
     }
 

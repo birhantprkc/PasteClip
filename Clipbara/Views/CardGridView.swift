@@ -124,9 +124,9 @@ struct CardGridView: View {
 }
 
 struct PanelEmptyState: View {
-    let title: String
+    let title: LocalizedStringKey
     let systemImage: String
-    let message: String
+    let message: LocalizedStringKey
 
     var body: some View {
         VStack(spacing: 10) {

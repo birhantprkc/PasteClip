@@ -51,7 +51,7 @@ struct ExclusionSettingsTab: View {
 
     private func addApp() {
         let panel = NSOpenPanel()
-        panel.title = "Select App to Exclude"
+        panel.title = String(localized: "Select App to Exclude")
         panel.allowedContentTypes = [.application]
         panel.directoryURL = URL(fileURLWithPath: "/Applications")
         panel.allowsMultipleSelection = false

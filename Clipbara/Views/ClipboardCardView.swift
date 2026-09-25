@@ -246,13 +246,14 @@ struct ClipboardCardView: View {
         case .plainText, .richText, .html, .unknown:
             let count = item.textContent?.count ?? 0
             if count >= 1000 {
-                return "\(String(format: "%.1f", Double(count) / 1000))K chars"
+                let thousands = String(format: "%.1f", Double(count) / 1000)
+                return String(localized: "\(thousands)K chars")
             }
-            return "\(count) chars"
+            return String(localized: "\(count) chars")
         case .url:
-            return "URL"
+            return String(localized: "URL")
         case .fileURL:
-            return "File"
+            return String(localized: "File")
         case .image:
             let kb = item.rawData.count / 1024
             return "\(kb) KB"

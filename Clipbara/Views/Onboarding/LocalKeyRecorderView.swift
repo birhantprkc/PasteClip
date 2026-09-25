@@ -10,7 +10,7 @@ struct LocalKeyRecorderView: View {
 
     var body: some View {
         Button(action: toggleRecording) {
-            Text(isRecording ? "Press a key…" : QuickLookKeySetting.displayName(for: currentKeyCode))
+            Text(isRecording ? String(localized: "Press a key…") : QuickLookKeySetting.displayName(for: currentKeyCode))
                 .font(.system(size: 12, weight: isRecording ? .regular : .semibold))
                 .foregroundStyle(isRecording ? Color.secondary : Color.primary)
                 .frame(minWidth: 52)
@@ -52,7 +52,7 @@ struct LocalKeyRecorderView: View {
                     return
                 }
                 guard !QuickLookKeySetting.reservedKeyCodes.contains(keyCode),
-                      QuickLookKeySetting.displayName(for: keyCode) != "Key \(keyCode)" else {
+                      QuickLookKeySetting.hasKnownName(keyCode) else {
                     NSSound.beep()
                     return
                 }

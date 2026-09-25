@@ -2,7 +2,7 @@ import SwiftUI
 
 /// A small ⓘ icon that shows a balloon popover with a short explanation on hover.
 struct InfoHoverButton: View {
-    let text: String
+    let text: LocalizedStringKey
     var width: CGFloat = 250
 
     @State private var isShowing = false

@@ -106,7 +106,7 @@ struct NavigationBarView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
                     navTab(
-                        label: "History",
+                        label: String(localized: "History"),
                         icon: "clock",
                         isActive: appState.selectedTab == .history
                     ) {
@@ -183,7 +183,9 @@ struct NavigationBarView: View {
                 }
                 .disabled(clearableHistoryCount == 0)
                 .opacity(clearableHistoryCount == 0 ? 0.45 : 1)
-                .help(clearableHistoryCount == 0 ? "No unpinned history to clear" : "Clear Clipboard History")
+                .help(clearableHistoryCount == 0
+                    ? String(localized: "No unpinned history to clear")
+                    : String(localized: "Clear Clipboard History"))
             }
         }
     }
@@ -359,16 +361,16 @@ struct NavigationBarView: View {
     private func showDropResult(_ result: DroppedClipResult) {
         switch result {
         case .added(let name):
-            appState.showToast("Added to \(name)")
+            appState.showToast(String(localized: "Added to \(name)"))
         case .alreadyAdded(let name):
-            appState.showToast("Already in \(name)", systemImage: "checkmark.circle")
+            appState.showToast(String(localized: "Already in \(name)"), systemImage: "checkmark.circle")
         case .missing:
-            appState.showToast("Could not add clip", systemImage: "exclamationmark.triangle.fill")
+            appState.showToast(String(localized: "Could not add clip"), systemImage: "exclamationmark.triangle.fill")
         }
     }
 
     private func nextPinboardName() -> String {
-        uniquePinboardName(preferred: "Pinboard")
+        uniquePinboardName(preferred: String(localized: "Pinboard"))
     }
 
     private func uniquePinboardName(preferred: String) -> String {
@@ -512,20 +514,20 @@ private struct OptionsMenuButton: View {
         }
         if !searchState.selectedContentTypes.isEmpty {
             typeMenu.addItem(.separator())
-            let clearItem = NSMenuItem(title: "Clear Filters", action: nil, keyEquivalent: "")
+            let clearItem = NSMenuItem(title: String(localized: "Clear Filters"), action: nil, keyEquivalent: "")
             clearItem.target = MenuActionTarget.shared
             clearItem.representedObject = MenuAction.clearContentTypes(searchState)
             clearItem.action = #selector(MenuActionTarget.performAction(_:))
             typeMenu.addItem(clearItem)
         }
-        let typeMenuItem = NSMenuItem(title: "Filter by Type", action: nil, keyEquivalent: "")
+        let typeMenuItem = NSMenuItem(title: String(localized: "Filter by Type"), action: nil, keyEquivalent: "")
         typeMenuItem.submenu = typeMenu
         menu.addItem(typeMenuItem)
 
         // Filter by Date submenu
         let dateMenu = NSMenu()
         for filter in SearchState.DateFilter.allCases {
-            let item = NSMenuItem(title: filter.rawValue, action: nil, keyEquivalent: "")
+            let item = NSMenuItem(title: filter.displayName, action: nil, keyEquivalent: "")
             if searchState.dateFilter == filter {
                 item.state = .on
             }
@@ -534,7 +536,7 @@ private struct OptionsMenuButton: View {
             item.action = #selector(MenuActionTarget.performAction(_:))
             dateMenu.addItem(item)
         }
-        let dateMenuItem = NSMenuItem(title: "Filter by Date", action: nil, keyEquivalent: "")
+        let dateMenuItem = NSMenuItem(title: String(localized: "Filter by Date"), action: nil, keyEquivalent: "")
         dateMenuItem.submenu = dateMenu
         menu.addItem(dateMenuItem)
 

@@ -12,14 +12,14 @@ enum ContentType: String, Codable, CaseIterable, Sendable {
 
     var displayName: String {
         switch self {
-        case .plainText: "Text"
-        case .richText: "Rich Text"
-        case .html: "HTML"
-        case .image: "Image"
-        case .url: "Link"
-        case .fileURL: "File"
-        case .color: "Color"
-        case .unknown: "Other"
+        case .plainText: String(localized: "Text")
+        case .richText: String(localized: "Rich Text")
+        case .html: String(localized: "HTML")
+        case .image: String(localized: "Image")
+        case .url: String(localized: "Link")
+        case .fileURL: String(localized: "File")
+        case .color: String(localized: "Color")
+        case .unknown: String(localized: "Other")
         }
     }
 

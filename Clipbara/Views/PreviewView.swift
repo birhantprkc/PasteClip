@@ -283,7 +283,7 @@ struct PreviewView: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                let fileName = item.textContent?.components(separatedBy: "/").last ?? "File"
+                let fileName = item.textContent?.components(separatedBy: "/").last ?? String(localized: "File")
                 Text(fileName)
                     .font(.system(size: 15, weight: .semibold))
                     .lineLimit(2)
@@ -364,7 +364,8 @@ struct PreviewView: View {
         switch item.contentType {
         case .plainText, .richText, .html, .unknown:
             let (charCount, wordCount, lineCount) = cachedTextMetadata
-            return "\(charCount.formatted())자 · \(wordCount.formatted())단어 · \(lineCount.formatted())줄"
+            let chars = charCount.formatted(), words = wordCount.formatted(), lines = lineCount.formatted()
+            return String(localized: "\(chars) chars · \(words) words · \(lines) lines")
         case .image:
             let kb = item.rawData.count / 1024
             var sizeText: String
@@ -378,9 +379,9 @@ struct PreviewView: View {
             }
             return sizeText
         case .url:
-            return item.textContent ?? "Link"
+            return item.textContent ?? String(localized: "Link")
         case .fileURL:
-            return item.textContent ?? "File"
+            return item.textContent ?? String(localized: "File")
         case .color:
             return item.textContent ?? ""
         }

@@ -87,14 +87,14 @@ struct GeneralSettingsTab: View {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.json]
         panel.nameFieldStringValue = "clipbara-backup.json"
-        panel.title = "Export Clipbara Backup"
+        panel.title = String(localized: "Export Clipbara Backup")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let data = try TransferService.exportDocument(context: modelContext)
             try data.write(to: url)
-            transferMessage = "Backup exported successfully."
+            transferMessage = String(localized: "Backup exported successfully.")
         } catch {
-            transferMessage = "Export failed: \(error.localizedDescription)"
+            transferMessage = String(localized: "Export failed: \(error.localizedDescription)")
         }
         showTransferAlert = true
     }
@@ -105,17 +105,14 @@ struct GeneralSettingsTab: View {
         panel.allowedContentTypes = [.json]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
-        panel.title = "Import Clipbara Backup"
+        panel.title = String(localized: "Import Clipbara Backup")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let data = try Data(contentsOf: url)
             let summary = try TransferService.importDocument(data, context: modelContext)
-            transferMessage = "Imported \(summary.importedItems) clips"
-                + (summary.skippedItems > 0 ? " (\(summary.skippedItems) duplicates skipped)" : "")
-                + (summary.importedBoards > 0 ? ", \(summary.importedBoards) pinboards" : "")
-                + "."
+            transferMessage = summary.localizedMessage
         } catch {
-            transferMessage = "Import failed: \(error.localizedDescription)"
+            transferMessage = String(localized: "Import failed: \(error.localizedDescription)")
         }
         showTransferAlert = true
     }

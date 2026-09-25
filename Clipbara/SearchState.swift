@@ -17,6 +17,16 @@ final class SearchState {
         case thisWeek = "This Week"
         case thisMonth = "This Month"
 
+        /// Localized menu title. `rawValue` stays the stable English identifier.
+        var displayName: String {
+            switch self {
+            case .all: String(localized: "All")
+            case .today: String(localized: "Today")
+            case .thisWeek: String(localized: "This Week")
+            case .thisMonth: String(localized: "This Month")
+            }
+        }
+
         var startDate: Date? {
             let calendar = Calendar.current
             switch self {

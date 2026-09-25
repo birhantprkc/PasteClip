@@ -32,8 +32,15 @@ enum QuickLookKeySetting {
         }
     }
 
+    /// Whether the key has a readable name. Keys without one fall back to "Key 42"
+    /// and are rejected by the recorder.
+    static func hasKnownName(_ keyCode: UInt16) -> Bool {
+        keyCode == 49 || keyNames[keyCode] != nil
+    }
+
     static func displayName(for keyCode: UInt16) -> String {
-        keyNames[keyCode] ?? "Key \(keyCode)"
+        if keyCode == 49 { return String(localized: "Space") }
+        return keyNames[keyCode] ?? String(localized: "Key \(Int(keyCode))")
     }
 
     /// ANSI-layout key names for the keys users are likely to pick.

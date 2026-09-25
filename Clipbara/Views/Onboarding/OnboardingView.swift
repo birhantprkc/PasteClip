@@ -109,10 +109,10 @@ struct OnboardingView: View {
 
     private var decorativeCards: some View {
         ZStack {
-            miniCard(tag: "TEXT", tint: accent, width: 120)
+            miniCard(tag: String(localized: "TEXT"), tint: accent, width: 120)
                 .rotationEffect(.degrees(-7))
                 .offset(x: -180, y: -42)
-            miniCard(tag: "LINK", tint: Color(red: 0.0, green: 0.588, blue: 0.533), width: 132)
+            miniCard(tag: String(localized: "LINK"), tint: Color(red: 0.0, green: 0.588, blue: 0.533), width: 132)
                 .rotationEffect(.degrees(6))
                 .offset(x: 182, y: -30)
             miniCard(tag: nil, tint: .clear, width: 104)
@@ -185,7 +185,7 @@ struct OnboardingView: View {
 
     private var welcomeStep: some View {
         VStack(spacing: 0) {
-            (Text("Welcome to ") + Text("Clipbara").foregroundStyle(accent))
+            Text("Welcome to \(Text(verbatim: "Clipbara").foregroundStyle(accent))")
                 .font(.system(size: 27, weight: .bold))
                 .padding(.top, 28)
             Text("Everything you copy, saved automatically.\nFind it and paste it again whenever you need.")
@@ -199,7 +199,7 @@ struct OnboardingView: View {
                 featureRow(
                     symbol: "square.on.square",
                     title: "Clipboard history as cards",
-                    detail: "Text, links, images, files & colors — one click to copy back."
+                    detail: "Text, links, images, files & colors. One click to copy back."
                 )
                 featureRow(
                     symbol: "star",
@@ -217,7 +217,7 @@ struct OnboardingView: View {
         .padding(.horizontal, 44)
     }
 
-    private func featureRow(symbol: String, title: String, detail: String) -> some View {
+    private func featureRow(symbol: String, title: LocalizedStringKey, detail: LocalizedStringKey) -> some View {
         HStack(spacing: 14) {
             RoundedRectangle(cornerRadius: 9)
                 .fill(accent.opacity(colorScheme == .dark ? 0.18 : 0.09))
@@ -322,9 +322,9 @@ struct OnboardingView: View {
     }
 
     private func shortcutRow<Control: View>(
-        title: String,
-        detail: String,
-        info: String? = nil,
+        title: LocalizedStringKey,
+        detail: LocalizedStringKey,
+        info: LocalizedStringKey? = nil,
         @ViewBuilder control: () -> Control
     ) -> some View {
         HStack(spacing: 13) {
@@ -362,9 +362,7 @@ struct OnboardingView: View {
             Text("You're all set")
                 .font(.system(size: 27, weight: .bold))
                 .padding(.top, 28)
-            (Text("Copy something, press ")
-                + Text(currentPanelShortcutText).bold().foregroundStyle(Color.primary)
-                + Text(", and it'll be there.\nClipbara runs quietly in your menu bar."))
+            Text("Copy something, press \(Text(verbatim: currentPanelShortcutText).bold().foregroundStyle(Color.primary)), and it'll be there.\nClipbara runs quietly in your menu bar.")
                 .font(.system(size: 13.5))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -373,15 +371,11 @@ struct OnboardingView: View {
 
             VStack(spacing: 10) {
                 hintRow(symbol: "clipboard") {
-                    (Text("Find Clipbara anytime via the ")
-                        + Text("clipboard icon").bold().foregroundStyle(Color.primary)
-                        + Text(" in your menu bar — history, pinboards and settings live there."))
+                    Text("Find Clipbara anytime via the \(Text("clipboard icon").bold().foregroundStyle(Color.primary)) in your menu bar. History, pinboards and settings live there.")
                 } action: { EmptyView() }
                 hintRow(symbol: "square.and.arrow.down") {
                     HStack(spacing: 5) {
-                        (Text("Coming from ")
-                            + Text("PasteClip").bold().foregroundStyle(Color.primary)
-                            + Text(" or another Mac?\nRestore your clips from a backup file."))
+                        Text("Coming from \(Text(verbatim: "PasteClip").bold().foregroundStyle(Color.primary)) or another Mac?\nRestore your clips from a backup file.")
                         InfoHoverButton(text: "In your previous app, go to Settings > General > Backup > Export to save a JSON backup file. Then click Import and select that file. Existing clips are kept and duplicates are skipped.")
                     }
                 } action: {
@@ -446,17 +440,14 @@ struct OnboardingView: View {
         panel.allowedContentTypes = [.json]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
-        panel.title = "Import Clipbara Backup"
+        panel.title = String(localized: "Import Clipbara Backup")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let data = try Data(contentsOf: url)
             let summary = try TransferService.importDocument(data, context: modelContext)
-            transferMessage = "Imported \(summary.importedItems) clips"
-                + (summary.skippedItems > 0 ? " (\(summary.skippedItems) duplicates skipped)" : "")
-                + (summary.importedBoards > 0 ? ", \(summary.importedBoards) pinboards" : "")
-                + "."
+            transferMessage = summary.localizedMessage
         } catch {
-            transferMessage = "Import failed: \(error.localizedDescription)"
+            transferMessage = String(localized: "Import failed: \(error.localizedDescription)")
         }
         showTransferAlert = true
     }
@@ -473,7 +464,7 @@ struct OnboardingView: View {
                 }
             }
             Button(action: advance) {
-                Text(step == 2 ? "Start Using Clipbara" : "Continue")
+                (step == 2 ? Text("Start Using Clipbara") : Text("Continue"))
                     .font(.system(size: 14.5, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)

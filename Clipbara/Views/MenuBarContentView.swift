@@ -55,7 +55,7 @@ struct MenuBarContentView: View {
                 HStack {
                     Text("Open History")
                     Spacer()
-                    Text("\u{21E7}\u{2318}V")
+                    Text(verbatim: "\u{21E7}\u{2318}V")
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -153,13 +153,13 @@ struct MenuBarItemRow: View {
         case .plainText, .richText, .html, .url:
             return item.textContent ?? "..."
         case .image:
-            return "Image"
+            return String(localized: "Image")
         case .fileURL:
-            return item.textContent ?? "File"
+            return item.textContent ?? String(localized: "File")
         case .color:
-            return item.textContent ?? "Color"
+            return item.textContent ?? String(localized: "Color")
         case .unknown:
-            return "Unknown"
+            return String(localized: "Unknown")
         }
     }
 }

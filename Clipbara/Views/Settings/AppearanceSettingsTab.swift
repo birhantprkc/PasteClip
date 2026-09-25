@@ -4,6 +4,15 @@ enum AppTheme: String, CaseIterable {
     case system = "System"
     case light = "Light"
     case dark = "Dark"
+
+    /// Localized label. `rawValue` is what is stored in UserDefaults.
+    var displayName: String {
+        switch self {
+        case .system: String(localized: "System")
+        case .light: String(localized: "Light")
+        case .dark: String(localized: "Dark")
+        }
+    }
 }
 
 struct AppearanceSettingsTab: View {
@@ -13,7 +22,7 @@ struct AppearanceSettingsTab: View {
         Form {
             Picker("Theme", selection: $appTheme) {
                 ForEach(AppTheme.allCases, id: \.rawValue) { theme in
-                    Text(theme.rawValue).tag(theme.rawValue)
+                    Text(theme.displayName).tag(theme.rawValue)
                 }
             }
             .pickerStyle(.menu)
