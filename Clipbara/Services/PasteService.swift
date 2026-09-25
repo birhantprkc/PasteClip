@@ -28,6 +28,7 @@ struct PasteService {
 
     /// - Parameter asPlainText: `nil` resolves from the setting combined with the Shift modifier.
     func paste(item: ClipboardItem, asPlainText: Bool? = nil) {
+        ReviewPrompter.recordPaste()
         if asPlainText ?? Self.resolvePlainText(), Self.supportsPlainText(item) {
             pastePlainText(item: item)
             return

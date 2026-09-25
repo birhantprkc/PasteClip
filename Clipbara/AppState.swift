@@ -41,9 +41,13 @@ final class AppState {
         hasStarted = true
         self.modelContainer = modelContainer
         clipboardMonitor.start(modelContext: modelContext)
+        ReviewPrompter.noteLaunch()
         panelController.onPanelWillHide = { [weak self] in
             self?.searchState.reset()
             self?.previewItem = nil
+            ReviewPrompter.panelWillHide { [weak self] in
+                self?.panelController.isVisible ?? false
+            }
         }
         setupHotkey()
 

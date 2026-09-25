@@ -66,12 +66,28 @@ struct MenuBarContentView: View {
             Divider()
                 .padding(.vertical, 4)
 
+            #if !APPSTORE
             Button("Check for Updates...") {
                 updaterViewModel.checkForUpdates()
             }
             .disabled(!updaterViewModel.canCheckForUpdates)
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
+            #endif
+
+            Button("Send Feedback...") {
+                NSWorkspace.shared.open(ReviewPrompter.feedbackURL)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
+
+            #if APPSTORE
+            Button("Rate on App Store") {
+                NSWorkspace.shared.open(ReviewPrompter.writeReviewURL)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
+            #endif
 
             Button("Settings...") {
                 openSettings()
