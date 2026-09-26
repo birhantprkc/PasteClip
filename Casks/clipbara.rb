@@ -7,7 +7,7 @@ cask "clipbara" do
   desc "Free, open-source clipboard manager for macOS (formerly PasteClip)"
   homepage "https://github.com/mobrava/Clipbara"
 
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "Clipbara.app"
 
