@@ -22,13 +22,17 @@
   <a href="https://github.com/mobrava/Clipbara/stargazers"><img src="https://img.shields.io/github/stars/mobrava/Clipbara?style=flat-square" alt="GitHub stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/mobrava/Clipbara?style=flat-square" alt="许可证"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-blue?style=flat-square" alt="macOS 14+">
-  <a href="https://apps.apple.com/app/clipbara/id6803537696?mt=12"><img src="https://img.shields.io/badge/Mac%20App%20Store-%247.99-0D96F6?style=flat-square&logo=apple&logoColor=white" alt="Mac App Store 上的 Clipbara"></a>
+  <a href="https://apps.apple.com/app/apple-store/id6803537696?pt=129317403&amp;ct=github_readme_zh&amp;mt=8"><img src="https://img.shields.io/badge/Mac%20App%20Store-Free%20until%20Oct%202-0D96F6?style=flat-square&logo=apple&logoColor=white" alt="Mac App Store 上的 Clipbara"></a>
 </p>
 
 <p align="center">
-  <a href="https://apps.apple.com/app/clipbara/id6803537696?mt=12"><strong>从 Mac App Store 下载</strong></a>
+  <a href="https://apps.apple.com/app/apple-store/id6803537696?pt=129317403&amp;ct=github_readme_zh&amp;mt=8"><strong>从 Mac App Store 下载</strong></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/mobrava/Clipbara/releases/latest"><strong>下载 DMG</strong></a>
+</p>
+
+<p align="center">
+  <strong>Mac App Store 版本限免至 10 月 2 日。</strong>本周下载即可一直使用。
 </p>
 
 <p align="center">
@@ -61,7 +65,7 @@ Clipbara 是一款免费开源（GPL-3.0）的 macOS 剪贴板管理器，用原
 
 ### Mac App Store
 
-[**从 Mac App Store 下载 Clipbara**](https://apps.apple.com/app/clipbara/id6803537696?mt=12)
+[**从 Mac App Store 下载 Clipbara**](https://apps.apple.com/app/apple-store/id6803537696?pt=129317403&ct=github_readme_zh&mt=8)
 
 App Store 版开启了 App Sandbox，由 App Store 推送更新，新版本会先在这里上线；免费的 DMG 版使用 Sparkle 自动更新，会在几周后跟进。App Store 版不在欧盟地区提供，欧盟用户请使用 DMG 或 Homebrew 版本。两个版本的 bundle ID 不同，历史记录分开存储；迁移时在旧版本中使用 **Settings → General → Backup → Export** 导出 JSON，再在新版本中 Import。两个版本同时运行会重复注册 `⌘⇧V`，请只保留一个。
 

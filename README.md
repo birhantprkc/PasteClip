@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="https://apps.apple.com/app/clipbara/id6803537696?mt=12"><img src="https://img.shields.io/badge/Mac%20App%20Store-%247.99-0D96F6?style=flat-square&logo=apple&logoColor=white" alt="Clipbara on the Mac App Store"></a>
+  <a href="https://apps.apple.com/app/apple-store/id6803537696?pt=129317403&amp;ct=github_readme&amp;mt=8"><img src="https://img.shields.io/badge/Mac%20App%20Store-Free%20until%20Oct%202-0D96F6?style=flat-square&logo=apple&logoColor=white" alt="Clipbara on the Mac App Store"></a>
   <a href="https://github.com/mobrava/Clipbara/releases/latest"><img src="https://img.shields.io/github/v/release/mobrava/Clipbara?style=flat-square" alt="Latest release"></a>
   <a href="https://github.com/mobrava/Clipbara/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/mobrava/Clipbara/build.yml?branch=main&style=flat-square" alt="Build status"></a>
   <a href="https://github.com/mobrava/Clipbara/releases"><img src="https://img.shields.io/github/downloads/mobrava/Clipbara/total?style=flat-square" alt="Total downloads"></a>
@@ -23,9 +23,13 @@
 </p>
 
 <p align="center">
-  <a href="https://apps.apple.com/app/clipbara/id6803537696?mt=12"><strong>Get it on the Mac App Store</strong></a>
+  <a href="https://apps.apple.com/app/apple-store/id6803537696?pt=129317403&amp;ct=github_readme&amp;mt=8"><strong>Get it on the Mac App Store</strong></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/mobrava/Clipbara/releases/latest"><strong>Download the DMG</strong></a>
+</p>
+
+<p align="center">
+  <strong>The Mac App Store build is free until October 2.</strong> Get it this week and it stays yours.
 </p>
 
 <p align="center">
@@ -40,7 +44,7 @@ It runs on macOS 14 Sonoma or later. The DMG and Homebrew builds are free. The M
 
 ### Mac App Store
 
-[**Download Clipbara on the Mac App Store**](https://apps.apple.com/app/clipbara/id6803537696?mt=12)
+[**Download Clipbara on the Mac App Store**](https://apps.apple.com/app/apple-store/id6803537696?pt=129317403&ct=github_readme&mt=8)
 
 ### Homebrew
 
