@@ -225,6 +225,23 @@ final class ClipbaraiOSUITests: XCTestCase {
         attach("53-final-grid-\(phase)")
     }
 
+    func testPasteButtonSavesClipboard() throws {
+        let cards = app.descendants(matching: .any).matching(identifier: "clipCard")
+        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
+        let text = "CBTEST-paste-\(Int(Date().timeIntervalSince1970))"
+        UIPasteboard.general.string = text
+        RunLoop.current.run(until: Date().addingTimeInterval(1))
+        let button = app.buttons["pasteButton"].firstMatch
+        XCTAssertTrue(button.waitForExistence(timeout: 3))
+        attach("60-before-paste-enabled-\(button.isEnabled)")
+        button.tap()
+        let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").buttons["Allow Paste"]
+        if allow.waitForExistence(timeout: 2) { allow.tap() }
+        attach("61-after-paste")
+        let saved = cards.matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
+        XCTAssertTrue(saved.waitForExistence(timeout: 6), "PasteButton did not save the clipboard")
+    }
+
     /// One-time Simulator setup: Settings > Apps > Clipbara > Keyboards > Clipbara.
     func testEnableKeyboardInSettings() throws {
         let settings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
