@@ -610,10 +610,14 @@ final class ClipSync {
             engine.state.add(pendingRecordZoneChanges: retry)
             // The engine backs off after a failed send; these are fixable right away
             // (zone recreated, server change tag refreshed), so send again now.
-            Task { [weak self] in
-                try? await Task.sleep(for: .milliseconds(300))
-                guard let self, let engine = self.engine else { return }
-                try? await engine.sendChanges()
+            // Hop through GCD: a task started here inherits the delegate-callback
+            // context, and CKSyncEngine traps ("Cannot await a call into CKSyncEngine
+            // from within a delegate callback") when that task calls back into it.
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) { [weak self] in
+                MainActor.assumeIsolated {
+                    guard let engine = self?.engine else { return }
+                    Task { try? await engine.sendChanges() }
+                }
             }
         }
     }
