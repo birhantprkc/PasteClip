@@ -80,14 +80,23 @@ struct ClipCardView<Clip: ClipPresentable>: View {
             }
             typeBadge
         }
-        .shadow(color: item.contentType == .image ? .black.opacity(0.35) : .clear, radius: 3, y: 1)
+        .shadow(color: item.contentType == .image ? .black.opacity(0.5) : .clear, radius: 2, y: 1)
         .padding(.horizontal, padding)
         .frame(height: headerHeight)
         .frame(maxWidth: .infinity)
         .background(alignment: .top) {
             if item.contentType == .image {
-                LinearGradient(colors: [.black.opacity(0.45), .clear], startPoint: .top, endPoint: .bottom)
-                    .frame(height: headerHeight + 24)
+                // Dark enough behind white text even on a white screenshot.
+                LinearGradient(
+                    stops: [
+                        .init(color: .black.opacity(0.62), location: 0),
+                        .init(color: .black.opacity(0.38), location: 0.55),
+                        .init(color: .clear, location: 1),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: headerHeight + 30)
             }
         }
     }
