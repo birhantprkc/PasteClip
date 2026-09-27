@@ -15,7 +15,7 @@ struct ClipGridCell: View {
 
     var body: some View {
         Color.clear
-            .aspectRatio(0.84, contentMode: .fit)
+            .aspectRatio(1, contentMode: .fit)
             .overlay {
                 ClipCardView(item: item, pinboardColor: firstPinboardColor)
             }
@@ -27,7 +27,6 @@ struct ClipGridCell: View {
                 }
             }
             .scaleEffect(ui.isSelecting && isSelected ? 0.96 : 1)
-            .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
             .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: ClipStyle.cardRadius, style: .continuous))
             .onTapGesture(perform: handleTap)
             .contextMenu {

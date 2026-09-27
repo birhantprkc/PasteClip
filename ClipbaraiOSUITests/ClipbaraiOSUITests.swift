@@ -374,7 +374,7 @@ final class ClipbaraiOSUITests: XCTestCase {
     /// The Simulator sometimes shows an Apple Account sign-in alert on launch.
     private func dismissSystemAlerts() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        for label in ["Not Now", "지금 안 함", "Cancel", "취소"] {
+        for label in ["Not Now", "지금 안 함", "Cancel", "취소", "Don't Allow Paste", "붙여넣기 허용 안 함"] {
             let button = springboard.buttons[label]
             if button.waitForExistence(timeout: 1.5) {
                 button.tap()
