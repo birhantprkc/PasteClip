@@ -146,8 +146,7 @@ final class ClipbaraiOSUITests: XCTestCase {
 
     /// Live CloudKit round trip with a Mac running the same build. Runs only when the
     /// runner gets CBSYNC_TOKEN (TEST_RUNNER_CBSYNC_TOKEN for xcodebuild). The Mac must
-    /// already have saved "CBSYNC-mac-<token>", and the Simulator pasteboard must hold
-    /// "CBSYNC-ios-<token>".
+    /// already have saved "CBSYNC-mac-<token>".
     func testSyncRoundTrip() throws {
         guard let token = ProcessInfo.processInfo.environment["CBSYNC_TOKEN"] else {
             throw XCTSkip("Live sync test runs only with CBSYNC_TOKEN")
@@ -173,42 +172,57 @@ final class ClipbaraiOSUITests: XCTestCase {
         attach("50-sync-on")
         app.buttons["Done"].firstMatch.tap()
 
+        if ProcessInfo.processInfo.environment["CBSYNC_PHASE"] == "C" {
+            // Clean up: delete everything in iCloud; sync turns off here and on the Mac.
+            app.buttons["More"].firstMatch.tap()
+            app.buttons["Settings"].firstMatch.tap()
+            let delete = app.buttons["Delete iCloud Data…"].firstMatch
+            XCTAssertTrue(delete.waitForExistence(timeout: 5))
+            delete.tap()
+            app.buttons["Delete iCloud Data"].firstMatch.tap()
+            XCTAssertTrue(waitUntil(timeout: 30) { (toggle.value as? String) == "0" }, "Sync did not turn off")
+            attach("59-icloud-data-deleted")
+            return
+        }
+
         // Mac -> iPhone.
         let cards = app.descendants(matching: .any).matching(identifier: "clipCard")
         let macCard = cards.matching(NSPredicate(format: "label CONTAINS %@", "CBSYNC-mac-\(token)")).firstMatch
         XCTAssertTrue(macCard.waitForExistence(timeout: 90), "Clip from the Mac did not arrive")
         attach("51-mac-clip-arrived")
 
-        // iPhone -> Mac: save the Simulator clipboard with the paste button.
-        let iosText = "CBSYNC-ios-\(token)"
-        let iosCard = cards.matching(NSPredicate(format: "label CONTAINS %@", iosText)).firstMatch
-        app.buttons["pasteButton"].firstMatch.tap()
-        let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").buttons["Allow Paste"]
-        if allow.waitForExistence(timeout: 2) { allow.tap() }
-        XCTAssertTrue(iosCard.waitForExistence(timeout: 10), "Saving the iPhone clipboard failed")
+        let phase = ProcessInfo.processInfo.environment["CBSYNC_PHASE"] ?? "A"
+        if phase == "A" {
+            // iPhone -> Mac: rename the clip and pin it to a new pinboard.
+            macCard.press(forDuration: 1.0)
+            app.buttons["Rename"].firstMatch.tap()
+            let titleField = app.textFields.firstMatch
+            XCTAssertTrue(titleField.waitForExistence(timeout: 3))
+            titleField.typeText("CBSYNC-title-\(token)")
+            app.buttons["Save"].firstMatch.tap()
 
-        // Pin the iPhone clip to a new pinboard.
-        iosCard.press(forDuration: 1.0)
-        app.buttons["Pin"].firstMatch.tap()
-        app.buttons["New Pinboard…"].firstMatch.tap()
-        let nameField = app.textFields.firstMatch
-        XCTAssertTrue(nameField.waitForExistence(timeout: 3))
-        nameField.typeText("CBSYNC-board-\(token)")
-        app.buttons["Create"].firstMatch.tap()
-
-        // Delete the Mac clip here; the Mac should drop it too.
-        macCard.press(forDuration: 1.0)
-        app.buttons["Delete"].firstMatch.tap()
-        XCTAssertTrue(macCard.waitForNonExistence(timeout: 5))
+            macCard.press(forDuration: 1.0)
+            app.buttons["Pin"].firstMatch.tap()
+            app.buttons["New Pinboard…"].firstMatch.tap()
+            let nameField = app.textFields.firstMatch
+            XCTAssertTrue(nameField.waitForExistence(timeout: 3))
+            nameField.typeText("CBSYNC-board-\(token)")
+            app.buttons["Create"].firstMatch.tap()
+        } else {
+            // iPhone -> Mac: delete the clip; the Mac should drop it and its pinboard entry.
+            macCard.press(forDuration: 1.0)
+            app.buttons["Delete"].firstMatch.tap()
+            XCTAssertTrue(macCard.waitForNonExistence(timeout: 5))
+        }
 
         // Give the engine time to send, then confirm the status.
         RunLoop.current.run(until: Date().addingTimeInterval(8))
         app.buttons["More"].firstMatch.tap()
         app.buttons["Settings"].firstMatch.tap()
         XCTAssertTrue(upToDate.waitForExistence(timeout: 60))
-        attach("52-after-local-changes")
+        attach("52-after-local-changes-\(phase)")
         app.buttons["Done"].firstMatch.tap()
-        attach("53-final-grid")
+        attach("53-final-grid-\(phase)")
     }
 
     /// One-time Simulator setup: Settings > Apps > Clipbara > Keyboards > Clipbara.

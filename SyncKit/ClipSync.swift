@@ -57,6 +57,8 @@ final class ClipSync {
         lastSyncedAt = metadata.value.lastSyncedAt
         if isEnabled {
             startEngine(initialUpload: false)
+            // Pushes can be delayed or coalesced; catch up once at launch.
+            syncOnOpen()
         }
     }
 
@@ -377,6 +379,13 @@ final class ClipSync {
         }
         if !retry.isEmpty {
             engine.state.add(pendingRecordZoneChanges: retry)
+            // The engine backs off after a failed send; these are fixable right away
+            // (zone recreated, server change tag refreshed), so send again now.
+            Task { [weak self] in
+                try? await Task.sleep(for: .milliseconds(300))
+                guard let self, let engine = self.engine else { return }
+                try? await engine.sendChanges()
+            }
         }
     }
 
