@@ -78,10 +78,19 @@ final class ClipbaraiOSUITests: XCTestCase {
         let clip = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "cloudkit/cksyncengine")).firstMatch
         // Cycle with the globe key until the Clipbara keyboard is up.
         let globeLabels = ["Next keyboard", "Next Keyboard", "다음 키보드", "지구본"]
-        for _ in 0..<8 where !clip.waitForExistence(timeout: 2) {
+        for _ in 0..<6 where !clip.waitForExistence(timeout: 2) {
             let globe = app.buttons.matching(NSPredicate(format: "label IN %@", globeLabels)).firstMatch
             guard globe.waitForExistence(timeout: 2) else { break }
-            globe.tap()
+            // Long-press opens the keyboard list; pick Clipbara directly instead of cycling.
+            globe.press(forDuration: 1.2)
+            let entry = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label == %@", "Clipbara")).firstMatch
+            if entry.waitForExistence(timeout: 2) {
+                entry.tap()
+            } else {
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3)).tap()
+                globe.tap()
+            }
         }
         XCTAssertTrue(clip.waitForExistence(timeout: 4), "Clipbara keyboard is not showing the demo clips")
         attach("20-keyboard")
