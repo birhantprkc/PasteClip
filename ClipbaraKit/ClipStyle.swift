@@ -45,9 +45,16 @@ enum PinboardPalette {
     /// Colors follow creation order, so the first nine pinboards never share a color and
     /// every device agrees once pinboards sync.
     static func color(for pinboard: Pinboard, among all: [Pinboard]) -> Color {
+        color(at: index(for: pinboard, among: all))
+    }
+
+    static func index(for pinboard: Pinboard, among all: [Pinboard]) -> Int {
         let ordered = all.sorted { ($0.createdAt, $0.id.uuidString) < ($1.createdAt, $1.id.uuidString) }
-        let index = ordered.firstIndex { $0.id == pinboard.id } ?? 0
-        return colors[index % colors.count]
+        return ordered.firstIndex { $0.id == pinboard.id } ?? 0
+    }
+
+    static func color(at index: Int) -> Color {
+        colors[index % colors.count]
     }
 }
 

@@ -8,7 +8,7 @@ final class ClipbaraiOSUITests: XCTestCase {
     override func setUp() {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["-ClipbaraDemoData"]
+        app.launchArguments = ["-ClipbaraDemoData", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         dismissSystemAlerts()
     }
@@ -63,7 +63,85 @@ final class ClipbaraiOSUITests: XCTestCase {
         app.buttons["Done"].tap()
     }
 
+    /// Needs the Clipbara keyboard enabled on the Simulator (scripts/ios-sim-enable-keyboard.sh).
+    func testKeyboardTypesClipIntoTextField() throws {
+        let cards = app.descendants(matching: .any).matching(identifier: "clipCard")
+        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
+
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 3))
+        search.tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(2.5))
+        attach("19-keyboard-after-focus")
+
+        // The second card: the demo link, visible without scrolling the keyboard row.
+        let clip = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "cloudkit/cksyncengine")).firstMatch
+        // Cycle with the globe key until the Clipbara keyboard is up.
+        let globeLabels = ["Next keyboard", "Next Keyboard", "다음 키보드", "지구본"]
+        for _ in 0..<8 where !clip.waitForExistence(timeout: 2) {
+            let globe = app.buttons.matching(NSPredicate(format: "label IN %@", globeLabels)).firstMatch
+            guard globe.waitForExistence(timeout: 2) else { break }
+            globe.tap()
+        }
+        XCTAssertTrue(clip.waitForExistence(timeout: 4), "Clipbara keyboard is not showing the demo clips")
+        attach("20-keyboard")
+        clip.tap()
+
+        XCTAssertTrue(waitUntil(timeout: 4) {
+            (search.value as? String)?.contains("https://developer.apple.com/documentation/cloudkit/cksyncengine") == true
+        }, "Tapping the clip did not type it into the field")
+        attach("21-keyboard-typed")
+
+        // Pinboard switcher inside the keyboard.
+        let board = app.buttons["Email Templates"].firstMatch
+        XCTAssertTrue(board.waitForExistence(timeout: 3))
+        board.tap()
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Out of office")).firstMatch.waitForExistence(timeout: 3))
+        attach("22-keyboard-pinboard")
+    }
+
+    /// One-time Simulator setup: Settings > Apps > Clipbara > Keyboards > Clipbara.
+    func testEnableKeyboardInSettings() throws {
+        let settings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
+        settings.terminate()
+        settings.launch()
+        func tapCell(_ labels: [String], swipes: Int = 8) -> Bool {
+            let predicate = NSPredicate(format: "label IN %@", labels)
+            for _ in 0...swipes {
+                let cell = settings.cells.containing(predicate).firstMatch
+                let text = settings.staticTexts.matching(predicate).firstMatch
+                if cell.exists && cell.isHittable { cell.tap(); return true }
+                if text.exists && text.isHittable { text.tap(); return true }
+                settings.swipeUp()
+            }
+            return false
+        }
+        XCTAssertTrue(tapCell(["Apps", "앱"]), "Apps row not found")
+        XCTAssertTrue(tapCell(["Clipbara"]), "Clipbara row not found")
+        XCTAssertTrue(tapCell(["Keyboards", "키보드"]), "Keyboards row not found")
+        let toggle = settings.switches.matching(NSPredicate(format: "label CONTAINS %@", "Clipbara")).firstMatch
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
+        if (toggle.value as? String) != "1" { toggle.tap() }
+        attachScreenshot(of: settings, name: "30-settings-keyboard-enabled")
+    }
+
     // MARK: - Helpers
+
+    private func attachScreenshot(of target: XCUIApplication, name: String) {
+        let attachment = XCTAttachment(screenshot: target.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func waitUntil(timeout: TimeInterval, _ condition: () -> Bool) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if condition() { return true }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        return condition()
+    }
 
     private func attach(_ name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())

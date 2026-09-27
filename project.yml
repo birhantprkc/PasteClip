@@ -122,6 +122,51 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
+    dependencies:
+      - target: ClipbaraKeyboard
+      - target: ClipbaraShare
+
+  ClipbaraKeyboard:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ClipbaraKeyboard
+      - path: ClipbaraKit
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.minsang.Clipbara.keyboard
+        PRODUCT_NAME: ClipbaraKeyboard
+        INFOPLIST_FILE: ClipbaraKeyboard/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+        CODE_SIGN_ENTITLEMENTS: ClipbaraKeyboard/ClipbaraKeyboard.entitlements
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 5DH57J8HLC
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_STRICT_CONCURRENCY: complete
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+
+  ClipbaraShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ClipbaraShare
+      - path: ClipbaraKit
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.minsang.Clipbara.share
+        PRODUCT_NAME: ClipbaraShare
+        INFOPLIST_FILE: ClipbaraShare/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+        CODE_SIGN_ENTITLEMENTS: ClipbaraShare/ClipbaraShare.entitlements
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 5DH57J8HLC
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_STRICT_CONCURRENCY: complete
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
 
   ClipbaraiOSUITests:
     type: bundle.ui-testing
@@ -133,6 +178,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.minsang.ClipbaraiOSUITests
+        SWIFT_VERSION: "5.0"
         GENERATE_INFOPLIST_FILE: true
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 5DH57J8HLC

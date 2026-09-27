@@ -705,6 +705,22 @@
         }
       }
     },
+    "Next Keyboard": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 키보드"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一个键盘"
+          }
+        }
+      }
+    },
     "No Clips Yet": {
       "localizations": {
         "ko": {
@@ -737,6 +753,38 @@
         }
       }
     },
+    "No clips on this pinboard yet.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 핀보드에 아직 클립이 없습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此钉板中还没有剪贴内容。"
+          }
+        }
+      }
+    },
+    "Nothing to save": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장할 내용이 없습니다"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有可存储的内容"
+          }
+        }
+      }
+    },
     "Open": {
       "localizations": {
         "ko": {
@@ -749,6 +797,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "打开"
+          }
+        }
+      }
+    },
+    "Open Clipbara and save a clip to see it here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipbara 앱에서 클립을 저장하면 여기에 나타납니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Clipbara 中存储剪贴内容后，它会显示在这里。"
           }
         }
       }
@@ -945,6 +1009,22 @@
         }
       }
     },
+    "Return": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "리턴"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换行"
+          }
+        }
+      }
+    },
     "Rich Text": {
       "localizations": {
         "ko": {
@@ -1025,6 +1105,22 @@
         }
       }
     },
+    "Saved to Clipbara": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipbara에 저장됨"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已存储到 Clipbara"
+          }
+        }
+      }
+    },
     "Saved to Clipboard": {
       "localizations": {
         "ko": {
@@ -1037,6 +1133,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "已存储到历史记录"
+          }
+        }
+      }
+    },
+    "Saving…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장 중…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在存储…"
           }
         }
       }
@@ -1137,6 +1249,22 @@
         }
       }
     },
+    "Space": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스페이스"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空格"
+          }
+        }
+      }
+    },
     "Text": {
       "localizations": {
         "ko": {
@@ -1213,6 +1341,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "类型"
+          }
+        }
+      }
+    },
+    "Types this clip": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 클립을 입력합니다"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入此剪贴内容"
           }
         }
       }
@@ -1309,6 +1453,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "刚刚"
+          }
+        }
+      }
+    },
+    "space": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스페이스"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空格"
           }
         }
       }

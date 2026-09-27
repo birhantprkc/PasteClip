@@ -1,14 +1,16 @@
 import SwiftUI
 
 /// One clip, rendered the same way in the app grid, previews, and the keyboard.
-struct ClipCardView: View {
-    enum Style {
-        case grid
-        case compact
-        case preview
-    }
+enum ClipCardStyle {
+    case grid
+    case compact
+    case preview
+}
 
-    let item: ClipboardItem
+struct ClipCardView<Clip: ClipPresentable>: View {
+    typealias Style = ClipCardStyle
+
+    let item: Clip
     var style: Style = .grid
     var pinboardColor: Color? = nil
 

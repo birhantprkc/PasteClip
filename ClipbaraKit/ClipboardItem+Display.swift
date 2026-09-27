@@ -14,9 +14,7 @@ extension ClipboardItem {
     }
 
     var headerTitle: String {
-        if let userTitle, !userTitle.isEmpty { return userTitle }
-        if contentType == .plainText, looksLikeCode { return String(localized: "Code") }
-        return contentType.displayName
+        ClipHeuristics.headerTitle(userTitle: userTitle, type: contentType, text: displayText)
     }
 
     var linkURL: URL? {
@@ -27,8 +25,7 @@ extension ClipboardItem {
     }
 
     var linkHost: String? {
-        guard let host = linkURL?.host() else { return nil }
-        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+        contentType == .url ? ClipHeuristics.host(of: displayText) : nil
     }
 
     var colorHex: String? {
@@ -41,12 +38,7 @@ extension ClipboardItem {
 
     /// A light heuristic, only used to switch the card to a monospaced dark style.
     var looksLikeCode: Bool {
-        guard contentType == .plainText || contentType == .unknown else { return false }
-        let text = displayText
-        guard text.contains("\n") else { return false }
-        let signals = ["{", "}", ";", "=>", "->", "func ", "const ", "let ", "import ", "def ", "return ", "</", "#include", "SELECT ", "class "]
-        let hits = signals.reduce(0) { $0 + (text.contains($1) ? 1 : 0) }
-        return hits >= 3
+        ClipHeuristics.looksLikeCode(displayText, type: contentType)
     }
 
     func thumbnailImage() -> UIImage? {
