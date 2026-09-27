@@ -50,9 +50,6 @@ struct SettingsView: View {
 
                 Section("About") {
                     LabeledContent("Version", value: appVersion)
-                    Link(destination: URL(string: "https://github.com/mobrava/Clipbara")!) {
-                        Label("Source Code", systemImage: "chevron.left.forwardslash.chevron.right")
-                    }
                     Link(destination: URL(string: "https://mobrava.github.io/Clipbara/privacy.html")!) {
                         Label("Privacy Policy", systemImage: "hand.raised")
                     }

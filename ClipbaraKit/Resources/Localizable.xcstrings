@@ -1361,22 +1361,6 @@
         }
       }
     },
-    "Source Code" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "소스 코드"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "源代码"
-          }
-        }
-      }
-    },
     "Space" : {
       "localizations" : {
         "ko" : {
