@@ -65,17 +65,31 @@ enum StoreManager {
         logger.info("Backup created")
     }
 
-    /// 손상 복구용: store 및 관련 파일 모두 삭제
-    static func deleteStore(at storeURL: URL) {
+    /// 손상 복구용: store 및 관련 파일을 지우지 않고 옆으로 옮긴다.
+    /// 삭제하면 다음 실행의 backupStore()가 빈 store로 백업을 덮어써서 기록이 영구히 사라진다.
+    /// 설정 오류처럼 파일이 멀쩡한데 열기만 실패한 경우에도 복구할 수 있게 남겨 둔다.
+    static func quarantineStore(at storeURL: URL) {
         let fm = FileManager.default
         let dir = storeURL.deletingLastPathComponent()
         let name = storeURL.lastPathComponent
+        let stamp = Int(Date().timeIntervalSince1970)
+        let quarantine = dir.appendingPathComponent("Quarantine-\(stamp)", isDirectory: true)
+        try? fm.createDirectory(at: quarantine, withIntermediateDirectories: true)
 
-        for suffix in ["", "-wal", "-shm"] {
-            try? fm.removeItem(at: dir.appendingPathComponent(name + suffix))
+        for suffix in ["", "-wal", "-shm", ".backup", ".backup-wal", ".backup-shm"] {
+            let src = dir.appendingPathComponent(name + suffix)
+            guard fm.fileExists(atPath: src.path) else { continue }
+            if suffix.hasPrefix(".backup") {
+                try? fm.copyItem(at: src, to: quarantine.appendingPathComponent(name + suffix))
+            } else {
+                try? fm.moveItem(at: src, to: quarantine.appendingPathComponent(name + suffix))
+            }
         }
-        try? fm.removeItem(at: dir.appendingPathComponent(newSupportDirName))
-        logger.info("Deleted store at \(storeURL.path)")
+        let support = dir.appendingPathComponent(newSupportDirName)
+        if fm.fileExists(atPath: support.path) {
+            try? fm.moveItem(at: support, to: quarantine.appendingPathComponent(newSupportDirName))
+        }
+        logger.error("Moved unreadable store to \(quarantine.path)")
     }
 
     // MARK: - Private

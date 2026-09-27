@@ -37,8 +37,8 @@ struct ClipbaraApp: App {
             StoreManager.logger.error("Failed to open store: \(error.localizedDescription)")
         }
 
-        // 2차: 손상된 store 삭제 후 재시도 (백업은 이미 존재)
-        StoreManager.deleteStore(at: storeURL)
+        // 2차: 열 수 없는 store를 격리 폴더로 옮기고 새로 시작 (원본과 백업은 보존)
+        StoreManager.quarantineStore(at: storeURL)
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
