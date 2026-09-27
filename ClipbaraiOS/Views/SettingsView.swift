@@ -9,6 +9,7 @@ struct SettingsView: View {
     @AppStorage(ClipLibrary.historyLimitKey, store: ClipStore.defaults) private var historyLimit = ClipLibrary.defaultHistoryLimit
 
     @State private var confirmClear = false
+    @State private var showsSetupGuide = false
 
     private let limits = [100, 250, 500, 1000, 0]
 
@@ -41,6 +42,16 @@ struct SettingsView: View {
                 SyncSettingsSection()
 
                 Section {
+                    Button {
+                        showsSetupGuide = true
+                    } label: {
+                        Label("Setup Guide", systemImage: "list.bullet.clipboard")
+                    }
+                } footer: {
+                    Text("Sync, the Clipbara keyboard, and paste permission, step by step.")
+                }
+
+                Section {
                     Button("Clear History", role: .destructive) {
                         confirmClear = true
                     }
@@ -65,6 +76,9 @@ struct SettingsView: View {
                         Label("Done", systemImage: "checkmark")
                     }
                 }
+            }
+            .fullScreenCover(isPresented: $showsSetupGuide) {
+                OnboardingView()
             }
             .confirmationDialog("Clear History?", isPresented: $confirmClear, titleVisibility: .visible) {
                 Button("Clear History", role: .destructive) {

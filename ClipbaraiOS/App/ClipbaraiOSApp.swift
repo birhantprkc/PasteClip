@@ -10,6 +10,11 @@ struct ClipbaraiOSApp: App {
     private let snapshots: SnapshotPublisher
 
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage(OnboardingView.doneKey, store: ClipStore.defaults) private var onboardingDone = false
+
+    private var onboardingBinding: Binding<Bool> {
+        Binding(get: { !onboardingDone }, set: { if !$0 { onboardingDone = true } })
+    }
 
     init() {
         #if DEBUG
@@ -32,6 +37,9 @@ struct ClipbaraiOSApp: App {
     var body: some Scene {
         WindowGroup {
             ClipsScreen()
+                .fullScreenCover(isPresented: onboardingBinding) {
+                    OnboardingView()
+                }
         }
         .modelContainer(container)
         .onChange(of: scenePhase, initial: true) { _, phase in

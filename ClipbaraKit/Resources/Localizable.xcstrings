@@ -1776,6 +1776,278 @@
           }
         }
       }
+    },
+    "Sync with Your Mac" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "맥과 동기화"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与 Mac 同步"
+          }
+        }
+      }
+    },
+    "Paste from Any App" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어느 앱에서나 붙여넣기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在任何 App 中粘贴"
+          }
+        }
+      }
+    },
+    "%lld of 2" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / 2"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %lld 步，共 2 步"
+          }
+        }
+      }
+    },
+    "Later" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나중에"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "稍后"
+          }
+        }
+      }
+    },
+    "Continue" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계속"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续"
+          }
+        }
+      }
+    },
+    "Works with Clipbara for Mac from the Mac App Store, with iCloud Sync turned on there too. Clips are encrypted and stored in your private iCloud." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac App Store판 Clipbara for Mac에서도 iCloud 동기화를 켜야 해요. 클립은 암호화되어 내 iCloud에 저장돼요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要 Mac App Store 版 Clipbara for Mac，并在其中也打开 iCloud 同步。剪贴内容经过加密，存储在你的私有 iCloud 中。"
+          }
+        }
+      }
+    },
+    "Keyboards > Clipbara" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드 > Clipbara"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "键盘 > Clipbara"
+          }
+        }
+      }
+    },
+    "Allow Full Access" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체 접근 허용"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许完全访问"
+          }
+        }
+      }
+    },
+    "Paste from Other Apps > Allow" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 앱에서 붙여넣기 > 허용"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从其他 App 粘贴 > 允许"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정 열기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开设置"
+          }
+        }
+      }
+    },
+    "Setup Guide" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정 안내"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置指南"
+          }
+        }
+      }
+    },
+    "Sync, the Clipbara keyboard, and paste permission, step by step." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "동기화, Clipbara 키보드, 붙여넣기 권한을 단계별로 설정해요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "逐步设置同步、Clipbara 键盘和粘贴权限。"
+          }
+        }
+      }
+    },
+    "What you copy on one shows up on the other. Off until you turn it on." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "한쪽에서 복사한 것이 다른 쪽에도 나타나요. 켜기 전까지는 꺼져 있어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在一台设备上拷贝的内容会出现在另一台上。打开之前保持关闭。"
+          }
+        }
+      }
+    },
+    "The Clipbara keyboard types your clips into any text field. Turn these on in Settings > Clipbara." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clipbara 키보드로 어느 입력창에든 클립을 넣을 수 있어요. 설정 > Clipbara에서 켜세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clipbara 键盘可以把剪贴内容输入到任何文本框。请在“设置 > Clipbara”中打开以下选项。"
+          }
+        }
+      }
+    },
+    "Switch to it with the globe key." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지구본 키로 전환해요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用地球仪键切换到它。"
+          }
+        }
+      }
+    },
+    "Optional. Shows new Mac clips without opening Clipbara." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택. Clipbara를 열지 않아도 맥의 새 클립이 보여요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选。无需打开 Clipbara 即可看到 Mac 上的新剪贴内容。"
+          }
+        }
+      }
+    },
+    "Optional. No prompt when Clipbara saves what you copied." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택. 복사한 내용을 저장할 때 묻지 않아요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选。Clipbara 保存你拷贝的内容时不再询问。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -11,6 +11,25 @@ final class ClipbaraiOSUITests: XCTestCase {
         app.launchArguments = ["-ClipbaraDemoData", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         dismissSystemAlerts()
+        skipOnboarding()
+    }
+
+    /// The setup guide, opened again from Settings (the first-launch copy is skipped in setUp).
+    func testSetupGuide() throws {
+        app.buttons["More"].firstMatch.tap()
+        app.buttons["Settings"].firstMatch.tap()
+        let guide = app.buttons["Setup Guide"].firstMatch
+        XCTAssertTrue(guide.waitForExistence(timeout: 5))
+        guide.tap()
+        XCTAssertTrue(app.staticTexts["Sync with Your Mac"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.switches["iCloud Sync"].firstMatch.exists)
+        attach("20-setup-sync")
+        app.buttons["Continue"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Paste from Any App"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Open Settings"].firstMatch.exists)
+        attach("21-setup-keyboard")
+        app.buttons["Done"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["Setup Guide"].firstMatch.waitForExistence(timeout: 5))
     }
 
     func testMainSurfaces() throws {
@@ -155,6 +174,7 @@ final class ClipbaraiOSUITests: XCTestCase {
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         dismissSystemAlerts()
+        skipOnboarding()
 
         // Turn sync on through Settings.
         app.buttons["More"].firstMatch.tap()
@@ -254,6 +274,7 @@ final class ClipbaraiOSUITests: XCTestCase {
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         dismissSystemAlerts()
+        skipOnboarding()
         RunLoop.current.run(until: Date().addingTimeInterval(8))
         app.terminate()
 
@@ -368,6 +389,15 @@ final class ClipbaraiOSUITests: XCTestCase {
         for _ in 0..<4 where app.buttons["Rename"].exists || app.buttons["New Pinboard…"].exists {
             app.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.5)).tap()
             _ = app.buttons["Rename"].waitForNonExistence(timeout: 1.5)
+        }
+    }
+
+    /// The first-launch setup guide covers the app until it is dismissed once.
+    private func skipOnboarding() {
+        let later = app.buttons["Later"].firstMatch
+        if later.waitForExistence(timeout: 2) {
+            later.tap()
+            _ = later.waitForNonExistence(timeout: 3)
         }
     }
 

@@ -53,6 +53,7 @@ final class KeyboardViewController: UIInputViewController {
         super.viewWillAppear(animated)
         model.showsNextKeyboardKey = needsInputModeSwitchKey
         model.hasFullAccess = hasFullAccess
+        KeyboardStatus.record(hasFullAccess: hasFullAccess)
         model.reload()
     }
 
