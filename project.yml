@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.minsang
   deploymentTarget:
     macOS: "14.0"
+    iOS: "26.0"
   xcodeVersion: "16.0"
   createIntermediateGroups: true
   developmentLanguage: en
@@ -30,6 +31,7 @@ targets:
       - path: Clipbara
         excludes:
           - "Info-MAS.plist"
+      - path: Shared
     resources:
       - Clipbara/Resources
     settings:
@@ -60,6 +62,7 @@ targets:
       - path: Clipbara
         excludes:
           - "Info.plist"
+      - path: Shared
       # Local StoreKit testing only. Listed so Xcode can open it; never bundled.
       - path: StoreKit/Clipbara.storekit
         buildPhase: none
@@ -95,6 +98,45 @@ targets:
       commandLineArguments:
         "-ClipbaraDebugOriginalAppVersion 1.4": false
         "-ClipbaraDebugTrialShiftDays 8": false
+
+  # iOS companion app (local-first; optional iCloud sync comes later)
+  ClipbaraiOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: ClipbaraiOS
+      - path: ClipbaraKit
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.minsang.Clipbara
+        PRODUCT_NAME: Clipbara
+        INFOPLIST_FILE: ClipbaraiOS/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+        CODE_SIGN_ENTITLEMENTS: ClipbaraiOS/ClipbaraiOS.entitlements
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 5DH57J8HLC
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_STRICT_CONCURRENCY: complete
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+
+  ClipbaraiOSUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: ClipbaraiOSUITests
+    dependencies:
+      - target: ClipbaraiOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.minsang.ClipbaraiOSUITests
+        GENERATE_INFOPLIST_FILE: true
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 5DH57J8HLC
+        TEST_TARGET_NAME: ClipbaraiOS
 
   # Unhosted unit tests: no app launch, clipboard monitor, or user store access.
   ClipbaraTests:
