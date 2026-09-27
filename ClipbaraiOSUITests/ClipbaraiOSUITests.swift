@@ -109,6 +109,41 @@ final class ClipbaraiOSUITests: XCTestCase {
         attach("22-keyboard-pinboard")
     }
 
+    /// Share a clip through the system share sheet into the Clipbara share extension.
+    /// The shared text lands in the inbox and is imported when the app is active again,
+    /// which moves the matching clip back to the top of the history.
+    func testShareExtensionSavesIntoHistory() throws {
+        let cards = app.descendants(matching: .any).matching(identifier: "clipCard")
+        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
+        let target = cards.matching(NSPredicate(format: "label CONTAINS %@", "Meeting moved to 3:30 PM")).firstMatch
+        XCTAssertTrue(target.waitForExistence(timeout: 3))
+        XCTAssertFalse(cards.element(boundBy: 0).label.contains("Meeting moved"))
+
+        target.press(forDuration: 1.0)
+        app.buttons["Share"].firstMatch.tap()
+
+        let clipbaraLabel = NSPredicate(format: "label == %@", "Clipbara")
+        let shareTarget = app.cells.matching(clipbaraLabel).firstMatch.exists
+            ? app.cells.matching(clipbaraLabel).firstMatch
+            : app.buttons.matching(clipbaraLabel).firstMatch
+        if !shareTarget.waitForExistence(timeout: 5) {
+            // The extension may be tucked behind "More" in the app row.
+            let more = app.descendants(matching: .any).matching(NSPredicate(format: "label IN %@", ["More", "기타"])).firstMatch
+            if more.waitForExistence(timeout: 2) { more.tap() }
+        }
+        attach("40-share-sheet")
+        let candidates = [app.cells.matching(clipbaraLabel).firstMatch, app.buttons.matching(clipbaraLabel).firstMatch]
+        let hit = candidates.first { $0.waitForExistence(timeout: 3) && $0.isHittable }
+        XCTAssertNotNil(hit, "Clipbara is not in the share sheet")
+        hit?.tap()
+        attach("41-share-saving")
+
+        XCTAssertTrue(waitUntil(timeout: 8) {
+            cards.element(boundBy: 0).label.contains("Meeting moved to 3:30 PM")
+        }, "Shared clip was not imported to the top of the history")
+        attach("42-share-imported")
+    }
+
     /// One-time Simulator setup: Settings > Apps > Clipbara > Keyboards > Clipbara.
     func testEnableKeyboardInSettings() throws {
         let settings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")

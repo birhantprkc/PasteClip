@@ -21,6 +21,18 @@ final class SnapshotPublisher {
         ) { [weak self] _ in
             MainActor.assumeIsolated { self?.schedule() }
         }
+        CFNotificationCenterAddObserver(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            Unmanaged.passUnretained(self).toOpaque(),
+            { _, observer, _, _, _ in
+                guard let observer else { return }
+                let publisher = Unmanaged<SnapshotPublisher>.fromOpaque(observer).takeUnretainedValue()
+                Task { @MainActor in publisher.importInbox() }
+            },
+            ShareInbox.changedNotification as CFString,
+            nil,
+            .deliverImmediately
+        )
         importInbox()
         publish()
     }
@@ -43,6 +55,7 @@ final class SnapshotPublisher {
     func importInbox() {
         let entries = ShareInbox.drain()
         guard !entries.isEmpty else { return }
+        ShareInbox.log.info("importing \(entries.count) shared items")
         let library = ClipLibrary(context: container.mainContext)
         for entry in entries {
             if let clip = entry.capturedClip() {

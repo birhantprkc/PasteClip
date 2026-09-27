@@ -30,6 +30,8 @@ final class ShareViewController: UIViewController {
             .flatMap { $0.attachments ?? [] }
         Task { @MainActor in
             let saved = await Self.save(providers)
+            ShareInbox.log.info("share extension saved \(saved) of \(providers.count) items")
+            if saved > 0 { ShareInbox.postChanged() }
             state.phase = saved > 0 ? .saved(saved) : .failed
             try? await Task.sleep(for: .seconds(saved > 0 ? 0.9 : 1.6))
             extensionContext?.completeRequest(returningItems: nil)
@@ -55,6 +57,7 @@ final class ShareViewController: UIViewController {
                     saved += 1
                 }
             } catch {
+                ShareInbox.log.error("share item failed: \(error.localizedDescription, privacy: .public)")
                 continue
             }
         }
@@ -70,17 +73,47 @@ final class ShareViewController: UIViewController {
     }
 
     private static func loadURL(_ provider: NSItemProvider) async throws -> URL? {
-        try await withCheckedThrowingContinuation { continuation in
-            _ = provider.loadObject(ofClass: URL.self) { url, error in
-                if let error { continuation.resume(throwing: error) } else { continuation.resume(returning: url) }
-            }
+        switch try await loadItem(provider, type: .url) {
+        case .url(let url): return url
+        case .text(let string): return URL(string: string)
+        case .data(let data): return URL(dataRepresentation: data, relativeTo: nil)
+        case .none: return nil
         }
     }
 
+    /// Apps hand text over as String, NSAttributedString, or raw UTF-8 data depending
+    /// on how they share it, so accept all of them instead of asking for one class.
     private static func loadText(_ provider: NSItemProvider) async throws -> String? {
+        switch try await loadItem(provider, type: .plainText) {
+        case .text(let string): return string
+        case .data(let data): return String(data: data, encoding: .utf8)
+        case .url(let url): return url.isFileURL ? (try? String(contentsOf: url, encoding: .utf8)) : url.absoluteString
+        case .none: return nil
+        }
+    }
+
+    private enum LoadedItem: Sendable {
+        case text(String)
+        case data(Data)
+        case url(URL)
+        case none
+    }
+
+    private static func loadItem(_ provider: NSItemProvider, type: UTType) async throws -> LoadedItem {
         try await withCheckedThrowingContinuation { continuation in
-            _ = provider.loadObject(ofClass: String.self) { text, error in
-                if let error { continuation.resume(throwing: error) } else { continuation.resume(returning: text) }
+            provider.loadItem(forTypeIdentifier: type.identifier, options: nil) { item, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                let loaded: LoadedItem = switch item {
+                case let string as String: .text(string)
+                case let attributed as NSAttributedString: .text(attributed.string)
+                case let data as Data: .data(data)
+                case let url as URL: .url(url)
+                default: .none
+                }
+                continuation.resume(returning: loaded)
             }
         }
     }

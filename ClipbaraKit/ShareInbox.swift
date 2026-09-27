@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 /// Hand-off folder between the share extension and the app.
 ///
@@ -6,6 +7,8 @@ import Foundation
 /// SQLite file would not show up in the app's live queries. It drops one file per shared
 /// item here, and the app imports and deletes them when it becomes active.
 enum ShareInbox {
+    static let log = Logger(subsystem: "com.minsang.Clipbara", category: "ShareInbox")
+
     struct Entry: Codable, Sendable {
         enum Kind: String, Codable, Sendable {
             case text, url, image
@@ -28,6 +31,18 @@ enum ShareInbox {
                 return CapturedClip(kind: .image(data))
             }
         }
+    }
+
+    /// Posted by the share extension after it writes. A running app imports right away;
+    /// otherwise the inbox is picked up the next time the app becomes active.
+    static let changedNotification = "com.minsang.Clipbara.shareInboxChanged"
+
+    static func postChanged() {
+        CFNotificationCenterPostNotification(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            CFNotificationName(changedNotification as CFString),
+            nil, nil, true
+        )
     }
 
     static var folder: URL? {
