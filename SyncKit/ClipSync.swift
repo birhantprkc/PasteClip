@@ -169,6 +169,7 @@ final class ClipSync {
         guard engine != nil, Date().timeIntervalSince(lastOpportunisticSync) > 3 else { return }
         lastOpportunisticSync = Date()
         lastActivityAt = Date()
+        enqueueUnsent()
         Task { await syncNow() }
     }
 
@@ -366,6 +367,39 @@ final class ClipSync {
         where SyncSchema.isEligible(entry, includeImages: includesImages) {
             changes.append(.saveRecord(SyncKey(kind: .entry, id: entry.id).recordID))
         }
+        engine.state.add(pendingRecordZoneChanges: changes)
+    }
+
+    /// Queues anything that should be in iCloud but was never sent: no saved server
+    /// record and nothing pending. A save the observer missed would otherwise stay on
+    /// this device until the clip changed again.
+    private func enqueueUnsent() {
+        guard let engine, let context else { return }
+        let known = Set(metadata.value.systemFields.keys)
+        let pending = Set(engine.state.pendingRecordZoneChanges.compactMap { change -> String? in
+            if case .saveRecord(let id) = change { return id.recordName }
+            return nil
+        })
+        func unsent(_ key: SyncKey) -> Bool {
+            !known.contains(key.recordName) && !pending.contains(key.recordName)
+        }
+        var changes: [CKSyncEngine.PendingRecordZoneChange] = []
+        for pinboard in (try? context.fetch(FetchDescriptor<Pinboard>())) ?? [] {
+            let key = SyncKey(kind: .pinboard, id: pinboard.id)
+            if unsent(key) { changes.append(.saveRecord(key.recordID)) }
+        }
+        for item in (try? context.fetch(FetchDescriptor<ClipboardItem>())) ?? []
+        where SyncSchema.isEligible(item, includeImages: includesImages) {
+            let key = SyncKey(kind: .clip, id: item.id)
+            if unsent(key) { changes.append(.saveRecord(key.recordID)) }
+        }
+        for entry in (try? context.fetch(FetchDescriptor<PinboardEntry>())) ?? []
+        where SyncSchema.isEligible(entry, includeImages: includesImages) {
+            let key = SyncKey(kind: .entry, id: entry.id)
+            if unsent(key) { changes.append(.saveRecord(key.recordID)) }
+        }
+        guard !changes.isEmpty else { return }
+        log.info("queueing \(changes.count, privacy: .public) unsent records")
         engine.state.add(pendingRecordZoneChanges: changes)
     }
 
@@ -651,31 +685,46 @@ final class ClipSync {
         }
 
         // Same content already saved here under another ID (e.g. copied on both devices).
-        let hash = values.hash
-        if !hash.isEmpty,
-           let twin = try? context.fetch(FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.contentHash == hash })).first {
-            let keep = SyncSchema.survivor(twin.id, id)
-            if keep == twin.id {
+        if let twin = localTwin(of: values, excluding: id, context: context) {
+            if SyncSchema.survivor(twin.id, id) == twin.id {
                 twin.copiedAt = max(twin.copiedAt, values.copiedAt)
                 // The other device will drop its copy once it sees this delete.
                 return [.deleteRecord(key.recordID), .saveRecord(SyncKey(kind: .clip, id: twin.id).recordID)]
             }
-            let item = insertClip(id: id, values: values, context: context)
-            var followUps: [CKSyncEngine.PendingRecordZoneChange] = []
-            for entry in pinboardEntries(of: twin.id, context: context) {
-                entry.clipboardItem = item
+            // The incoming ID wins. Keep the local clip under that ID rather than replacing
+            // it with the record: text arrives as plain text, while the local copy may be
+            // the original rich text or HTML.
+            let oldKey = SyncKey(kind: .clip, id: twin.id)
+            let entries = pinboardEntries(of: twin.id, context: context)
+            twin.id = id
+            twin.copiedAt = max(twin.copiedAt, values.copiedAt)
+            if twin.userTitle == nil { twin.userTitle = values.title }
+            index[twin.persistentModelID] = key
+            // Entry records name their clip by ID, so they need to go up again.
+            var followUps: [CKSyncEngine.PendingRecordZoneChange] = [.deleteRecord(oldKey.recordID)]
+            for entry in entries {
                 followUps.append(.saveRecord(SyncKey(kind: .entry, id: entry.id).recordID))
             }
-            item.isPinned = item.isPinned || twin.isPinned
-            item.copiedAt = max(item.copiedAt, twin.copiedAt)
-            if twin.userTitle != nil && item.userTitle == nil { item.userTitle = twin.userTitle }
-            context.delete(twin)
-            followUps.append(.deleteRecord(SyncKey(kind: .clip, id: twin.id).recordID))
             return followUps
         }
 
         insertClip(id: id, values: values, context: context)
         return []
+    }
+
+    /// Finds a local clip with the same content. Text is compared as text, because the
+    /// devices hash different bytes for the same copy (HTML on the Mac, plain text on the
+    /// iPhone). Images are compared by hash.
+    private func localTwin(of values: SyncSchema.ClipValues, excluding id: UUID, context: ModelContext) -> ClipboardItem? {
+        if values.type == .image {
+            let hash = values.hash
+            guard !hash.isEmpty else { return nil }
+            let matches = (try? context.fetch(FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.contentHash == hash }))) ?? []
+            return matches.first { $0.id != id }
+        }
+        let text: String? = values.text
+        let matches = (try? context.fetch(FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.textContent == text }))) ?? []
+        return matches.first { $0.id != id && SyncSchema.isTextual($0.contentType) }
     }
 
     @discardableResult

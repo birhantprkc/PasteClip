@@ -34,8 +34,7 @@ struct ClipLibrary {
             .joined()
 
         // Same content again: move the existing clip to the top instead of duplicating it.
-        let descriptor = FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.contentHash == hash })
-        if let existing = try? context.fetch(descriptor).first {
+        if let existing = existingClip(hash: hash, text: classified.type == .image ? nil : classified.text) {
             existing.copiedAt = Date()
             try? context.save()
             return existing
@@ -54,6 +53,17 @@ struct ClipLibrary {
         try? context.save()
         trimHistory()
         return item
+    }
+
+    /// Text is also matched by its text: a clip synced from the Mac may be the same copy
+    /// saved from HTML or rich text, which hashes differently.
+    private func existingClip(hash: String, text: String?) -> ClipboardItem? {
+        let byHash = FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.contentHash == hash })
+        if let match = try? context.fetch(byHash).first { return match }
+        guard let text else { return nil }
+        let target: String? = text
+        let byText = FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.textContent == target })
+        return ((try? context.fetch(byText)) ?? []).first { $0.contentType != .image && $0.contentType != .fileURL }
     }
 
     private struct Classified {

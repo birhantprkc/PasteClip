@@ -107,6 +107,11 @@ enum SyncSchema {
         }
     }
 
+    /// Clips compared by their text when looking for duplicates across devices.
+    static func isTextual(_ type: ContentType) -> Bool {
+        type != .image && type != .fileURL
+    }
+
     // MARK: - Model -> record
 
     /// Returns false when the clip cannot be sent (an image over the size limit).
@@ -201,8 +206,9 @@ enum SyncSchema {
         )
     }
 
-    /// When two devices saved the same content under different IDs, both keep the clip
-    /// with the smaller ID, so they converge without talking to each other.
+    /// When two devices saved the same content under different IDs, both keep the smaller
+    /// ID, so they converge without talking to each other. The device holding the other
+    /// ID keeps its own copy under the winning ID (see `ClipSync.applyClip`).
     static func survivor(_ a: UUID, _ b: UUID) -> UUID {
         a.uuidString < b.uuidString ? a : b
     }
