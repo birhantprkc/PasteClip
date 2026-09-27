@@ -37,9 +37,7 @@ struct ClipbaraiOSApp: App {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 snapshots.refresh()
-                if ClipSync.shared.isEnabled {
-                    Task { await ClipSync.shared.syncNow() }
-                }
+                ClipSync.shared.syncOnOpen()
             }
             if phase == .background { snapshots.publish() }
         }

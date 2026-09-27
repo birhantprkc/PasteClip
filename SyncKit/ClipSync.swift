@@ -110,6 +110,16 @@ final class ClipSync {
         }
     }
 
+    @ObservationIgnored private var lastOpportunisticSync = Date.distantPast
+
+    /// Cheap catch-up when the person opens Clipbara, in case a push was missed.
+    /// Runs at most every 30 seconds.
+    func syncOnOpen() {
+        guard engine != nil, Date().timeIntervalSince(lastOpportunisticSync) > 30 else { return }
+        lastOpportunisticSync = Date()
+        Task { await syncNow() }
+    }
+
     func syncNow() async {
         guard let engine else { return }
         phase = .syncing

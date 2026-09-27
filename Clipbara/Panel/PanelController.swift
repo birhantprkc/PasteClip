@@ -111,6 +111,9 @@ final class PanelController {
     }
 
     func showPanel(modelContainer: ModelContainer, appState: AppState) {
+        #if APPSTORE
+        ClipSync.shared.syncOnOpen()
+        #endif
         guard !isVisible else { return }
         anchorKeyboard()
         self.appState = appState
