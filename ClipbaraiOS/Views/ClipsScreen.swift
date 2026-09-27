@@ -31,13 +31,6 @@ struct ClipsScreen: View {
             ScrollView {
                 VStack(spacing: ClipStyle.gridSpacing) {
                     FilterChipsRow(available: availableTokens, tokens: $tokens)
-                    if showsBanner {
-                        NewClipboardBanner(
-                            onPaste: { clips in save(clips) },
-                            onDismiss: dismissBanner
-                        )
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                    }
                     LazyVGrid(columns: columns, spacing: ClipStyle.gridSpacing) {
                         ForEach(visibleItems) { item in
                             ClipGridCell(
@@ -150,10 +143,6 @@ struct ClipsScreen: View {
         currentPinboard?.name ?? String(localized: "Clipboard")
     }
 
-    private var showsBanner: Bool {
-        hasNewClipboard && ui.collection == .history && !ui.isSelecting && searchText.isEmpty && tokens.isEmpty
-    }
-
     private func refreshAvailableTokens() {
         let kinds = ClipKind.allCases
             .filter { kind in allItems.contains { kind.matches($0) } }
@@ -187,11 +176,6 @@ struct ClipsScreen: View {
         if saved > 0 {
             ui.show(String(localized: "Saved to Clipboard"), systemImage: "tray.and.arrow.down.fill")
         }
-    }
-
-    private func dismissBanner() {
-        PasteboardWatcher.markSeen()
-        withAnimation(.snappy) { hasNewClipboard = false }
     }
 
     private func createPinboardFromAlert() {
@@ -301,7 +285,19 @@ struct ClipsScreen: View {
                 }
                 .labelStyle(.iconOnly)
                 .buttonBorderShape(.circle)
+                .overlay(alignment: .topTrailing) {
+                    // Something new is on the clipboard (detected without reading it).
+                    if hasNewClipboard {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 9, height: 9)
+                            .offset(x: 2, y: -2)
+                            .allowsHitTesting(false)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
                 .accessibilityLabel(Text("Save Clipboard"))
+                .accessibilityValue(hasNewClipboard ? Text("New clipboard content") : Text(""))
                 .accessibilityIdentifier("pasteButton")
             }
         }
@@ -370,7 +366,7 @@ struct ClipsScreen: View {
 
     @ViewBuilder
     private var emptyState: some View {
-        if visibleItems.isEmpty && !showsBanner {
+        if visibleItems.isEmpty {
             if !searchText.isEmpty || !tokens.isEmpty {
                 ContentUnavailableView.search(text: searchText)
             } else if currentPinboard != nil {

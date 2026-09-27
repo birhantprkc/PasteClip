@@ -1249,22 +1249,6 @@
         }
       }
     },
-    "Save it to your history" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기록에 저장하세요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "将其存储到历史记录"
-          }
-        }
-      }
-    },
     "Saved to Clipbara" : {
       "localizations" : {
         "ko" : {
