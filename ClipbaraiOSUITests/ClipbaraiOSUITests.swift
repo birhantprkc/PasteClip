@@ -242,6 +242,78 @@ final class ClipbaraiOSUITests: XCTestCase {
         XCTAssertTrue(saved.waitForExistence(timeout: 6), "PasteButton did not save the clipboard")
     }
 
+    /// Live keyboard fetch against a Mac running the sync dev build. With the app closed,
+    /// the Mac copies CBKB_MARKER after this test writes /tmp/cb-kb-ready; the keyboard,
+    /// opened in the Settings search field, must show it without the app running.
+    func testKeyboardFetchesFromICloudWithFullAccess() throws {
+        guard let marker = ProcessInfo.processInfo.environment["CBKB_MARKER"] else {
+            throw XCTSkip("Live keyboard test runs only with CBKB_MARKER")
+        }
+        // The app polls once so the shared change token exists, then quits.
+        app.terminate()
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        dismissSystemAlerts()
+        RunLoop.current.run(until: Date().addingTimeInterval(8))
+        app.terminate()
+
+        // Keyboard + Full Access in Settings.
+        let settings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
+        settings.terminate()
+        settings.launch()
+        func tapCell(_ labels: [String]) -> Bool {
+            let predicate = NSPredicate(format: "label IN %@", labels)
+            for _ in 0...8 {
+                let cell = settings.cells.containing(predicate).firstMatch
+                let text = settings.staticTexts.matching(predicate).firstMatch
+                if cell.exists && cell.isHittable { cell.tap(); return true }
+                if text.exists && text.isHittable { text.tap(); return true }
+                settings.swipeUp()
+            }
+            return false
+        }
+        XCTAssertTrue(tapCell(["Apps", "앱"]))
+        XCTAssertTrue(tapCell(["Clipbara"]))
+        XCTAssertTrue(tapCell(["Keyboards", "키보드"]))
+        let toggles = settings.switches
+        XCTAssertTrue(toggles.firstMatch.waitForExistence(timeout: 3))
+        for index in 0..<toggles.count {
+            let toggle = toggles.element(boundBy: index)
+            if (toggle.value as? String) != "1" {
+                toggle.switches.firstMatch.exists ? toggle.switches.firstMatch.tap() : toggle.tap()
+                for label in ["Allow", "허용"] where settings.alerts.buttons[label].waitForExistence(timeout: 1.5) {
+                    settings.alerts.buttons[label].tap()
+                }
+            }
+        }
+        attachScreenshot(of: settings, name: "70-keyboard-full-access")
+
+        // Tell the host to copy the marker on the Mac, then wait for it to upload.
+        FileManager.default.createFile(atPath: "/tmp/cb-kb-ready", contents: Data())
+        RunLoop.current.run(until: Date().addingTimeInterval(12))
+
+        // Open the Clipbara keyboard somewhere else: the Settings search field.
+        settings.terminate()
+        settings.launch()
+        let search = settings.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        let clip = settings.buttons.matching(NSPredicate(format: "label CONTAINS %@", marker)).firstMatch
+        let globeLabels = ["Next keyboard", "Next Keyboard", "다음 키보드", "지구본"]
+        for _ in 0..<6 where !clip.waitForExistence(timeout: 3) {
+            let globe = settings.buttons.matching(NSPredicate(format: "label IN %@", globeLabels)).firstMatch
+            guard globe.waitForExistence(timeout: 2) else { break }
+            globe.press(forDuration: 1.2)
+            let entry = settings.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Clipbara")).firstMatch
+            if entry.waitForExistence(timeout: 2) { entry.tap() } else { globe.tap() }
+        }
+        attachScreenshot(of: settings, name: "71-keyboard-live")
+        XCTAssertTrue(clip.waitForExistence(timeout: 20), "The keyboard did not fetch the Mac clip")
+        clip.tap()
+        XCTAssertTrue(waitUntil(timeout: 4) { (search.value as? String)?.contains(marker) == true })
+        attachScreenshot(of: settings, name: "72-keyboard-typed")
+    }
+
     /// One-time Simulator setup: Settings > Apps > Clipbara > Keyboards > Clipbara.
     func testEnableKeyboardInSettings() throws {
         let settings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
