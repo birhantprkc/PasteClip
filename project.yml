@@ -63,6 +63,7 @@ targets:
         excludes:
           - "Info.plist"
       - path: Shared
+      - path: SyncKit
       # Local StoreKit testing only. Listed so Xcode can open it; never bundled.
       - path: StoreKit/Clipbara.storekit
         buildPhase: none
@@ -77,9 +78,12 @@ targets:
         GENERATE_INFOPLIST_FILE: false
         SWIFT_STRICT_CONCURRENCY: complete
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "APPSTORE $(inherited)"
+        CLIPBARA_CLOUDKIT_CONTAINER: iCloud.com.minsang.Clipbara
+        CLIPBARA_APS_ENVIRONMENT: development
         ENABLE_APP_SANDBOX: "YES"
       configs:
         Release:
+          CLIPBARA_APS_ENVIRONMENT: production
           CODE_SIGN_STYLE: Manual
           DEVELOPMENT_TEAM: 5DH57J8HLC
           CODE_SIGN_IDENTITY: "Apple Distribution"
@@ -91,6 +95,12 @@ targets:
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.files.user-selected.read-write: true
+        com.apple.security.network.client: true
+        com.apple.developer.aps-environment: $(CLIPBARA_APS_ENVIRONMENT)
+        com.apple.developer.icloud-container-identifiers:
+          - $(CLIPBARA_CLOUDKIT_CONTAINER)
+        com.apple.developer.icloud-services:
+          - CloudKit
     scheme:
       # Run with the local StoreKit products (trial + lifetime) instead of the sandbox.
       storeKitConfiguration: StoreKit/Clipbara.storekit
@@ -99,7 +109,7 @@ targets:
         "-ClipbaraDebugOriginalAppVersion 1.4": false
         "-ClipbaraDebugTrialShiftDays 8": false
 
-  # iOS companion app (local-first; optional iCloud sync comes later)
+  # iOS companion app (local-first, optional iCloud sync)
   ClipbaraiOS:
     type: application
     platform: iOS
@@ -107,9 +117,12 @@ targets:
       - path: ClipbaraiOS
       - path: ClipbaraKit
       - path: Shared
+      - path: SyncKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.minsang.Clipbara
+        CLIPBARA_CLOUDKIT_CONTAINER: iCloud.com.minsang.Clipbara
+        CLIPBARA_APS_ENVIRONMENT: development
         PRODUCT_NAME: Clipbara
         INFOPLIST_FILE: ClipbaraiOS/Info.plist
         GENERATE_INFOPLIST_FILE: false
@@ -122,6 +135,9 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
+      configs:
+        Release:
+          CLIPBARA_APS_ENVIRONMENT: production
     dependencies:
       - target: ClipbaraKeyboard
       - target: ClipbaraShare

@@ -38,16 +38,7 @@ struct SettingsView: View {
                     Text("Clips on a pinboard are never removed by the limit.")
                 }
 
-                Section {
-                    HStack {
-                        Label("iCloud Sync", systemImage: "icloud")
-                        Spacer()
-                        Text("Coming Soon")
-                            .foregroundStyle(.secondary)
-                    }
-                } footer: {
-                    Text("Your clips are stored only on this device.")
-                }
+                SyncSettingsSection()
 
                 Section {
                     Button("Clear History", role: .destructive) {

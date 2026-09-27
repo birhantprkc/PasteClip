@@ -134,6 +134,10 @@ struct GeneralSettingsTab: View {
                 if current != hasPastePermission { hasPastePermission = current }
             }
 
+            #if APPSTORE
+            SyncSettingsSection()
+            #endif
+
             Section("Backup") {
                 LabeledContent("Export history, pinboards, and settings to a JSON file.") {
                     Button("Export\u{2026}") { exportHistory() }

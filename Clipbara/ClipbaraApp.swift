@@ -76,6 +76,11 @@ struct ClipbaraApp: App {
         let context = sharedModelContainer.mainContext
         appState.start(modelContext: context, modelContainer: sharedModelContainer)
 
+        #if APPSTORE
+        // Optional iCloud sync with the iOS app (App Store build only; off until turned on).
+        ClipSync.shared.configure(container: sharedModelContainer, defaults: .standard)
+        #endif
+
         // First-run welcome tour (NSApp is not ready in init, defer it)
         Task { @MainActor [appState, sharedModelContainer] in
             try? await Task.sleep(for: .milliseconds(400))
@@ -87,6 +92,11 @@ struct ClipbaraApp: App {
 
         // Apply saved theme on launch (NSApp is not ready in init, defer it)
         DispatchQueue.main.async { [sharedModelContainer] in
+            #if APPSTORE
+            // CloudKit delivers changes from the iPhone as silent pushes.
+            NSApp.registerForRemoteNotifications()
+            #endif
+
             let theme = UserDefaults.standard.string(forKey: "appTheme") ?? "System"
             switch theme {
             case "Light": NSApp.appearance = NSAppearance(named: .aqua)
