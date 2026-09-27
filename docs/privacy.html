@@ -39,35 +39,52 @@
 <body>
 <main>
   <h1>Privacy Policy</h1>
-  <p class="updated">Clipbara for macOS · Last updated August 20, 2026</p>
+  <p class="updated">Clipbara for Mac and iPhone · Last updated September 27, 2026</p>
 
-  <p class="summary">Clipbara does not collect, transmit, or share any of your data. Everything stays on your Mac.</p>
+  <p class="summary">Clipbara does not collect or share any of your data. Your clips stay on your devices, and reach your own iCloud account only if you turn on iCloud sync.</p>
 
   <h2>What Clipbara stores</h2>
-  <p>Clipbara is a clipboard manager. When you copy something, it saves that clip
+  <p>Clipbara is a clipboard manager. On a Mac, when you copy something, it saves that clip
   (text, images, links, files, colors, or code) to a local database on your Mac so you
-  can find and reuse it later. This data never leaves your device.</p>
+  can find and reuse it later. On iPhone, it saves what you add with the paste button or
+  the share sheet, and, if you turn it on, what you copied when you open the app.</p>
+
+  <h2>iCloud sync (optional)</h2>
+  <p>The App Store editions for Mac and iPhone can sync your history and pinboards between
+  your devices. Sync is off until you turn it on.</p>
+  <ul>
+    <li>Synced clips and pinboards are stored in your private iCloud database through Apple's CloudKit and count toward your iCloud storage. The developer cannot access them.</li>
+    <li>Clip contents are stored with CloudKit encryption. Images up to 10 MB sync when "Sync Images" is on; copied files never sync.</li>
+    <li>Turning sync off stops it. "Delete iCloud Data" removes everything Clipbara stored in iCloud.</li>
+    <li>Data in iCloud is also covered by <a href="https://www.apple.com/legal/privacy/">Apple's Privacy Policy</a>.</li>
+  </ul>
+
+  <h2>The Clipbara keyboard (iPhone)</h2>
+  <p>The keyboard only inserts clips you choose. It does not record or send what you type.
+  Without Full Access it shows the clips the app last shared with it. With Full Access and
+  iCloud sync on, it also fetches new clips from your own iCloud database.</p>
 
   <h2>What Clipbara does not do</h2>
   <ul>
-    <li>No accounts, sign-in, or cloud sync</li>
-    <li>No servers — your clipboard data is never uploaded anywhere</li>
+    <li>No Clipbara accounts or sign-in</li>
+    <li>No developer servers: your clips are never sent to the developer or anyone else</li>
     <li>No analytics, telemetry, or usage tracking</li>
     <li>No advertising or third-party SDKs</li>
   </ul>
 
   <h2>Network access</h2>
-  <p>The Mac App Store edition of Clipbara does not use the network at all.</p>
-  <p>The direct-download (GitHub) edition connects to the network for one purpose only:
-  checking for app updates via the open-source Sparkle framework. No personal data or
-  clipboard content is included in update checks.</p>
+  <p>The App Store editions use the network only for iCloud sync, and only when you turn it on.</p>
+  <p>The direct-download (GitHub) edition for Mac has no iCloud sync. It connects to the
+  network for one purpose only: checking for app updates via the open-source Sparkle
+  framework. No personal data or clipboard content is included in update checks.</p>
 
   <h2>Your controls</h2>
   <ul>
     <li><strong>App exclusions:</strong> prevent selected apps (such as password managers) from ever being recorded.</li>
     <li><strong>History limit:</strong> cap how many clips are kept; older clips are deleted automatically.</li>
     <li><strong>Delete anytime:</strong> remove individual clips or clear the entire history from the app.</li>
-    <li><strong>Local backup:</strong> export and import your data as a JSON file that you control.</li>
+    <li><strong>Local backup:</strong> export and import your data as a JSON file that you control (Mac).</li>
+    <li><strong>iCloud sync:</strong> turn it on or off, or delete Clipbara's iCloud data, in Settings.</li>
   </ul>
 
   <h2>Open source</h2>
