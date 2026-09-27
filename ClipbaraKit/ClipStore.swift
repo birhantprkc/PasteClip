@@ -32,16 +32,18 @@ enum ClipStore {
         return directory.appendingPathComponent("Clipbara.store")
     }
 
+    /// Every configuration is explicitly local: with iCloud entitlements the default
+    /// `.automatic` would turn on SwiftData's CloudKit mirroring and fail to open.
     @MainActor
     static func makeContainer(inMemory: Bool = false) -> ModelContainer {
         let configuration = inMemory
-            ? ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            ? ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
             : ModelConfiguration(schema: schema, url: storeURL(), cloudKitDatabase: .none)
         do {
             return try ModelContainer(for: schema, configurations: [configuration])
         } catch {
             // Never delete the user's store here. Fall back to memory so the app still opens.
-            let fallback = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            let fallback = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
             do {
                 return try ModelContainer(for: schema, configurations: [fallback])
             } catch {
