@@ -206,11 +206,19 @@ struct OnboardingView: View {
                     title: "Pinboards for keepers",
                     detail: "Drag frequently used clips to boards so they never expire."
                 )
+                #if APPSTORE
+                featureRow(
+                    symbol: "lock",
+                    title: "Local unless you choose",
+                    detail: "No account, no telemetry. Stays on this Mac until you turn on sync."
+                )
+                #else
                 featureRow(
                     symbol: "lock",
                     title: "100% local & private",
                     detail: "No account, no cloud, no telemetry. Your data stays on this Mac."
                 )
+                #endif
             }
             .padding(.top, 24)
         }
@@ -397,11 +405,37 @@ struct OnboardingView: View {
                                 .fill(accent.opacity(colorScheme == .dark ? 0.18 : 0.09))
                         )
                 }
+                #if APPSTORE
+                hintRow(symbol: "icloud") {
+                    Text("Using Clipbara on iPhone too?\nSync your history and pinboards through iCloud.")
+                } action: {
+                    Toggle("iCloud Sync", isOn: syncBinding)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                        .controlSize(.small)
+                        .disabled(ClipSync.shared.phase == .starting)
+                }
+                #endif
             }
             .padding(.top, 24)
         }
         .padding(.horizontal, 44)
     }
+
+    #if APPSTORE
+    private var syncBinding: Binding<Bool> {
+        Binding(
+            get: { ClipSync.shared.isEnabled || ClipSync.shared.phase == .starting },
+            set: { on in
+                if on {
+                    Task { await ClipSync.shared.enable() }
+                } else {
+                    ClipSync.shared.disable()
+                }
+            }
+        )
+    }
+    #endif
 
     private var currentPanelShortcutText: String {
         KeyboardShortcuts.getShortcut(for: .toggleHistoryPanel)?.description ?? "⌘⇧V"

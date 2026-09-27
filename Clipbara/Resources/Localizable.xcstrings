@@ -3882,6 +3882,54 @@
     },
     "·" : {
       "shouldTranslate" : false
+    },
+    "Local unless you choose" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "직접 켜기 전까지는 로컬"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "除非你选择，否则只在本地"
+          }
+        }
+      }
+    },
+    "No account, no telemetry. Stays on this Mac until you turn on sync." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정도, 원격 측정도 없습니다. 동기화를 켜기 전엔 이 Mac에만 남습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无需账户，没有遥测。打开同步之前只留在这台 Mac 上。"
+          }
+        }
+      }
+    },
+    "Using Clipbara on iPhone too?\nSync your history and pinboards through iCloud." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서도 Clipbara를 쓰나요?\n기록과 핀보드를 iCloud로 동기화합니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "也在 iPhone 上使用 Clipbara？\n通过 iCloud 同步历史记录和钉板。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
