@@ -1729,22 +1729,6 @@
         }
       }
     },
-    "iOS asks for permission each time unless you set Paste from Other Apps to Allow in Settings > Clipbara." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "설정 > Clipbara에서 '다른 앱에서 붙여넣기'를 허용으로 바꾸지 않으면 iOS가 매번 허락을 묻습니다."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "除非在“设置”>“Clipbara”中将“从其他 App 粘贴”设为“允许”，否则 iOS 每次都会询问。"
-          }
-        }
-      }
-    },
     "now" : {
       "localizations" : {
         "ko" : {
@@ -1789,22 +1773,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "与 Mac 同步"
-          }
-        }
-      }
-    },
-    "Paste from Any App" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "어느 앱에서나 붙여넣기"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在任何 App 中粘贴"
           }
         }
       }
@@ -1873,54 +1841,6 @@
         }
       }
     },
-    "Keyboards > Clipbara" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "키보드 > Clipbara"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "键盘 > Clipbara"
-          }
-        }
-      }
-    },
-    "Allow Full Access" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "전체 접근 허용"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "允许完全访问"
-          }
-        }
-      }
-    },
-    "Paste from Other Apps > Allow" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다른 앱에서 붙여넣기 > 허용"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "从其他 App 粘贴 > 允许"
-          }
-        }
-      }
-    },
     "Open Settings" : {
       "localizations" : {
         "ko" : {
@@ -1953,22 +1873,6 @@
         }
       }
     },
-    "Sync, the Clipbara keyboard, and paste permission, step by step." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "동기화, Clipbara 키보드, 붙여넣기 권한을 단계별로 설정해요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "逐步设置同步、Clipbara 键盘和粘贴权限。"
-          }
-        }
-      }
-    },
     "What you copy on one shows up on the other. Off until you turn it on." : {
       "localizations" : {
         "ko" : {
@@ -1985,66 +1889,130 @@
         }
       }
     },
-    "The Clipbara keyboard types your clips into any text field. Turn these on in Settings > Clipbara." : {
+    "Add the Clipbara Keyboard" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clipbara 키보드로 어느 입력창에든 클립을 넣을 수 있어요. 설정 > Clipbara에서 켜세요."
+            "value" : "Clipbara 키보드 추가"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clipbara 键盘可以把剪贴内容输入到任何文本框。请在“设置 > Clipbara”中打开以下选项。"
+            "value" : "添加 Clipbara 键盘"
           }
         }
       }
     },
-    "Switch to it with the globe key." : {
+    "Type your clips into any app. iOS lets you add keyboards only in Settings." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지구본 키로 전환해요."
+            "value" : "어느 앱에서든 클립을 입력할 수 있어요. 키보드는 iOS 설정 앱에서만 추가할 수 있어요."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "用地球仪键切换到它。"
+            "value" : "在任何 App 中输入你的剪贴内容。iOS 只允许在“设置”中添加键盘。"
           }
         }
       }
     },
-    "Optional. Shows new Mac clips without opening Clipbara." : {
+    "Add the Keyboard" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "선택. Clipbara를 열지 않아도 맥의 새 클립이 보여요."
+            "value" : "키보드 추가"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "可选。无需打开 Clipbara 即可看到 Mac 上的新剪贴内容。"
+            "value" : "添加键盘"
           }
         }
       }
     },
-    "Optional. No prompt when Clipbara saves what you copied." : {
+    "Settings > General > Keyboard > Keyboards > Add New Keyboard > Clipbara" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "선택. 복사한 내용을 저장할 때 묻지 않아요."
+            "value" : "설정 > 일반 > 키보드 > 키보드 > 새로운 키보드 추가 > Clipbara"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "可选。Clipbara 保存你拷贝的内容时不再询问。"
+            "value" : "设置 > 通用 > 键盘 > 键盘 > 添加新键盘 > Clipbara"
+          }
+        }
+      }
+    },
+    "Allow Full Access (Optional)" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체 접근 허용 (선택)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许完全访问（可选）"
+          }
+        }
+      }
+    },
+    "In the same list, tap Clipbara and turn it on. New clips from your Mac then show up without opening Clipbara." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "같은 목록에서 Clipbara를 눌러 켜세요. 그러면 Clipbara를 열지 않아도 맥의 새 클립이 키보드에 보여요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在同一列表中轻点 Clipbara 并打开它。这样无需打开 Clipbara，键盘中也会显示来自 Mac 的新剪贴内容。"
+          }
+        }
+      }
+    },
+    "Saves what you copied in other apps each time you open Clipbara. iOS asks first every time unless you set Paste from Other Apps to Allow in Settings > Apps > Clipbara." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clipbara를 열 때마다 다른 앱에서 복사한 내용을 저장해요. 설정 > 앱 > Clipbara > 다른 앱에서 붙여넣기를 허용으로 바꾸지 않으면 iOS가 매번 물어봐요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每次打开 Clipbara 时保存你在其他 App 中拷贝的内容。除非在“设置 > App > Clipbara”中将“从其他 App 粘贴”设为“允许”，否则 iOS 每次都会询问。"
+          }
+        }
+      }
+    },
+    "iCloud sync and the Clipbara keyboard, step by step." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 동기화와 Clipbara 키보드를 단계별로 설정해요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "逐步设置 iCloud 同步和 Clipbara 键盘。"
           }
         }
       }

@@ -69,7 +69,10 @@ struct ClipsScreen: View {
                 if phase == .active { checkPasteboard() }
             }
             .onReceive(NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)) { _ in
-                checkPasteboard()
+                // Only update the dot here. Reading now would prompt while Clipbara is in
+                // use, and the notice arrives before a copy from Clipbara itself is marked
+                // as its own, so wait a turn.
+                DispatchQueue.main.async { checkPasteboard(saving: false) }
             }
             .sheet(isPresented: $showPinboards) {
                 PinboardsSheet(pinboards: pinboards, ui: ui)
@@ -153,12 +156,14 @@ struct ClipsScreen: View {
 
     // MARK: - Pasteboard
 
-    private func checkPasteboard() {
+    /// `saving` is true when Clipbara is opened: the only time "Save Clipboard When
+    /// Opening" reads the clipboard.
+    private func checkPasteboard(saving: Bool = true) {
         guard PasteboardWatcher.hasUnseenContent else {
             withAnimation(.snappy) { hasNewClipboard = false }
             return
         }
-        if autoSaveOnOpen, let clip = ClipLibrary.readGeneralPasteboard() {
+        if saving, autoSaveOnOpen, let clip = ClipLibrary.readGeneralPasteboard() {
             PasteboardWatcher.markSeen()
             save([clip])
             return

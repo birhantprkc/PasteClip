@@ -25,7 +25,7 @@ final class ClipbaraiOSUITests: XCTestCase {
         XCTAssertTrue(app.switches["iCloud Sync"].firstMatch.exists)
         attach("20-setup-sync")
         app.buttons["Continue"].firstMatch.tap()
-        XCTAssertTrue(app.staticTexts["Paste from Any App"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Add the Clipbara Keyboard"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["Open Settings"].firstMatch.exists)
         attach("21-setup-keyboard")
         app.buttons["Done"].firstMatch.tap()

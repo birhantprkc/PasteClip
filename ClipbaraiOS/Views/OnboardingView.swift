@@ -18,7 +18,6 @@ struct OnboardingView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
 
-    @AppStorage("autoSaveOnOpen", store: ClipStore.defaults) private var autoSaveOnOpen = false
     @AppStorage(OnboardingView.doneKey, store: ClipStore.defaults) private var done = false
 
     @State private var step: Step = .sync
@@ -41,8 +40,8 @@ struct OnboardingView: View {
                 case .keyboard:
                     page(
                         symbol: "keyboard",
-                        title: "Paste from Any App",
-                        message: "The Clipbara keyboard types your clips into any text field. Turn these on in Settings > Clipbara.",
+                        title: "Add the Clipbara Keyboard",
+                        message: "Type your clips into any app. iOS lets you add keyboards only in Settings.",
                         content: { keyboardCard }
                     )
                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)).combined(with: .opacity))
@@ -228,23 +227,16 @@ struct OnboardingView: View {
             card {
                 checklistRow(
                     number: 1,
-                    title: "Keyboards > Clipbara",
-                    detail: "Switch to it with the globe key.",
+                    title: "Add the Keyboard",
+                    detail: "Settings > General > Keyboard > Keyboards > Add New Keyboard > Clipbara",
                     isDone: keyboard.isAdded
                 )
                 divider
                 checklistRow(
                     number: 2,
-                    title: "Allow Full Access",
-                    detail: "Optional. Shows new Mac clips without opening Clipbara.",
+                    title: "Allow Full Access (Optional)",
+                    detail: "In the same list, tap Clipbara and turn it on. New clips from your Mac then show up without opening Clipbara.",
                     isDone: keyboard.hasFullAccess
-                )
-                divider
-                checklistRow(
-                    number: 3,
-                    title: "Paste from Other Apps > Allow",
-                    detail: "Optional. No prompt when Clipbara saves what you copied.",
-                    isDone: false
                 )
             }
             Button {
@@ -261,13 +253,6 @@ struct OnboardingView: View {
             .buttonBorderShape(.capsule)
             .controlSize(.large)
             .padding(.top, 4)
-
-            card {
-                row(symbol: "tray.and.arrow.down", tint: .green) {
-                    Toggle("Save Clipboard When Opening", isOn: $autoSaveOnOpen)
-                }
-            }
-            .padding(.top, 10)
         }
     }
 

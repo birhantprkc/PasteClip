@@ -19,7 +19,7 @@ struct SettingsView: View {
                 Section {
                     Toggle("Save Clipboard When Opening", isOn: $autoSaveOnOpen)
                 } footer: {
-                    Text("iOS asks for permission each time unless you set Paste from Other Apps to Allow in Settings > Clipbara.")
+                    Text("Saves what you copied in other apps each time you open Clipbara. iOS asks first every time unless you set Paste from Other Apps to Allow in Settings > Apps > Clipbara.")
                 }
 
                 Section {
@@ -48,7 +48,7 @@ struct SettingsView: View {
                         Label("Setup Guide", systemImage: "list.bullet.clipboard")
                     }
                 } footer: {
-                    Text("Sync, the Clipbara keyboard, and paste permission, step by step.")
+                    Text("iCloud sync and the Clipbara keyboard, step by step.")
                 }
 
                 Section {
