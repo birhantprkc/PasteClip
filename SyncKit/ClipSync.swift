@@ -156,13 +156,61 @@ final class ClipSync {
     }
 
     @ObservationIgnored private var lastOpportunisticSync = Date.distantPast
+    @ObservationIgnored private var pollTask: Task<Void, Never>?
+    @ObservationIgnored private var pendingSend: Task<Void, Never>?
+    @ObservationIgnored private var lastActivityAt = Date()
 
-    /// Cheap catch-up when the person opens Clipbara, in case a push was missed.
-    /// Runs at most every 30 seconds.
+    /// Catch-up when the person opens Clipbara, in case a push was missed.
     func syncOnOpen() {
-        guard engine != nil, Date().timeIntervalSince(lastOpportunisticSync) > 30 else { return }
+        guard engine != nil, Date().timeIntervalSince(lastOpportunisticSync) > 3 else { return }
         lastOpportunisticSync = Date()
+        lastActivityAt = Date()
         Task { await syncNow() }
+    }
+
+    /// While Clipbara is on screen, check for changes every few seconds instead of
+    /// waiting for a push, which can arrive late or not at all. Polls every 4 seconds
+    /// while things are changing and every 15 seconds after two quiet minutes; backs off
+    /// to 30 seconds after an error. Stop it when the app leaves the screen.
+    ///
+    /// CKSyncEngine.fetchChanges() only goes to the server for zones it already knows
+    /// changed (from a push), so without pushes it does nothing. The poll asks the
+    /// server directly with its own change token; applying a record twice is harmless.
+    func startLivePolling() {
+        guard engine != nil, pollTask == nil else { return }
+        lastActivityAt = Date()
+        pollTask = Task { @MainActor [weak self] in
+            var failed = false
+            while !Task.isCancelled {
+                let quiet = Date().timeIntervalSince(self?.lastActivityAt ?? .distantPast) > 120
+                let interval: Double = failed ? 30 : (quiet ? 15 : 4)
+                try? await Task.sleep(for: .seconds(interval))
+                guard !Task.isCancelled, let engine = self?.engine else { return }
+                guard engine === self?.engine else { return }
+                do {
+                    try await self?.pollServer()
+                    failed = false
+                } catch {
+                    failed = true
+                }
+            }
+        }
+    }
+
+    func stopLivePolling() {
+        pollTask?.cancel()
+        pollTask = nil
+    }
+
+    /// Sends local changes right away instead of waiting for the engine's own schedule.
+    private func sendSoon() {
+        lastActivityAt = Date()
+        pendingSend?.cancel()
+        pendingSend = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled, let engine = self?.engine else { return }
+            try? await engine.sendChanges()
+        }
     }
 
     func syncNow() async {
@@ -170,6 +218,7 @@ final class ClipSync {
         phase = .syncing
         do {
             try await engine.fetchChanges()
+            try await pollServer()
             try await engine.sendChanges()
             markSynced()
         } catch {
@@ -204,6 +253,8 @@ final class ClipSync {
     }
 
     private func stopEngine() {
+        stopLivePolling()
+        pendingSend?.cancel()
         if let saveObserver {
             NotificationCenter.default.removeObserver(saveObserver)
         }
@@ -266,6 +317,7 @@ final class ClipSync {
         }
         if !saves.isEmpty || !deletes.isEmpty {
             engine.state.add(pendingRecordZoneChanges: saves + deletes)
+            sendSoon()
         }
     }
 
@@ -311,6 +363,84 @@ final class ClipSync {
             changes.append(.saveRecord(SyncKey(kind: .entry, id: entry.id).recordID))
         }
         engine.state.add(pendingRecordZoneChanges: changes)
+    }
+
+    // MARK: - Polling
+
+    @ObservationIgnored private var polling = false
+
+    private static let lightKeys: [CKRecord.FieldKey] = [
+        SyncSchema.ClipField.type, SyncSchema.ClipField.copiedAt, SyncSchema.ClipField.text,
+        SyncSchema.ClipField.title, SyncSchema.ClipField.hash, SyncSchema.ClipField.sourceApp,
+        SyncSchema.ClipField.sourceBundle,
+        SyncSchema.PinboardField.name, SyncSchema.PinboardField.order, SyncSchema.PinboardField.createdAt,
+        SyncSchema.EntryField.clipID, SyncSchema.EntryField.pinboardID, SyncSchema.EntryField.order,
+        SyncSchema.EntryField.addedAt,
+    ]
+
+    private func pollServer() async throws {
+        guard !polling, engine != nil, let identifier = Self.containerIdentifier, let context else { return }
+        polling = true
+        defer { polling = false }
+        let database = CKContainer(identifier: identifier).privateCloudDatabase
+
+        var token = metadata.value.pollToken.flatMap(Self.decodeToken)
+        var modifications: [CKRecord] = []
+        var deletions: [CKRecord.ID] = []
+        var moreComing = true
+        do {
+            while moreComing {
+                // Image bytes are left out here; missing images are fetched below.
+                let result = try await database.recordZoneChanges(
+                    inZoneWith: SyncKey.zoneID,
+                    since: token,
+                    desiredKeys: Self.lightKeys,
+                    resultsLimit: 200
+                )
+                for (_, outcome) in result.modificationResultsByID {
+                    if case .success(let modification) = outcome {
+                        modifications.append(modification.record)
+                    }
+                }
+                deletions += result.deletions.map(\.recordID)
+                token = result.changeToken
+                moreComing = result.moreComing
+            }
+        } catch let error as CKError where error.code == .zoneNotFound || error.code == .changeTokenExpired {
+            metadata.update { $0.pollToken = nil }
+            return
+        }
+
+        // Images we do not have yet: fetch the full records, asset included.
+        let missingImages = modifications.filter { record in
+            guard (record[SyncSchema.ClipField.type] as? String) == ContentType.image.rawValue,
+                  let key = SyncKey(recordID: record.recordID) else { return false }
+            let id = key.id
+            return ((try? context.fetchCount(FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.id == id }))) ?? 0) == 0
+        }.map(\.recordID)
+        if !missingImages.isEmpty {
+            let full = try await database.records(for: missingImages)
+            modifications = modifications.map { record in
+                if case .success(let complete)? = full[record.recordID] { return complete }
+                return record
+            }
+        }
+
+        if !modifications.isEmpty || !deletions.isEmpty {
+            applyRemote(modifications: modifications, deletions: deletions)
+        }
+        if let token {
+            let data = Self.encodeToken(token)
+            metadata.update { $0.pollToken = data }
+        }
+    }
+
+    private static func encodeToken(_ token: CKServerChangeToken) -> Data? {
+        try? NSKeyedArchiver.archivedData(withRootObject: token, requiringSecureCoding: true)
+    }
+
+    private static func decodeToken(_ data: Data) -> CKServerChangeToken? {
+        try? NSKeyedUnarchiver.unarchivedObject(ofClass: CKServerChangeToken.self, from: data)
     }
 
     // MARK: - Building records to send
@@ -448,6 +578,7 @@ final class ClipSync {
 
     private func applyRemote(modifications: [CKRecord], deletions: [CKRecord.ID]) {
         guard let context else { return }
+        if !modifications.isEmpty || !deletions.isEmpty { lastActivityAt = Date() }
         applyingRemote = true
         defer { applyingRemote = false }
 

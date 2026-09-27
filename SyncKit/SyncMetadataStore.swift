@@ -11,6 +11,8 @@ struct SyncMetadata: Codable {
     var lastSyncedAt: Date?
     /// Set once images that were skipped (sync on before image support) are queued.
     var imagesBackfilled: Bool?
+    /// Change token for the on-screen poller, separate from the engine's own state.
+    var pollToken: Data?
 }
 
 @MainActor

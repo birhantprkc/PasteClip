@@ -34,10 +34,13 @@ struct ClipbaraiOSApp: App {
             ClipsScreen()
         }
         .modelContainer(container)
-        .onChange(of: scenePhase) { _, phase in
+        .onChange(of: scenePhase, initial: true) { _, phase in
             if phase == .active {
                 snapshots.refresh()
                 ClipSync.shared.syncOnOpen()
+                ClipSync.shared.startLivePolling()
+            } else {
+                ClipSync.shared.stopLivePolling()
             }
             if phase == .background { snapshots.publish() }
         }

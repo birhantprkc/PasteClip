@@ -113,6 +113,7 @@ final class PanelController {
     func showPanel(modelContainer: ModelContainer, appState: AppState) {
         #if APPSTORE
         ClipSync.shared.syncOnOpen()
+        ClipSync.shared.startLivePolling()
         #endif
         guard !isVisible else { return }
         anchorKeyboard()
@@ -258,6 +259,9 @@ final class PanelController {
     /// - Parameter completion: Runs after the panel has left the screen.
     func hidePanel(then completion: (@MainActor @Sendable () -> Void)? = nil) {
         guard isVisible, let panel else { return }
+        #if APPSTORE
+        ClipSync.shared.stopLivePolling()
+        #endif
         panel.makeFirstResponder(nil)
         onPanelWillHide?()
         hideQuickLook()
