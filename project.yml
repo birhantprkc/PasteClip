@@ -149,9 +149,12 @@ targets:
       - path: ClipbaraKeyboard
       - path: ClipbaraKit
       - path: Shared
+      - path: SyncKit/SyncRecords.swift
+      - path: SyncKit/SyncImages.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.minsang.Clipbara.keyboard
+        CLIPBARA_CLOUDKIT_CONTAINER: iCloud.com.minsang.Clipbara
         PRODUCT_NAME: ClipbaraKeyboard
         INFOPLIST_FILE: ClipbaraKeyboard/Info.plist
         GENERATE_INFOPLIST_FILE: false

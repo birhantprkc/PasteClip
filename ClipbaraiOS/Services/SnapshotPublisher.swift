@@ -89,10 +89,10 @@ final class SnapshotPublisher {
             clips[item.id] = snapshotClip(item)
         }
         let boards = pinboards.map { pinboard in
-            let items = pinboard.entries
+            let entries = pinboard.entries
                 .sorted { $0.displayOrder < $1.displayOrder }
-                .compactMap(\.clipboardItem)
-                .filter { KeyboardSnapshot.insertableTypes.contains($0.contentType) }
+                .filter { $0.clipboardItem.map { KeyboardSnapshot.insertableTypes.contains($0.contentType) } ?? false }
+            let items = entries.compactMap(\.clipboardItem)
             for item in items where clips[item.id] == nil {
                 clips[item.id] = snapshotClip(item)
             }
@@ -100,7 +100,8 @@ final class SnapshotPublisher {
                 id: pinboard.id,
                 name: pinboard.name,
                 colorIndex: PinboardPalette.index(for: pinboard, among: pinboards),
-                clipIDs: items.map(\.id)
+                clipIDs: items.map(\.id),
+                entryIDs: entries.map(\.id)
             )
         }
 

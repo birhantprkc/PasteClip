@@ -3,8 +3,9 @@ import UIKit
 
 /// Clipbara keyboard: tap a clip to type it into the current text field.
 ///
-/// Works without Full Access. It only reads the snapshot the app writes and inserts
-/// text through `textDocumentProxy`, so nothing typed elsewhere is ever read or sent.
+/// Works without Full Access: it reads the snapshot the app writes and inserts text
+/// through `textDocumentProxy`. With Full Access it also fetches the person's own clips
+/// from their private iCloud. It never reads or sends what is typed in other apps.
 final class KeyboardViewController: UIInputViewController {
     private let model = KeyboardModel()
     private var hostingController: UIHostingController<KeyboardRootView>?
@@ -51,6 +52,7 @@ final class KeyboardViewController: UIInputViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         model.showsNextKeyboardKey = needsInputModeSwitchKey
+        model.hasFullAccess = hasFullAccess
         model.reload()
     }
 

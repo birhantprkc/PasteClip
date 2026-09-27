@@ -129,6 +129,22 @@
         }
       }
     },
+    "Allow Full Access in Settings to see clips from your Mac right away." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정에서 전체 접근을 허용하면 Mac에서 복사한 클립이 바로 보입니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“设置”中允许完全访问，即可立即看到在 Mac 上拷贝的内容。"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "ko" : {
@@ -141,6 +157,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "取消"
+          }
+        }
+      }
+    },
+    "Checking iCloud" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 확인 중"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在检查 iCloud"
           }
         }
       }

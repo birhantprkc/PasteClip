@@ -25,6 +25,9 @@ final class ClipSync {
     static let shared = ClipSync()
     static let enabledKey = "iCloudSyncEnabled"
     static let imagesKey = "iCloudSyncImages"
+    /// The poller's change token, shared with the keyboard (through the app group on
+    /// iOS) so it can fetch only what changed since the app last looked.
+    static let sharedPollTokenKey = "iCloudSyncPollToken"
 
     private(set) var phase: Phase = .off
     private(set) var lastSyncedAt: Date?
@@ -133,6 +136,7 @@ final class ClipSync {
     /// Stops syncing. Clips stay on this device and in iCloud.
     func disable() {
         defaults.set(false, forKey: Self.enabledKey)
+        defaults.removeObject(forKey: Self.sharedPollTokenKey)
         stopEngine()
         metadata.reset()
         lastSyncedAt = nil
@@ -432,6 +436,7 @@ final class ClipSync {
         if let token {
             let data = Self.encodeToken(token)
             metadata.update { $0.pollToken = data }
+            defaults.set(data, forKey: Self.sharedPollTokenKey)
         }
     }
 
@@ -497,6 +502,11 @@ final class ClipSync {
         case .didFetchChanges, .didSendChanges:
             if engine?.state.pendingRecordZoneChanges.isEmpty ?? true {
                 markSynced()
+            }
+            if case .didFetchChanges = event {
+                // Also move the shared poll token forward after a push-driven fetch, so the
+                // keyboard only has to fetch what arrived after this point.
+                Task { try? await pollServer() }
             }
 
         case .sentDatabaseChanges, .willFetchRecordZoneChanges, .didFetchRecordZoneChanges:

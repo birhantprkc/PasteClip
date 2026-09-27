@@ -10,6 +10,20 @@ final class KeyboardModel {
     var showsNextKeyboardKey = true
     var returnKeyType: UIReturnKeyType = .default
     var lastInsertedID: UUID?
+    var hasFullAccess = false
+    var isFetching = false
+    var hintDismissed = UserDefaults.standard.bool(forKey: "fullAccessHintDismissed")
+    @ObservationIgnored private var fetchTask: Task<Void, Never>?
+
+    /// Sync is on in the app but the keyboard cannot reach iCloud without Full Access.
+    var showsFullAccessHint: Bool {
+        !hasFullAccess && !hintDismissed && ClipStore.defaults.bool(forKey: "iCloudSyncEnabled")
+    }
+
+    func dismissHint() {
+        hintDismissed = true
+        UserDefaults.standard.set(true, forKey: "fullAccessHintDismissed")
+    }
 
     @ObservationIgnored var insert: (String) -> Void = { _ in }
     @ObservationIgnored var deleteBackward: () -> Void = {}
@@ -23,6 +37,23 @@ final class KeyboardModel {
         snapshot = KeyboardSnapshot.load()
         if let selectedBoardID, !snapshot.boards.contains(where: { $0.id == selectedBoardID }) {
             self.selectedBoardID = nil
+        }
+        fetchLiveChanges()
+    }
+
+    /// With Full Access, pull in what changed in iCloud since the app last looked.
+    private func fetchLiveChanges() {
+        guard hasFullAccess, fetchTask == nil, let token = KeyboardLiveSync.startingToken() else { return }
+        isFetching = true
+        fetchTask = Task { @MainActor [weak self] in
+            defer {
+                self?.isFetching = false
+                self?.fetchTask = nil
+            }
+            guard let delta = try? await KeyboardLiveSync.fetchDelta(since: token), let self else { return }
+            withAnimation(.snappy) {
+                self.snapshot = self.snapshot.merged(with: delta)
+            }
         }
     }
 
@@ -38,6 +69,9 @@ struct KeyboardRootView: View {
     var body: some View {
         VStack(spacing: 8) {
             boardBar
+            if model.showsFullAccessHint {
+                fullAccessHint
+            }
             cards
             keyRow
         }
@@ -60,6 +94,36 @@ struct KeyboardRootView: View {
             .padding(.horizontal, 10)
         }
         .frame(height: 32)
+        .overlay(alignment: .trailing) {
+            if model.isFetching {
+                ProgressView()
+                    .controlSize(.small)
+                    .padding(.trailing, 12)
+                    .accessibilityLabel(Text("Checking iCloud"))
+            }
+        }
+    }
+
+    private var fullAccessHint: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "icloud")
+                .font(.caption2.weight(.semibold))
+            Text("Allow Full Access in Settings to see clips from your Mac right away.")
+                .font(.caption2)
+                .lineLimit(2)
+            Spacer(minLength: 4)
+            Button {
+                withAnimation(.snappy) { model.dismissHint() }
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.caption2.weight(.bold))
+                    .frame(width: 22, height: 22)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Dismiss"))
+        }
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 14)
     }
 
     private func boardChip(title: String, color: Color?, id: UUID?) -> some View {
