@@ -6,7 +6,7 @@ struct SyncSettingsSection: View {
 
     @State private var confirmEnable = false
     @State private var confirmDelete = false
-    @State private var counts = (clips: 0, pinboards: 0)
+    @State private var estimate = ClipSync.UploadEstimate()
 
     var body: some View {
         Section {
@@ -14,6 +14,10 @@ struct SyncSettingsSection: View {
                 Label("iCloud Sync", systemImage: "icloud")
             }
             .disabled(sync.phase == .starting)
+
+            Toggle(isOn: imagesBinding) {
+                Label("Sync Images", systemImage: "photo")
+            }
 
             if sync.isEnabled || sync.phase == .needsAccount || isFailure {
                 HStack(spacing: 8) {
@@ -39,14 +43,18 @@ struct SyncSettingsSection: View {
         } header: {
             Text("Sync")
         } footer: {
-            Text("Text, links, and colors in your history and pinboards sync between your Mac and iPhone through your private iCloud database. Clip contents are stored as encrypted fields. Images and files stay on the device where you copied them.")
+            Text("Your history and pinboards sync between your Mac and iPhone through your private iCloud database, and use your iCloud storage. Clip contents are encrypted. Images over 10 MB and copied files stay on the device where you copied them.")
         }
         .confirmationDialog("Turn On iCloud Sync?", isPresented: $confirmEnable, titleVisibility: .visible) {
             Button("Turn On") {
                 Task { await sync.enable() }
             }
         } message: {
-            Text("\(counts.clips) clips and \(counts.pinboards) pinboards on this device will be uploaded to your iCloud account.")
+            if estimate.images > 0 {
+                Text("\(estimate.clips) clips, \(estimate.images) images (about \(imageSize)), and \(estimate.pinboards) pinboards on this device will be uploaded to your iCloud account.")
+            } else {
+                Text("\(estimate.clips) clips and \(estimate.pinboards) pinboards on this device will be uploaded to your iCloud account.")
+            }
         }
         .confirmationDialog("Delete iCloud Data?", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("Delete iCloud Data", role: .destructive) {
@@ -62,13 +70,27 @@ struct SyncSettingsSection: View {
             get: { sync.isEnabled },
             set: { on in
                 if on {
-                    counts = sync.uploadCounts()
+                    estimate = sync.uploadEstimate()
                     confirmEnable = true
                 } else {
                     sync.disable()
                 }
             }
         )
+    }
+
+    private var imagesBinding: Binding<Bool> {
+        Binding(
+            get: {
+                _ = sync.imageSettingVersion
+                return sync.includesImages
+            },
+            set: { sync.setIncludesImages($0) }
+        )
+    }
+
+    private var imageSize: String {
+        Int64(estimate.imageBytes).formatted(.byteCount(style: .file))
     }
 
     private var isFailure: Bool {

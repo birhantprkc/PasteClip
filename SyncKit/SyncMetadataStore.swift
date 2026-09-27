@@ -9,6 +9,8 @@ struct SyncMetadata: Codable {
     var systemFields: [String: Data] = [:]
     var orphanEntries: [UUID: SyncSchema.EntryValues] = [:]
     var lastSyncedAt: Date?
+    /// Set once images that were skipped (sync on before image support) are queued.
+    var imagesBackfilled: Bool?
 }
 
 @MainActor

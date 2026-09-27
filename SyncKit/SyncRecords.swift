@@ -46,8 +46,9 @@ struct SyncKey: Hashable, Codable, Sendable {
 
 /// Field names and the rules for what syncs.
 ///
-/// Only text-like clips sync for now: plain text, links, and colors. Rich text and HTML
-/// sync as their plain text. Images and files stay on the device they were copied on.
+/// Text, links, and colors always sync (rich text and HTML as their plain text). Images
+/// sync as CKAssets when image sync is on and they fit the size limit. Copied files stay
+/// on the device they were copied on, since their paths only mean something there.
 enum SyncSchema {
     static let maxTextBytes = 200_000
 
@@ -59,6 +60,7 @@ enum SyncSchema {
         static let hash = "hash"            // encrypted
         static let sourceApp = "sourceApp"  // encrypted
         static let sourceBundle = "sourceBundle" // encrypted
+        static let image = "image"          // CKAsset, encrypted by CloudKit by default
     }
 
     enum PinboardField {
@@ -80,19 +82,21 @@ enum SyncSchema {
         return String(data: item.rawData, encoding: .utf8)
     }
 
-    static func isEligible(_ item: ClipboardItem) -> Bool {
+    static func isEligible(_ item: ClipboardItem, includeImages: Bool) -> Bool {
         switch item.contentType {
         case .plainText, .richText, .html, .url, .color, .unknown:
             guard let text = syncText(of: item), !text.isEmpty else { return false }
             return text.utf8.count <= maxTextBytes
-        case .image, .fileURL:
+        case .image:
+            return includeImages && SyncImages.mightFit(item.rawData)
+        case .fileURL:
             return false
         }
     }
 
-    static func isEligible(_ entry: PinboardEntry) -> Bool {
+    static func isEligible(_ entry: PinboardEntry, includeImages: Bool) -> Bool {
         guard let item = entry.clipboardItem, entry.pinboard != nil else { return false }
-        return isEligible(item)
+        return isEligible(item, includeImages: includeImages)
     }
 
     /// Rich text and HTML arrive on the other device as plain text.
@@ -105,8 +109,17 @@ enum SyncSchema {
 
     // MARK: - Model -> record
 
-    static func fill(_ record: CKRecord, from item: ClipboardItem) {
+    /// Returns false when the clip cannot be sent (an image over the size limit).
+    @discardableResult
+    static func fill(_ record: CKRecord, from item: ClipboardItem) -> Bool {
         let secret = record.encryptedValues
+        if item.contentType == .image {
+            guard let upload = SyncImages.uploadData(for: item.rawData),
+                  let file = SyncImages.stage(upload.data, recordName: record.recordID.recordName, fileExtension: upload.fileExtension) else {
+                return false
+            }
+            record[ClipField.image] = CKAsset(fileURL: file)
+        }
         record[ClipField.type] = syncedType(item.contentType).rawValue as NSString
         record[ClipField.copiedAt] = item.copiedAt as NSDate
         secret[ClipField.text] = syncText(of: item) ?? ""
@@ -114,6 +127,7 @@ enum SyncSchema {
         secret[ClipField.hash] = item.contentHash
         secret[ClipField.sourceApp] = item.sourceAppName
         secret[ClipField.sourceBundle] = item.sourceAppBundleId
+        return true
     }
 
     static func fill(_ record: CKRecord, from pinboard: Pinboard) {
@@ -139,12 +153,22 @@ enum SyncSchema {
         let hash: String
         let sourceApp: String?
         let sourceBundle: String?
+        let imageData: Data?
     }
 
     static func clipValues(_ record: CKRecord) -> ClipValues? {
         let secret = record.encryptedValues
-        guard let text = secret[ClipField.text] as String?, !text.isEmpty else { return nil }
         let type = (record[ClipField.type] as? String).flatMap(ContentType.init(rawValue:)) ?? .plainText
+        let text = secret[ClipField.text] as String? ?? ""
+        var imageData: Data?
+        if type == .image {
+            // The staged asset file is temporary; read it now.
+            guard let url = (record[ClipField.image] as? CKAsset)?.fileURL,
+                  let data = try? Data(contentsOf: url) else { return nil }
+            imageData = data
+        } else if text.isEmpty {
+            return nil
+        }
         return ClipValues(
             type: type,
             copiedAt: record[ClipField.copiedAt] as? Date ?? Date(),
@@ -152,7 +176,8 @@ enum SyncSchema {
             title: secret[ClipField.title] as String?,
             hash: secret[ClipField.hash] as String? ?? "",
             sourceApp: secret[ClipField.sourceApp] as String?,
-            sourceBundle: secret[ClipField.sourceBundle] as String?
+            sourceBundle: secret[ClipField.sourceBundle] as String?,
+            imageData: imageData
         )
     }
 

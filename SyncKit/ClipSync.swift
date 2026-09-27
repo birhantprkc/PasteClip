@@ -24,6 +24,7 @@ final class ClipSync {
 
     static let shared = ClipSync()
     static let enabledKey = "iCloudSyncEnabled"
+    static let imagesKey = "iCloudSyncImages"
 
     private(set) var phase: Phase = .off
     private(set) var lastSyncedAt: Date?
@@ -46,6 +47,32 @@ final class ClipSync {
 
     var isEnabled: Bool { defaults.bool(forKey: Self.enabledKey) }
 
+    /// Images sync unless turned off. Stored so the settings toggle survives relaunches.
+    var includesImages: Bool {
+        defaults.object(forKey: Self.imagesKey) as? Bool ?? true
+    }
+
+    func setIncludesImages(_ on: Bool) {
+        defaults.set(on, forKey: Self.imagesKey)
+        imageSettingVersion += 1
+        guard on, let engine, let context else { return }
+        // Upload images that were skipped while this was off.
+        let images = (try? context.fetch(FetchDescriptor<ClipboardItem>())) ?? []
+        var changes: [CKSyncEngine.PendingRecordZoneChange] = []
+        for item in images where item.contentType == .image && SyncSchema.isEligible(item, includeImages: true) {
+            changes.append(.saveRecord(SyncKey(kind: .clip, id: item.id).recordID))
+        }
+        for entry in (try? context.fetch(FetchDescriptor<PinboardEntry>())) ?? []
+        where entry.clipboardItem?.contentType == .image && SyncSchema.isEligible(entry, includeImages: true) {
+            changes.append(.saveRecord(SyncKey(kind: .entry, id: entry.id).recordID))
+        }
+        engine.state.add(pendingRecordZoneChanges: changes)
+        Task { await syncNow() }
+    }
+
+    /// Bumped so views re-read `includesImages`, which lives in UserDefaults.
+    private(set) var imageSettingVersion = 0
+
     private var context: ModelContext? { modelContainer?.mainContext }
 
     // MARK: - Lifecycle
@@ -62,12 +89,28 @@ final class ClipSync {
         }
     }
 
-    /// Clips and pinboards that would be uploaded when sync is turned on.
-    func uploadCounts() -> (clips: Int, pinboards: Int) {
-        guard let context else { return (0, 0) }
-        let clips = ((try? context.fetch(FetchDescriptor<ClipboardItem>())) ?? []).filter(SyncSchema.isEligible).count
-        let boards = (try? context.fetchCount(FetchDescriptor<Pinboard>())) ?? 0
-        return (clips, boards)
+    struct UploadEstimate {
+        var clips = 0
+        var images = 0
+        var imageBytes = 0
+        var pinboards = 0
+    }
+
+    /// What turning sync on would upload from this device.
+    func uploadEstimate() -> UploadEstimate {
+        guard let context else { return UploadEstimate() }
+        var estimate = UploadEstimate()
+        for item in (try? context.fetch(FetchDescriptor<ClipboardItem>())) ?? []
+        where SyncSchema.isEligible(item, includeImages: includesImages) {
+            if item.contentType == .image {
+                estimate.images += 1
+                estimate.imageBytes += min(item.rawData.count, SyncImages.maxBytes)
+            } else {
+                estimate.clips += 1
+            }
+        }
+        estimate.pinboards = (try? context.fetchCount(FetchDescriptor<Pinboard>())) ?? 0
+        return estimate
     }
 
     func enable() async {
@@ -145,12 +188,18 @@ final class ClipSync {
         )
         let engine = CKSyncEngine(configuration)
         self.engine = engine
+        SyncImages.clearStaging()
         phase = .starting
         rebuildIndex()
         observeSaves()
         if initialUpload {
             engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneID: SyncKey.zoneID))])
             enqueueEverything()
+            metadata.update { $0.imagesBackfilled = true }
+        } else if includesImages && metadata.value.imagesBackfilled != true {
+            // Sync was on before images were supported: send the images it skipped.
+            setIncludesImages(true)
+            metadata.update { $0.imagesBackfilled = true }
         }
     }
 
@@ -202,7 +251,7 @@ final class ClipSync {
         var deletes: [CKSyncEngine.PendingRecordZoneChange] = []
 
         for identifier in changed {
-            guard let pair = Self.key(for: context.model(for: identifier)) else { continue }
+            guard let pair = Self.key(for: context.model(for: identifier), includeImages: includesImages) else { continue }
             let (key, eligible) = pair
             index[identifier] = key
             if eligible && !applyingRemote {
@@ -220,14 +269,14 @@ final class ClipSync {
         }
     }
 
-    private static func key(for model: any PersistentModel) -> (SyncKey, Bool)? {
+    private static func key(for model: any PersistentModel, includeImages: Bool) -> (SyncKey, Bool)? {
         switch model {
         case let item as ClipboardItem:
-            return (SyncKey(kind: .clip, id: item.id), SyncSchema.isEligible(item))
+            return (SyncKey(kind: .clip, id: item.id), SyncSchema.isEligible(item, includeImages: includeImages))
         case let pinboard as Pinboard:
             return (SyncKey(kind: .pinboard, id: pinboard.id), true)
         case let entry as PinboardEntry:
-            return (SyncKey(kind: .entry, id: entry.id), SyncSchema.isEligible(entry))
+            return (SyncKey(kind: .entry, id: entry.id), SyncSchema.isEligible(entry, includeImages: includeImages))
         default:
             return nil
         }
@@ -253,10 +302,12 @@ final class ClipSync {
         for pinboard in (try? context.fetch(FetchDescriptor<Pinboard>())) ?? [] {
             changes.append(.saveRecord(SyncKey(kind: .pinboard, id: pinboard.id).recordID))
         }
-        for item in (try? context.fetch(FetchDescriptor<ClipboardItem>())) ?? [] where SyncSchema.isEligible(item) {
+        for item in (try? context.fetch(FetchDescriptor<ClipboardItem>())) ?? []
+        where SyncSchema.isEligible(item, includeImages: includesImages) {
             changes.append(.saveRecord(SyncKey(kind: .clip, id: item.id).recordID))
         }
-        for entry in (try? context.fetch(FetchDescriptor<PinboardEntry>())) ?? [] where SyncSchema.isEligible(entry) {
+        for entry in (try? context.fetch(FetchDescriptor<PinboardEntry>())) ?? []
+        where SyncSchema.isEligible(entry, includeImages: includesImages) {
             changes.append(.saveRecord(SyncKey(kind: .entry, id: entry.id).recordID))
         }
         engine.state.add(pendingRecordZoneChanges: changes)
@@ -271,15 +322,17 @@ final class ClipSync {
         switch key.kind {
         case .clip:
             let descriptor = FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.id == id })
-            guard let item = try? context.fetch(descriptor).first, SyncSchema.isEligible(item) else { return nil }
-            SyncSchema.fill(record, from: item)
+            guard let item = try? context.fetch(descriptor).first,
+                  SyncSchema.isEligible(item, includeImages: includesImages),
+                  SyncSchema.fill(record, from: item) else { return nil }
         case .pinboard:
             let descriptor = FetchDescriptor<Pinboard>(predicate: #Predicate { $0.id == id })
             guard let pinboard = try? context.fetch(descriptor).first else { return nil }
             SyncSchema.fill(record, from: pinboard)
         case .entry:
             let descriptor = FetchDescriptor<PinboardEntry>(predicate: #Predicate { $0.id == id })
-            guard let entry = try? context.fetch(descriptor).first, SyncSchema.isEligible(entry) else { return nil }
+            guard let entry = try? context.fetch(descriptor).first,
+                  SyncSchema.isEligible(entry, includeImages: includesImages) else { return nil }
             SyncSchema.fill(record, from: entry)
         }
         return record
@@ -341,6 +394,7 @@ final class ClipSync {
         guard let engine else { return }
         for record in sent.savedRecords {
             metadata.remember(record)
+            SyncImages.removeStaged(recordName: record.recordID.recordName)
         }
         for recordID in sent.deletedRecordIDs {
             metadata.forget(recordID)
@@ -349,6 +403,7 @@ final class ClipSync {
         var needsZone = false
         for failure in sent.failedRecordSaves {
             let recordID = failure.record.recordID
+            SyncImages.removeStaged(recordName: recordID.recordName)  // rebuilt on retry
             switch failure.error.code {
             case .serverRecordChanged:
                 // Keep our values on top of the newer server record.
@@ -484,10 +539,12 @@ final class ClipSync {
 
     @discardableResult
     private func insertClip(id: UUID, values: SyncSchema.ClipValues, context: ModelContext) -> ClipboardItem {
+        let isImage = values.type == .image
         let item = ClipboardItem(
             contentType: values.type,
-            rawData: Data(values.text.utf8),
-            textContent: values.text,
+            rawData: values.imageData ?? Data(values.text.utf8),
+            textContent: isImage ? nil : values.text,
+            thumbnailData: values.imageData.flatMap { SyncImages.thumbnail(for: $0) },
             sourceAppName: values.sourceApp,
             sourceAppBundleId: values.sourceBundle,
             contentHash: values.hash
@@ -501,7 +558,8 @@ final class ClipSync {
     private func update(_ item: ClipboardItem, with values: SyncSchema.ClipValues) {
         item.copiedAt = values.copiedAt
         item.userTitle = values.title
-        if item.textContent != values.text, SyncSchema.syncedType(item.contentType) == values.type {
+        // Image bytes never change after capture; only text can be edited.
+        if values.type != .image, item.textContent != values.text, SyncSchema.syncedType(item.contentType) == values.type {
             item.textContent = values.text
             item.rawData = Data(values.text.utf8)
         }

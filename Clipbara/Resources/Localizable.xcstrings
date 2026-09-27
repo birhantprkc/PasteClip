@@ -68,6 +68,22 @@
         }
       }
     },
+    "%lld clips, %lld images (about %@), and %lld pinboards on this device will be uploaded to your iCloud account." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 기기의 클립 %1$lld개, 이미지 %2$lld장(약 %3$@), 핀보드 %4$lld개가 iCloud 계정에 업로드됩니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此设备上的 %1$lld 个剪贴内容、%2$lld 张图片（约 %3$@）和 %4$lld 个钉板将上传到你的 iCloud 账户。"
+          }
+        }
+      }
+    },
     "%lld days left" : {
       "localizations" : {
         "en" : {
@@ -2984,6 +3000,22 @@
         }
       }
     },
+    "Sync Images" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미지도 동기화"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同步图片"
+          }
+        }
+      }
+    },
     "Sync Now" : {
       "localizations" : {
         "ko" : {
@@ -3076,22 +3108,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文本"
-          }
-        }
-      }
-    },
-    "Text, links, and colors in your history and pinboards sync between your Mac and iPhone through your private iCloud database. Clip contents are stored as encrypted fields. Images and files stay on the device where you copied them." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기록과 핀보드의 텍스트, 링크, 색상이 개인 iCloud 데이터베이스를 통해 Mac과 iPhone 사이에서 동기화됩니다. 클립 내용은 암호화된 필드로 저장됩니다. 이미지와 파일은 복사한 기기에만 남습니다."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "历史记录和钉板中的文本、链接和颜色会通过你的私有 iCloud 数据库在 Mac 和 iPhone 之间同步。剪贴内容以加密字段存储。图片和文件只保留在拷贝它们的设备上。"
           }
         }
       }
@@ -3716,6 +3732,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "免费试用已开始"
+          }
+        }
+      }
+    },
+    "Your history and pinboards sync between your Mac and iPhone through your private iCloud database, and use your iCloud storage. Clip contents are encrypted. Images over 10 MB and copied files stay on the device where you copied them." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기록과 핀보드가 개인 iCloud 데이터베이스를 통해 Mac과 iPhone 사이에서 동기화되며, iCloud 저장 공간을 사용합니다. 클립 내용은 암호화됩니다. 10MB가 넘는 이미지와 복사한 파일은 복사한 기기에만 남습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "历史记录和钉板会通过你的私有 iCloud 数据库在 Mac 和 iPhone 之间同步，并占用你的 iCloud 储存空间。剪贴内容已加密。超过 10 MB 的图片和拷贝的文件只保留在拷贝它们的设备上。"
           }
         }
       }
