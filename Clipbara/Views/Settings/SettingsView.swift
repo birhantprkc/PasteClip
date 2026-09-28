@@ -30,5 +30,6 @@ struct SettingsView: View {
                 }
         }
         .frame(width: 480, height: 360)
+        .background(SettingsWindowReader())
     }
 }

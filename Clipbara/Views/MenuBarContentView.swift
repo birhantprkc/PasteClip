@@ -118,7 +118,7 @@ struct MenuBarContentView: View {
 
             Button("Settings...") {
                 openSettings()
-                NSApp.activate(ignoringOtherApps: true)
+                SettingsWindowFront.bring()
             }
             .keyboardShortcut(",", modifiers: .command)
             .padding(.horizontal, 12)
