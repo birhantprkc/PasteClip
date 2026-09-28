@@ -135,7 +135,7 @@ targets:
         SWIFT_STRICT_CONCURRENCY: complete
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        MARKETING_VERSION: "1.4"
+        MARKETING_VERSION: "1.5"
         CURRENT_PROJECT_VERSION: "33"
       configs:
         Release:
@@ -165,7 +165,7 @@ targets:
         DEVELOPMENT_TEAM: 5DH57J8HLC
         TARGETED_DEVICE_FAMILY: "1"
         SWIFT_STRICT_CONCURRENCY: complete
-        MARKETING_VERSION: "1.4"
+        MARKETING_VERSION: "1.5"
         CURRENT_PROJECT_VERSION: "33"
 
   ClipbaraShare:
@@ -186,7 +186,7 @@ targets:
         DEVELOPMENT_TEAM: 5DH57J8HLC
         TARGETED_DEVICE_FAMILY: "1"
         SWIFT_STRICT_CONCURRENCY: complete
-        MARKETING_VERSION: "1.4"
+        MARKETING_VERSION: "1.5"
         CURRENT_PROJECT_VERSION: "33"
 
   ClipbaraiOSUITests:
