@@ -322,6 +322,22 @@
         }
       }
     },
+    "Animate Panel" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "패널 애니메이션"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "面板动画"
+          }
+        }
+      }
+    },
     "Appearance" : {
       "localizations" : {
         "ko" : {
@@ -1829,6 +1845,22 @@
         }
       }
     },
+    "Off while Reduce Motion is on in System Settings > Accessibility > Display." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시스템 설정 > 손쉬운 사용 > 디스플레이에서 '동작 줄이기'가 켜져 있는 동안은 꺼집니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“系统设置 > 辅助功能 > 显示”中开启“减弱动态效果”时，此项会关闭。"
+          }
+        }
+      }
+    },
     "One shortcut away" : {
       "localizations" : {
         "ko" : {
@@ -2484,6 +2516,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已跳过 %lld 个重复项。"
+          }
+        }
+      }
+    },
+    "Slide the history panel in and out. When off, it appears and closes at once." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기록 패널이 밀려 올라오고 내려가게 합니다. 끄면 바로 나타나고 바로 닫힙니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "历史面板滑入和滑出。关闭后会立即出现并立即关闭。"
           }
         }
       }

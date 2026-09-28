@@ -30,6 +30,16 @@ final class PanelController {
     var onPanelWillHide: (() -> Void)?
     weak var appState: AppState?
 
+    /// Settings > Appearance > Animate Panel. Missing means on.
+    nonisolated static let animatesPanelDefaultsKey = "animatePanel"
+
+    /// Whether the panel slides and resizes with animation. The system Reduce
+    /// Motion setting turns it off as well (#52).
+    static var animatesPanel: Bool {
+        let setting = UserDefaults.standard.object(forKey: animatesPanelDefaultsKey) as? Bool ?? true
+        return setting && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+    }
+
     private let baseHeight: CGFloat = 280
     private let minimumPanelWidth: CGFloat = 720
     private let maximumScreenWidthRatio: CGFloat = 0.90
@@ -120,13 +130,14 @@ final class PanelController {
         // the window and rides up into it. Moving the window itself would push
         // it onto a display stacked underneath, which is how the panel used to
         // end up on the wrong screen.
-        contentHost?.frame.origin.y = -endFrame.height
+        let animates = Self.animatesPanel
+        contentHost?.frame.origin.y = animates ? -endFrame.height : 0
         panel?.alphaValue = 1
 
         // The window shadow is derived from the content alpha. While the
         // content is only partly inside the frame the shadow would outline
         // empty space, so drop it for the duration of the slide.
-        panel?.hasShadow = false
+        panel?.hasShadow = !animates
 
         panel?.orderFrontRegardless()
         panel?.makeKey()
@@ -143,6 +154,19 @@ final class PanelController {
         panel?.contentView?.displayIfNeeded()
         CATransaction.flush()
 
+        if animates {
+            slideContentIn()
+        }
+
+        isVisible = true
+        appState.markPanelPresented()
+        installClickMonitor()
+        installMouseMonitor()
+        installScrollMonitor()
+        installKeyMonitor()
+    }
+
+    private func slideContentIn() {
         Task { @MainActor [weak self] in
             guard let self, let contentHost = self.contentHost else { return }
             NSAnimationContext.runAnimationGroup({ context in
@@ -158,13 +182,6 @@ final class PanelController {
                 }
             })
         }
-
-        isVisible = true
-        appState.markPanelPresented()
-        installClickMonitor()
-        installMouseMonitor()
-        installScrollMonitor()
-        installKeyMonitor()
     }
 
     func resizeToContentItemCount(_ itemCount: Int, animated: Bool = true) {
@@ -180,7 +197,7 @@ final class PanelController {
             return
         }
 
-        if animated {
+        if animated, Self.animatesPanel {
             resizeTargetFrame = targetFrame
             NSAnimationContext.runAnimationGroup({ context in
                 context.duration = 0.18
@@ -241,20 +258,29 @@ final class PanelController {
         removeScrollMonitor()
         removeKeyMonitor()
 
+        let finish: @MainActor () -> Void = { [weak self] in
+            panel.orderOut(nil)
+            panel.hasShadow = true
+            self?.contentHost?.frame.origin.y = 0
+            self?.presentedScreen = nil
+            self?.isVisible = false
+            completion?()
+        }
+
+        guard Self.animatesPanel else {
+            finish()
+            return
+        }
+
         panel.hasShadow = false
 
         NSAnimationContext.runAnimationGroup({ [contentHost] context in
             context.duration = 0.2
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             contentHost?.animator().setFrameOrigin(NSPoint(x: 0, y: -panelHeight))
-        }, completionHandler: { [weak self] in
+        }, completionHandler: {
             Task { @MainActor in
-                panel.orderOut(nil)
-                panel.hasShadow = true
-                self?.contentHost?.frame.origin.y = 0
-                self?.presentedScreen = nil
-                self?.isVisible = false
-                completion?()
+                finish()
             }
         })
     }

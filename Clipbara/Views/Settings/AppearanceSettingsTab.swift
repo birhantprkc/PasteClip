@@ -17,6 +17,8 @@ enum AppTheme: String, CaseIterable {
 
 struct AppearanceSettingsTab: View {
     @AppStorage("appTheme") private var appTheme: String = AppTheme.system.rawValue
+    @AppStorage(PanelController.animatesPanelDefaultsKey) private var animatesPanel: Bool = true
+    @State private var reducesMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
 
     var body: some View {
         Form {
@@ -28,6 +30,31 @@ struct AppearanceSettingsTab: View {
             .pickerStyle(.menu)
             .onChange(of: appTheme) { _, newValue in
                 applyTheme(newValue)
+            }
+
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Animate Panel")
+                    Group {
+                        if reducesMotion {
+                            Text("Off while Reduce Motion is on in System Settings > Accessibility > Display.")
+                        } else {
+                            Text("Slide the history panel in and out. When off, it appears and closes at once.")
+                        }
+                    }
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer()
+                Toggle("", isOn: $animatesPanel)
+                    .labelsHidden()
+                    .disabled(reducesMotion)
+            }
+            .onReceive(NSWorkspace.shared.notificationCenter.publisher(
+                for: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification
+            )) { _ in
+                reducesMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
             }
         }
         .formStyle(.grouped)
