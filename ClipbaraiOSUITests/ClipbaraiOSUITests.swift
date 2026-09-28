@@ -283,16 +283,23 @@ final class ClipbaraiOSUITests: XCTestCase {
         let cards = app.descendants(matching: .any).matching(identifier: "clipCard")
         let sheetTitle = { (text: String) in self.app.staticTexts[text].firstMatch }
 
-        // New customer: copying a clip asks to start the trial first.
+        // The keyboard runs in the device language, so accept both.
+        let notStartedText = ["Open Clipbara to start your free trial.", "Clipbara를 열어 무료 체험을 시작하세요."]
+        let expiredText = ["Your free trial has ended. Open Clipbara to unlock your clips.", "무료 체험이 끝났어요. Clipbara를 열어 잠금 해제하세요."]
+
+        // New customer: the paywall shows once after onboarding; the keyboard is locked.
         relaunch()
         if sheetTitle("Try Clipbara free for 7 days").waitForExistence(timeout: 4) {
             attach("70-paywall-after-onboarding")
-        } else {
-            XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
-            cards.firstMatch.tap()
-            XCTAssertTrue(sheetTitle("Try Clipbara free for 7 days").waitForExistence(timeout: 5))
-            attach("70-paywall-new")
+            app.buttons["Not Now"].firstMatch.tap()
         }
+        checkClipbaraKeyboard(lockedWith: notStartedText, expectLocked: true, name: "75-keyboard-new")
+
+        // Copying a clip asks to start the trial first.
+        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
+        cards.firstMatch.tap()
+        XCTAssertTrue(sheetTitle("Try Clipbara free for 7 days").waitForExistence(timeout: 5))
+        attach("70-paywall-new")
         let start = app.buttons["Start 7-Day Free Trial"].firstMatch
         XCTAssertTrue(start.waitForExistence(timeout: 5))
         XCTAssertTrue(waitUntil(timeout: 10) { start.isEnabled }, "Start button stayed disabled (products not loaded)")
@@ -312,9 +319,11 @@ final class ClipbaraiOSUITests: XCTestCase {
         XCTAssertTrue(trialStatus.waitForExistence(timeout: 5))
         attach("72-settings-trial")
         app.buttons["Done"].firstMatch.tap()
+        checkClipbaraKeyboard(lockedWith: notStartedText + expiredText, expectLocked: false, name: "76-keyboard-trial")
 
         // Trial over (start moved back 8 days, Debug only): copying shows the unlock sheet.
         relaunch(["-ClipbaraDebugTrialShiftDays", "8"])
+        checkClipbaraKeyboard(lockedWith: expiredText, expectLocked: true, name: "77-keyboard-expired")
         XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
         cards.firstMatch.tap()
         XCTAssertTrue(sheetTitle("Your free trial has ended").waitForExistence(timeout: 5))
@@ -328,6 +337,39 @@ final class ClipbaraiOSUITests: XCTestCase {
         app.buttons["Done"].firstMatch.tap()
         cards.firstMatch.tap()
         XCTAssertTrue(app.staticTexts["Copied"].waitForExistence(timeout: 3))
+        checkClipbaraKeyboard(lockedWith: notStartedText + expiredText, expectLocked: false, name: "78-keyboard-unlocked")
+    }
+
+    /// Opens the Clipbara keyboard in the search field and checks the lock notice.
+    /// Needs the keyboard enabled (testEnableKeyboardInSettings in the same run).
+    private func checkClipbaraKeyboard(lockedWith texts: [String], expectLocked: Bool, name: String) {
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        // The return key's identifier is the SF Symbol name only the Clipbara keyboard uses.
+        let clipbaraKey = app.buttons["return.left"].firstMatch
+        let globeLabels = ["Next keyboard", "Next Keyboard", "다음 키보드", "지구본"]
+        for _ in 0..<6 where !clipbaraKey.waitForExistence(timeout: 2) {
+            let globe = app.buttons.matching(NSPredicate(format: "label IN %@", globeLabels)).firstMatch
+            guard globe.waitForExistence(timeout: 2) else { break }
+            globe.press(forDuration: 1.2)
+            let entry = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label == %@", "Clipbara")).firstMatch
+            if entry.waitForExistence(timeout: 2) { entry.tap() } else { globe.tap() }
+        }
+        XCTAssertTrue(clipbaraKey.waitForExistence(timeout: 4), "Clipbara keyboard did not come up (\(name))")
+        let notice = app.descendants(matching: .any).matching(NSCompoundPredicate(
+            orPredicateWithSubpredicates: texts.map { NSPredicate(format: "label CONTAINS %@", $0) })).firstMatch
+        if expectLocked {
+            XCTAssertTrue(notice.waitForExistence(timeout: 4), "Keyboard should be locked (\(name))")
+        } else {
+            RunLoop.current.run(until: Date().addingTimeInterval(1.5))
+            XCTAssertFalse(notice.exists, "Keyboard should not be locked (\(name))")
+        }
+        attach(name)
+        let close = app.buttons["close"].firstMatch
+        if close.exists { close.tap() } else { app.swipeDown() }
+        RunLoop.current.run(until: Date().addingTimeInterval(0.8))
     }
 
     func testPasteButtonSavesClipboard() throws {
