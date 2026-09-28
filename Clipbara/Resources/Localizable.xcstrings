@@ -178,6 +178,22 @@
         }
       }
     },
+    "Accessibility permission is needed to follow ⌘V." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘V를 감지하려면 손쉬운 사용 권한이 필요합니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要辅助功能权限才能检测 ⌘V。"
+          }
+        }
+      }
+    },
     "Accessibility permission is off, so clips are only copied." : {
       "localizations" : {
         "ko" : {
@@ -530,6 +546,22 @@
         }
       }
     },
+    "Clip Queue" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "클립 대기열"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "剪贴队列"
+          }
+        }
+      }
+    },
     "Clipbara" : {
       "shouldTranslate" : false
     },
@@ -677,6 +709,22 @@
         }
       }
     },
+    "Copy a few things. Each ⌘V then pastes the next one in order." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여러 항목을 복사하세요. ⌘V를 누를 때마다 다음 항목이 순서대로 붙여넣어집니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制几项内容，之后每按一次 ⌘V 就会按顺序粘贴下一项。"
+          }
+        }
+      }
+    },
     "Copy anything" : {
       "localizations" : {
         "ko" : {
@@ -689,6 +737,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "随便复制点什么"
+          }
+        }
+      }
+    },
+    "Copy several things, then paste them in order." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여러 항목을 복사한 뒤 순서대로 붙여넣습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制多项内容，然后按顺序粘贴。"
           }
         }
       }
@@ -913,6 +977,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "空钉板"
+          }
+        }
+      }
+    },
+    "End Clip Queue" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "클립 대기열 끝내기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "结束剪贴队列"
           }
         }
       }
@@ -1717,6 +1797,22 @@
         }
       }
     },
+    "Not set by default. Also available from the menu bar." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기본으로는 지정되어 있지 않습니다. 메뉴 막대에서도 시작할 수 있습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "默认未设置。也可以从菜单栏开始。"
+          }
+        }
+      }
+    },
     "OK" : {
       "localizations" : {
         "ko" : {
@@ -1829,6 +1925,22 @@
         }
       }
     },
+    "Optional. While the queue is on, everything you copy joins it, and each ⌘V pastes the next item in order. Needs Accessibility permission." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택 사항입니다. 대기열이 켜져 있는 동안 복사한 항목이 모두 대기열에 들어가고, ⌘V를 누를 때마다 다음 항목이 순서대로 붙여넣어집니다. 손쉬운 사용 권한이 필요합니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选。队列开启时，复制的内容都会加入队列，每按一次 ⌘V 就会按顺序粘贴下一项。需要辅助功能权限。"
+          }
+        }
+      }
+    },
     "Other" : {
       "localizations" : {
         "ko" : {
@@ -1921,6 +2033,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "粘贴"
+          }
+        }
+      }
+    },
+    "Pasting newest first. Click to paste oldest first." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 항목부터 붙여넣는 중. 클릭하면 오래된 항목부터 붙여넣습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在从最新的开始粘贴。点按可改为从最早的开始。"
+          }
+        }
+      }
+    },
+    "Pasting oldest first. Click to paste newest first." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오래된 항목부터 붙여넣는 중. 클릭하면 최근 항목부터 붙여넣습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在从最早的开始粘贴。点按可改为从最新的开始。"
           }
         }
       }
@@ -2100,6 +2244,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "从钉板中移除"
+          }
+        }
+      }
+    },
+    "Remove from Queue" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기열에서 제거"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从队列中移除"
           }
         }
       }
@@ -2360,6 +2520,22 @@
         }
       }
     },
+    "Start Clip Queue" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "클립 대기열 시작"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始剪贴队列"
+          }
+        }
+      }
+    },
     "Start Using Clipbara" : {
       "localizations" : {
         "ko" : {
@@ -2372,6 +2548,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "开始使用 Clipbara"
+          }
+        }
+      }
+    },
+    "Start or End Clip Queue" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "클립 대기열 시작/끝내기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始或结束剪贴队列"
           }
         }
       }
@@ -2868,6 +3060,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "试用结束后"
+          }
+        }
+      }
+    },
+    "While the queue is on, everything you copy joins it, and each ⌘V pastes the next item in order. Needs Accessibility permission." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기열이 켜져 있는 동안 복사한 항목이 모두 대기열에 들어가고, ⌘V를 누를 때마다 다음 항목이 순서대로 붙여넣어집니다. 손쉬운 사용 권한이 필요합니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "队列开启时，复制的内容都会加入队列，每按一次 ⌘V 就会按顺序粘贴下一项。需要辅助功能权限。"
           }
         }
       }

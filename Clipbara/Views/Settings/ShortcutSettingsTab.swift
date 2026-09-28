@@ -11,6 +11,19 @@ struct ShortcutSettingsTab: View {
                 KeyboardShortcuts.Recorder(for: .toggleHistoryPanel)
             }
             HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 5) {
+                        Text("Start or End Clip Queue")
+                        InfoHoverButton(text: "While the queue is on, everything you copy joins it, and each \u{2318}V pastes the next item in order. Needs Accessibility permission.")
+                    }
+                    Text("Not set by default. Also available from the menu bar.")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                KeyboardShortcuts.Recorder(for: .toggleClipQueue)
+            }
+            HStack {
                 Text("Clear All History")
                 Spacer()
                 KeyboardShortcuts.Recorder(for: .clearHistory)

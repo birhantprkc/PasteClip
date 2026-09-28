@@ -26,7 +26,7 @@ struct OnboardingView: View {
             content
             footer
         }
-        .frame(width: 560, height: 660)
+        .frame(width: 560, height: 720)
         .background(Color(nsColor: .windowBackgroundColor))
         .onReceive(NotificationCenter.default.publisher(for: .clipbaraShortcutDidChange)) { _ in
             panelShortcutRefresh += 1
@@ -276,6 +276,13 @@ struct OnboardingView: View {
                     info: "A single key with no modifiers. It only works while the Clipbara panel is open, so it won't clash with other apps."
                 ) {
                     LocalKeyRecorderView()
+                }
+                shortcutRow(
+                    title: "Clip Queue",
+                    detail: "Copy several things, then paste them in order.",
+                    info: "Optional. While the queue is on, everything you copy joins it, and each \u{2318}V pastes the next item in order. Needs Accessibility permission."
+                ) {
+                    KeyboardShortcuts.Recorder(for: .toggleClipQueue)
                 }
             }
             .padding(.top, 22)

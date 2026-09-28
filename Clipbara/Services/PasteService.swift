@@ -29,7 +29,13 @@ struct PasteService {
     /// - Parameter asPlainText: `nil` resolves from the setting combined with the Shift modifier.
     func paste(item: ClipboardItem, asPlainText: Bool? = nil) {
         ReviewPrompter.recordPaste()
-        if asPlainText ?? Self.resolvePlainText(), Self.supportsPlainText(item) {
+        write(item: item, asPlainText: asPlainText ?? Self.resolvePlainText())
+    }
+
+    /// Puts the item on the clipboard without counting it as a paste. The
+    /// Clip Queue uses this to line up the next item before ⌘V is pressed.
+    func write(item: ClipboardItem, asPlainText: Bool) {
+        if asPlainText, Self.supportsPlainText(item) {
             pastePlainText(item: item)
             return
         }

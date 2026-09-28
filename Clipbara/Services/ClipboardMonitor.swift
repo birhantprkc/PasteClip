@@ -13,6 +13,9 @@ final class ClipboardMonitor {
     private var shouldSkipNextChange: Bool = false
 
     var isMonitoring: Bool = false
+    /// Called with every copy Clipbara records, including one that matched a
+    /// clip copied moments earlier. The Clip Queue collects from here.
+    @ObservationIgnored var onCapture: ((ClipboardItem) -> Void)?
     var latestItems: [ClipboardItem] = []
     var historyLimit: Int {
         get { UserDefaults.standard.object(forKey: "historyLimit") as? Int ?? 500 }
@@ -78,7 +81,10 @@ final class ClipboardMonitor {
             .joined()
 
         // Duplicate check within last 10 seconds
-        if isDuplicate(hash: hash) { return }
+        if let recent = recentDuplicate(hash: hash) {
+            onCapture?(recent)
+            return
+        }
 
         let sourceApp = NSWorkspace.shared.frontmostApplication
         let item = ClipboardItem(
@@ -99,6 +105,7 @@ final class ClipboardMonitor {
         try? modelContext?.save()
         cleanupOldItems()
         refreshLatestItems()
+        onCapture?(item)
     }
 
     /// 히스토리 제한 초과 시 오래된 아이템 삭제 (isPinned 아이템 보존)
@@ -137,15 +144,15 @@ final class ClipboardMonitor {
         try? modelContext.save()
     }
 
-    private func isDuplicate(hash: String) -> Bool {
-        guard let modelContext else { return false }
+    private func recentDuplicate(hash: String) -> ClipboardItem? {
+        guard let modelContext else { return nil }
         let tenSecondsAgo = Date().addingTimeInterval(-10)
         let predicate = #Predicate<ClipboardItem> { item in
             item.contentHash == hash && item.copiedAt > tenSecondsAgo
         }
-        let descriptor = FetchDescriptor<ClipboardItem>(predicate: predicate)
-        let count = (try? modelContext.fetchCount(descriptor)) ?? 0
-        return count > 0
+        var descriptor = FetchDescriptor<ClipboardItem>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try? modelContext.fetch(descriptor).first
     }
 
     private func generateThumbnail(from data: Data) -> Data? {

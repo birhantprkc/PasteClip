@@ -19,6 +19,7 @@ final class AppState {
     let pasteService = PasteService()
     let panelController = PanelController()
     let searchState = SearchState()
+    let clipQueue = ClipQueue()
 
     var selectedTab: PanelTab = .history
     /// Published by NavigationBarView so shortcuts follow its exact display order.
@@ -40,6 +41,10 @@ final class AppState {
         guard !hasStarted else { return }
         hasStarted = true
         self.modelContainer = modelContainer
+        clipQueue.attach(to: self)
+        clipboardMonitor.onCapture = { [weak self] item in
+            self?.clipQueue.capture(item)
+        }
         clipboardMonitor.start(modelContext: modelContext)
         ReviewPrompter.noteLaunch()
         #if APPSTORE
@@ -75,6 +80,16 @@ final class AppState {
         panelController.toggle(modelContainer: container, appState: self)
     }
 
+    func toggleClipQueue() {
+        #if APPSTORE
+        if !clipQueue.isActive, !Entitlements.shared.checkHistoryAccess() {
+            PaywallWindowController.shared.show()
+            return
+        }
+        #endif
+        clipQueue.toggle()
+    }
+
     func markPanelPresented() {
         panelPresentationID += 1
     }
@@ -96,6 +111,9 @@ final class AppState {
     /// Shared paste path for panel and pinboard cards.
     /// - Parameter asPlainText: `nil` resolves from the setting combined with the Shift modifier.
     func paste(_ item: ClipboardItem, asPlainText: Bool? = nil) {
+        // Picking a clip replaces the item the queue lined up, and the next
+        // ⌘V would then drop the wrong one from the queue. End it instead.
+        clipQueue.stop()
         clipboardMonitor.skipNextChange()
         pasteService.paste(item: item, asPlainText: asPlainText)
         // ⌘V has to reach the app behind the panel, so send it once the
@@ -134,6 +152,11 @@ final class AppState {
         KeyboardShortcuts.onKeyDown(for: .toggleHistoryPanel) { [weak self] in
             Task { @MainActor in
                 self?.togglePanel()
+            }
+        }
+        KeyboardShortcuts.onKeyDown(for: .toggleClipQueue) { [weak self] in
+            Task { @MainActor in
+                self?.toggleClipQueue()
             }
         }
         KeyboardShortcuts.onKeyDown(for: .clearHistory) { [weak self] in

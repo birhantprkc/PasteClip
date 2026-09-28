@@ -9,6 +9,10 @@ import ApplicationServices
 enum DirectPaste {
     nonisolated static let enabledDefaultsKey = "pasteIntoActiveApp"
 
+    /// Stamped on the ⌘V events Clipbara posts, so the Clip Queue can tell
+    /// them apart from the user's own ⌘V.
+    nonisolated static let syntheticEventMarker: Int64 = 0x436C_6970 // "Clip"
+
     static var isEnabled: Bool {
         UserDefaults.standard.bool(forKey: enabledDefaultsKey)
     }
@@ -65,6 +69,8 @@ enum DirectPaste {
         let flags = CGEventFlags(rawValue: CGEventFlags.maskCommand.rawValue | 0x0000_0008)
         keyDown.flags = flags
         keyUp.flags = flags
+        keyDown.setIntegerValueField(.eventSourceUserData, value: syntheticEventMarker)
+        keyUp.setIntegerValueField(.eventSourceUserData, value: syntheticEventMarker)
         keyDown.post(tap: .cgSessionEventTap)
         keyUp.post(tap: .cgSessionEventTap)
         return true

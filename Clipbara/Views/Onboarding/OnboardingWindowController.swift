@@ -42,7 +42,7 @@ final class OnboardingWindowController: NSObject, NSWindowDelegate {
         // KeyboardShortcuts recorder (non-opaque NSSearchField) get swallowed as
         // window drags and the field never receives focus.
         newWindow.isReleasedWhenClosed = false
-        newWindow.setContentSize(NSSize(width: 560, height: 660))
+        newWindow.setContentSize(NSSize(width: 560, height: 720))
         newWindow.delegate = self
         newWindow.center()
 
