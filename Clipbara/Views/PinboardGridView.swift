@@ -140,13 +140,11 @@ struct PinboardGridView: View {
     private func removeEntry(_ entry: PinboardEntry) {
         let removedIndex = orderedEntries.firstIndex { $0.id == entry.id } ?? appState.searchState.selectedIndex ?? 0
         orderedEntries.removeAll { $0.id == entry.id }
-        modelContext.delete(entry)
-        commitOrder()
+        appState.removeFromPinboard(entry)
         syncNavigationItems(orderedEntries.compactMap(\.clipboardItem))
         if !orderedEntries.isEmpty {
             appState.searchState.selectedIndex = min(removedIndex, orderedEntries.count - 1)
         }
-        try? modelContext.save()
     }
 }
 

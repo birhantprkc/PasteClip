@@ -540,6 +540,19 @@ private struct OptionsMenuButton: View {
         dateMenuItem.submenu = dateMenu
         menu.addItem(dateMenuItem)
 
+        // The same setting as Settings > General, surfaced where pasting
+        // happens (#49), with the one-off Shift switch spelled out below it.
+        menu.addItem(.separator())
+        let plainTextItem = NSMenuItem(title: String(localized: "Always Paste as Plain Text"), action: nil, keyEquivalent: "")
+        plainTextItem.state = UserDefaults.standard.bool(forKey: PasteService.alwaysPlainTextDefaultsKey) ? .on : .off
+        plainTextItem.target = MenuActionTarget.shared
+        plainTextItem.representedObject = MenuAction.toggleAlwaysPlainText
+        plainTextItem.action = #selector(MenuActionTarget.performAction(_:))
+        menu.addItem(plainTextItem)
+        let shiftHint = NSMenuItem(title: String(localized: "Hold \u{21e7} while pasting to switch for a single paste."), action: nil, keyEquivalent: "")
+        shiftHint.isEnabled = false
+        menu.addItem(shiftHint)
+
         // Show menu at mouse location
         menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
     }
@@ -551,6 +564,7 @@ private enum MenuAction {
     case toggleContentType(ContentType, SearchState)
     case clearContentTypes(SearchState)
     case setDateFilter(SearchState.DateFilter, SearchState)
+    case toggleAlwaysPlainText
 }
 
 @MainActor
@@ -567,6 +581,9 @@ private final class MenuActionTarget: NSObject {
                 state.selectedContentTypes = []
             case .setDateFilter(let filter, let state):
                 state.dateFilter = filter
+            case .toggleAlwaysPlainText:
+                let key = PasteService.alwaysPlainTextDefaultsKey
+                UserDefaults.standard.set(!UserDefaults.standard.bool(forKey: key), forKey: key)
             }
         }
     }

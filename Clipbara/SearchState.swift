@@ -131,8 +131,10 @@ final class SearchState {
 
 private extension ClipboardItem {
     func matchesSearchQuery(_ query: String) -> Bool {
+        // Source app names are left out: the card doesn't show the app name,
+        // so a clip matching only through it (a clip from "Aside" for "a")
+        // looked like a wrong result.
         textContent?.localizedCaseInsensitiveContains(query) == true ||
-        sourceAppName?.localizedCaseInsensitiveContains(query) == true ||
         userTitle?.localizedCaseInsensitiveContains(query) == true
     }
 }

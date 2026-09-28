@@ -20,6 +20,7 @@ final class AppState {
     let panelController = PanelController()
     let searchState = SearchState()
     let clipQueue = ClipQueue()
+    let clipUndo = ClipUndoStack()
 
     var selectedTab: PanelTab = .history
     /// Published by NavigationBarView so shortcuts follow its exact display order.
@@ -28,6 +29,9 @@ final class AppState {
     var panelToast: PanelToast?
     var panelPresentationID = 0
     var draggedClipboardItemID: UUID?
+    /// The card under the pointer. Space previews it instead of the selected
+    /// card (#26).
+    var hoveredClipID: UUID?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
     private(set) var modelContainer: ModelContainer?
 
@@ -126,8 +130,32 @@ final class AppState {
         }
     }
 
+    // MARK: - Deleting with undo (#45)
+
+    func deleteClip(_ item: ClipboardItem) {
+        guard let context = modelContainer?.mainContext else { return }
+        if hoveredClipID == item.id { hoveredClipID = nil }
+        clipUndo.deleteClip(item, in: context)
+        showToast(String(localized: "Deleted. Press \u{2318}Z to undo."), systemImage: "trash")
+    }
+
+    func removeFromPinboard(_ entry: PinboardEntry) {
+        guard let context = modelContainer?.mainContext else { return }
+        clipUndo.removeEntry(entry, in: context)
+        showToast(String(localized: "Removed from pinboard. Press \u{2318}Z to undo."), systemImage: "pin.slash")
+    }
+
+    /// Returns false when there was nothing to restore.
+    @discardableResult
+    func undoDeletion() -> Bool {
+        guard let context = modelContainer?.mainContext, clipUndo.undo(in: context) else { return false }
+        showToast(String(localized: "Restored"), systemImage: "arrow.uturn.backward")
+        return true
+    }
+
     func hidePanel(then completion: (@MainActor @Sendable () -> Void)? = nil) {
         previewItem = nil
+        hoveredClipID = nil
         panelToast = nil
         toastTask?.cancel()
         draggedClipboardItemID = nil

@@ -491,13 +491,55 @@ final class PanelController {
                     if keyCode == 53 {
                         return self.processKey(keyCode)
                     }
+                    // Results sit in a sideways row, so while typing a search
+                    // ←/→ move between them and Return pastes the selected one.
+                    // Left to the field: modified keys (text selection), an
+                    // input method still composing (Korean), and read-only
+                    // text such as a preview's selectable text.
+                    let textView = firstResponder as? NSTextView
+                    let isEditing = textView?.isEditable ?? true
+                    let isComposing = textView?.hasMarkedText() ?? false
+                    let isPlain = event.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty
+                    if isEditing, !isComposing, isPlain, keyCode == 123 || keyCode == 124 || keyCode == 36 {
+                        return self.processKey(keyCode)
+                    }
                     return false
+                }
+
+                let modifiers = event.modifierFlags.intersection([.command, .option, .control, .shift])
+                if modifiers == .command, keyCode == 6 { // ⌘Z
+                    return self.appState?.undoDeletion() ?? false
+                }
+                if modifiers.isEmpty, keyCode == 51 || keyCode == 117 { // Delete, Forward Delete
+                    return self.deleteSelectedClip()
                 }
 
                 return self.processKey(keyCode)
             }
             return handled ? nil : event
         }
+    }
+
+    /// Deletes the selected card from history, or on a pinboard tab removes
+    /// it from that pinboard only. ⌘Z restores it (#45).
+    private func deleteSelectedClip() -> Bool {
+        guard let appState, appState.previewItem == nil,
+              let idx = appState.searchState.selectedIndex,
+              idx < appState.currentFilteredItems.count else { return false }
+        let item = appState.currentFilteredItems[idx]
+        switch appState.selectedTab {
+        case .history:
+            appState.deleteClip(item)
+        case .pinboard(let pinboardID):
+            let itemID = item.id
+            guard let entry = item.modelContext.flatMap({ context in
+                try? context.fetch(FetchDescriptor<PinboardEntry>(
+                    predicate: #Predicate { $0.clipboardItem?.id == itemID && $0.pinboard?.id == pinboardID }
+                )).first
+            }) else { return false }
+            appState.removeFromPinboard(entry)
+        }
+        return true
     }
 
     private func processKey(_ keyCode: UInt16) -> Bool {
@@ -515,6 +557,14 @@ final class PanelController {
                 withAnimation(.easeOut(duration: 0.2)) {
                     appState.selectForPreview(nil)
                 }
+                return true
+            }
+            // The card under the pointer wins over the keyboard selection,
+            // and becomes the selection so arrows continue from it (#26).
+            if let hovered = appState.hoveredClipID,
+               let idx = items.firstIndex(where: { $0.id == hovered }) {
+                appState.searchState.selectedIndex = idx
+                showQuickLook(item: items[idx])
                 return true
             }
             if let idx = appState.searchState.selectedIndex, idx < items.count {

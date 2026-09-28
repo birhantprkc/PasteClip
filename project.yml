@@ -110,6 +110,11 @@ targets:
       - path: Clipbara/Utilities/PasteKeyCode.swift
       - path: Clipbara/Utilities/ClipQueueList.swift
       - path: Clipbara/Utilities/URLCommand.swift
+      - path: Clipbara/Services/ClipUndoStack.swift
+      - path: Clipbara/Models/ClipboardItem.swift
+      - path: Clipbara/Models/Pinboard.swift
+      - path: Clipbara/Models/PinboardEntry.swift
+      - path: Clipbara/Models/ContentType.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.minsang.ClipbaraTests

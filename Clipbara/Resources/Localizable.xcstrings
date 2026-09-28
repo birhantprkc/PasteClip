@@ -933,6 +933,22 @@
         }
       }
     },
+    "Deleted. Press ⌘Z to undo." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제했습니다. ⌘Z로 되돌릴 수 있습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已删除。按 ⌘Z 可撤销。"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "ko" : {
@@ -2296,6 +2312,22 @@
         }
       }
     },
+    "Removed from pinboard. Press ⌘Z to undo." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "핀보드에서 제거했습니다. ⌘Z로 되돌릴 수 있습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已从钉板移除。按 ⌘Z 可撤销。"
+          }
+        }
+      }
+    },
     "Removes fonts, colors, and links from rich text and HTML clips, pasting only the text." : {
       "localizations" : {
         "ko" : {
@@ -2372,6 +2404,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "恢复购买"
+          }
+        }
+      }
+    },
+    "Restored" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "되돌렸습니다"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已恢复"
           }
         }
       }

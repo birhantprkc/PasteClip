@@ -34,6 +34,11 @@ struct ClipboardCardView: View {
         cardSurface
         .onHover { hovering in
             isHovered = hovering
+            if hovering {
+                appState.hoveredClipID = item.id
+            } else if appState.hoveredClipID == item.id {
+                appState.hoveredClipID = nil
+            }
         }
         .onTapGesture(perform: handleTap)
         .optionalDrag(enabled: enableDrag) {
@@ -329,17 +334,7 @@ struct ClipboardCardView: View {
     }
 
     private func deleteItem() {
-        let itemId = item.id
-        let descriptor = FetchDescriptor<PinboardEntry>(
-            predicate: #Predicate { $0.clipboardItem?.id == itemId }
-        )
-        if let entries = try? modelContext.fetch(descriptor) {
-            for entry in entries {
-                modelContext.delete(entry)
-            }
-        }
-        modelContext.delete(item)
-        try? modelContext.save()
+        appState.deleteClip(item)
     }
 }
 
