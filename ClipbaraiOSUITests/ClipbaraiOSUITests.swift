@@ -1,3 +1,4 @@
+import StoreKitTest
 import XCTest
 
 /// Walks the main iOS surfaces with demo data and attaches a screenshot of each.
@@ -243,6 +244,90 @@ final class ClipbaraiOSUITests: XCTestCase {
         attach("52-after-local-changes-\(phase)")
         app.buttons["Done"].firstMatch.tap()
         attach("53-final-grid-\(phase)")
+    }
+
+    /// Trial and unlock against Xcode's local StoreKit products. Runs only with
+    /// CBSTOREKIT pointing at StoreKit/Clipbara.storekit. Uses the real store read-only
+    /// (copying clips), so it needs at least one clip saved.
+    func testTrialAndUnlock() throws {
+        guard let path = ProcessInfo.processInfo.environment["CBSTOREKIT"] else {
+            throw XCTSkip("Trial test runs only with CBSTOREKIT")
+        }
+        let session = try SKTestSession(contentsOf: URL(fileURLWithPath: path))
+        session.resetToDefaultState()
+        session.clearTransactions()
+        session.disableDialogs = true
+        defer { session.clearTransactions() }
+
+        func relaunch(_ extra: [String] = []) {
+            app.terminate()
+            // The app transaction is unavailable in UI tests; act as a customer who
+            // first got 1.4 (Debug only), so the trial applies.
+            app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US",
+                                   "-ClipbaraDebugOriginalAppVersion", "1.4"] + extra
+            app.launch()
+            dismissSystemAlerts()
+            skipOnboarding()
+        }
+        // xcodebuild ignores disableDialogs, so the Xcode purchase sheet still shows.
+        func confirmTestPurchase() {
+            let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+            let buy = springboard.buttons.matching(identifier: "footer").firstMatch
+            if buy.waitForExistence(timeout: 10) {
+                attach("purchase-sheet")
+                buy.tap()
+            }
+            let done = springboard.alerts.firstMatch.buttons["OK"]
+            if done.waitForExistence(timeout: 10) { done.tap() }
+        }
+        let cards = app.descendants(matching: .any).matching(identifier: "clipCard")
+        let sheetTitle = { (text: String) in self.app.staticTexts[text].firstMatch }
+
+        // New customer: copying a clip asks to start the trial first.
+        relaunch()
+        if sheetTitle("Try Clipbara free for 7 days").waitForExistence(timeout: 4) {
+            attach("70-paywall-after-onboarding")
+        } else {
+            XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
+            cards.firstMatch.tap()
+            XCTAssertTrue(sheetTitle("Try Clipbara free for 7 days").waitForExistence(timeout: 5))
+            attach("70-paywall-new")
+        }
+        let start = app.buttons["Start 7-Day Free Trial"].firstMatch
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        XCTAssertTrue(waitUntil(timeout: 10) { start.isEnabled }, "Start button stayed disabled (products not loaded)")
+        start.tap()
+        confirmTestPurchase()
+        XCTAssertTrue(sheetTitle("Your free trial has started").waitForExistence(timeout: 15))
+        attach("71-trial-started")
+        app.buttons["Done"].firstMatch.tap()
+
+        // During the trial, copying works.
+        cards.firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Copied"].waitForExistence(timeout: 3))
+        app.buttons["More"].firstMatch.tap()
+        app.buttons["Settings"].firstMatch.tap()
+        let trialStatus = app.descendants(matching: .any).matching(NSPredicate(
+            format: "label CONTAINS %@ OR value CONTAINS %@", "7 days left", "7 days left")).firstMatch
+        XCTAssertTrue(trialStatus.waitForExistence(timeout: 5))
+        attach("72-settings-trial")
+        app.buttons["Done"].firstMatch.tap()
+
+        // Trial over (start moved back 8 days, Debug only): copying shows the unlock sheet.
+        relaunch(["-ClipbaraDebugTrialShiftDays", "8"])
+        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
+        cards.firstMatch.tap()
+        XCTAssertTrue(sheetTitle("Your free trial has ended").waitForExistence(timeout: 5))
+        attach("73-paywall-expired")
+        let unlock = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Unlock for")).firstMatch
+        XCTAssertTrue(unlock.waitForExistence(timeout: 5))
+        unlock.tap()
+        confirmTestPurchase()
+        XCTAssertTrue(sheetTitle("Clipbara is unlocked").waitForExistence(timeout: 15))
+        attach("74-unlocked")
+        app.buttons["Done"].firstMatch.tap()
+        cards.firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Copied"].waitForExistence(timeout: 3))
     }
 
     func testPasteButtonSavesClipboard() throws {

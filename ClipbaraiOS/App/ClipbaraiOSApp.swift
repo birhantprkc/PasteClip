@@ -31,19 +31,48 @@ struct ClipbaraiOSApp: App {
         snapshots.start()
         if !demo {
             ClipSync.shared.configure(container: container, defaults: ClipStore.defaults)
+            Entitlements.shared.start()
+        } else {
+            // Demo data is for screenshots and UI tests: no trial gate.
+            PaywallPresenter.shared.bypass = true
+            KeyboardAccess.open.publish()
         }
+    }
+
+    private var paywallBinding: Binding<Bool> {
+        Binding(get: { PaywallPresenter.shared.isPresented }, set: { PaywallPresenter.shared.isPresented = $0 })
+    }
+
+    /// The keyboard cannot check purchases, so the app tells it what is allowed.
+    private func publishKeyboardAccess() {
+        guard !PaywallPresenter.shared.bypass else { return }
+        let entitlements = Entitlements.shared
+        KeyboardAccess(state: entitlements.state, trialEnd: entitlements.trialEndDate).publish()
     }
 
     var body: some Scene {
         WindowGroup {
             ClipsScreen()
-                .fullScreenCover(isPresented: onboardingBinding) {
+                .fullScreenCover(isPresented: onboardingBinding, onDismiss: {
+                    guard !PaywallPresenter.shared.bypass else { return }
+                    Task {
+                        // Let the cover finish going away before the sheet comes up.
+                        try? await Task.sleep(for: .milliseconds(500))
+                        await PaywallPresenter.shared.showAfterOnboardingIfNeeded()
+                    }
+                }) {
                     OnboardingView()
                 }
+                .sheet(isPresented: paywallBinding) {
+                    PaywallSheet()
+                }
+                .onChange(of: Entitlements.shared.state, initial: true) { publishKeyboardAccess() }
+                .onChange(of: Entitlements.shared.trialEndDate) { publishKeyboardAccess() }
         }
         .modelContainer(container)
         .onChange(of: scenePhase, initial: true) { _, phase in
             if phase == .active {
+                Entitlements.shared.reevaluate()
                 snapshots.refresh()
                 ClipSync.shared.syncOnOpen()
                 ClipSync.shared.startLivePolling()

@@ -110,6 +110,25 @@ enum AccessPolicy {
         return isGrandfathered(originalAppVersion: originalAppVersion)
     }
 
+    /// When the Mac App Store 1.4 build (the trial model) went on sale.
+    ///
+    /// On iPhone the app version reported for a purchase made on the Mac is not
+    /// documented, so a Mac purchase made before this moment keeps full access
+    /// instead. Set it to the real release time before the iPhone app ships.
+    static let trialModelReleaseDate = Date(timeIntervalSince1970: 1791010800) // 2026-10-03 07:00 UTC
+
+    /// The iPhone rule: only people who first got Clipbara on the Mac before 1.4.
+    /// The iPhone app never had a paid version, so an iPhone-first customer has
+    /// nothing to keep.
+    static func isGrandfatheredOnPhone(
+        originalPlatform: OriginalPlatform,
+        originalPurchaseDate: Date,
+        isProduction: Bool
+    ) -> Bool {
+        guard isProduction, originalPlatform == .mac else { return false }
+        return originalPurchaseDate < trialModelReleaseDate
+    }
+
     /// `nil` when the version string can't be parsed, which callers treat as unknown.
     static func isGrandfathered(originalAppVersion: String) -> Bool? {
         guard let original = versionComponents(originalAppVersion),

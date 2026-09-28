@@ -34,6 +34,7 @@ struct ClipPreviewSheet: View {
                 }
                 ToolbarItem(placement: .bottomBar) {
                     Button {
+                        guard PaywallPresenter.shared.requireAccess() else { return }
                         library.copy(item)
                         ui.show(String(localized: "Copied"))
                         dismiss()

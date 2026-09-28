@@ -126,11 +126,19 @@ final class Entitlements {
         }
     }
 
-    func purchase(_ product: Product) async -> PurchaseOutcome {
+    /// `buy` defaults to `Product.purchase()`. SwiftUI views on iOS pass the
+    /// environment's purchase action instead, which presents the confirmation from
+    /// the view's own scene.
+    func purchase(
+        _ product: Product,
+        using buy: ((Product) async throws -> Product.PurchaseResult)? = nil
+    ) async -> PurchaseOutcome {
         isBusy = true
         defer { isBusy = false }
         do {
-            switch try await product.purchase() {
+            let result = try await (buy ?? { try await $0.purchase() })(product)
+            Self.logger.info("Purchase of \(product.id, privacy: .public): \(String(describing: result), privacy: .public)")
+            switch result {
             case .success(let verification):
                 switch verification {
                 case .verified(let transaction):
@@ -199,14 +207,21 @@ final class Entitlements {
         do {
             switch try await AppTransaction.shared {
             case .verified(let transaction):
+                let isProduction = transaction.environment == .production
+                if !isProduction {
+                    logger.info("App transaction from \(transaction.environment.rawValue, privacy: .public): offering the trial")
+                }
+                #if os(iOS)
+                let grandfathered: Bool? = AccessPolicy.isGrandfatheredOnPhone(
+                    originalPlatform: transaction.originalPlatform == .macOS ? .mac : .other,
+                    originalPurchaseDate: transaction.originalPurchaseDate,
+                    isProduction: isProduction
+                )
+                #else
                 let version = transaction.originalAppVersion
                 var platform = AccessPolicy.OriginalPlatform.unknown
                 if #available(macOS 15.4, *) {
                     platform = transaction.originalPlatform == .macOS ? .mac : .other
-                }
-                let isProduction = transaction.environment == .production
-                if !isProduction {
-                    logger.info("App transaction from \(transaction.environment.rawValue, privacy: .public): offering the trial")
                 }
                 let grandfathered = AccessPolicy.isGrandfathered(
                     originalAppVersion: version,
@@ -216,6 +231,7 @@ final class Entitlements {
                 if grandfathered == nil {
                     logger.error("Unrecognized originalAppVersion \(version, privacy: .public)")
                 }
+                #endif
                 return grandfathered
             case .unverified(_, let error):
                 logger.error("App transaction unverified: \(error.localizedDescription, privacy: .public)")

@@ -139,6 +139,17 @@ final class AccessPolicyTests: XCTestCase {
         XCTAssertEqual(AccessPolicy.isGrandfathered(originalAppVersion: "1.0", originalPlatform: .mac, isProduction: true), true)
     }
 
+    func testPhoneRule() {
+        let before = AccessPolicy.trialModelReleaseDate.addingTimeInterval(-60)
+        let after = AccessPolicy.trialModelReleaseDate.addingTimeInterval(60)
+        XCTAssertTrue(AccessPolicy.isGrandfatheredOnPhone(originalPlatform: .mac, originalPurchaseDate: before, isProduction: true))
+        XCTAssertFalse(AccessPolicy.isGrandfatheredOnPhone(originalPlatform: .mac, originalPurchaseDate: after, isProduction: true))
+        // iPhone-first customers never had a paid version to keep.
+        XCTAssertFalse(AccessPolicy.isGrandfatheredOnPhone(originalPlatform: .other, originalPurchaseDate: before, isProduction: true))
+        // Sandbox, TestFlight, App Review: always offer the trial.
+        XCTAssertFalse(AccessPolicy.isGrandfatheredOnPhone(originalPlatform: .mac, originalPurchaseDate: before, isProduction: false))
+    }
+
     func testVersionComponents() {
         XCTAssertEqual(AccessPolicy.versionComponents("1.3.3"), [1, 3, 3])
         XCTAssertEqual(AccessPolicy.versionComponents(" 1.4 "), [1, 4])

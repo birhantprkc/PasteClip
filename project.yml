@@ -124,6 +124,8 @@ targets:
         CLIPBARA_CLOUDKIT_CONTAINER: iCloud.com.minsang.Clipbara
         CLIPBARA_APS_ENVIRONMENT: development
         PRODUCT_NAME: Clipbara
+        # The iPhone app is App Store only: the trial and unlock (Shared/Store) apply.
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "APPSTORE $(inherited)"
         INFOPLIST_FILE: ClipbaraiOS/Info.plist
         GENERATE_INFOPLIST_FILE: false
         CODE_SIGN_ENTITLEMENTS: ClipbaraiOS/ClipbaraiOS.entitlements
@@ -212,7 +214,7 @@ targets:
       - path: Clipbara/Utilities/PanelTabShortcut.swift
       - path: Clipbara/Utilities/WheelScrollTranslation.swift
       - path: Clipbara/Utilities/ReviewPromptPolicy.swift
-      - path: Clipbara/Utilities/AccessPolicy.swift
+      - path: Shared/Store/AccessPolicy.swift
       - path: Clipbara/Panel/PanelContentContainer.swift
       - path: Clipbara/Utilities/PasteKeyCode.swift
       - path: Clipbara/Utilities/ClipQueueList.swift
