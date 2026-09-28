@@ -13,6 +13,10 @@ struct SyncMetadata: Codable {
     var imagesBackfilled: Bool?
     /// Change token for the on-screen poller, separate from the engine's own state.
     var pollToken: Data?
+    /// True once this device has seen the sync zone exist (saved it, or saved or fetched
+    /// records in it) since sync was turned on. A zone deletion reported before that is
+    /// an old one, from an earlier "Delete iCloud Data", not a reason to turn sync off.
+    var zoneConfirmed: Bool?
 }
 
 @MainActor

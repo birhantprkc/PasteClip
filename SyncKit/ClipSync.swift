@@ -246,6 +246,9 @@ final class ClipSync {
         phase = .starting
         rebuildIndex()
         observeSaves()
+        if !initialUpload, metadata.value.zoneConfirmed == nil, !metadata.value.systemFields.isEmpty {
+            confirmZone()
+        }
         if initialUpload {
             engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneID: SyncKey.zoneID))])
             enqueueEverything()
@@ -518,13 +521,30 @@ final class ClipSync {
             handleAccountChange(change)
 
         case .fetchedDatabaseChanges(let changes):
+            if changes.modifications.contains(where: { $0.zoneID == SyncKey.zoneID }) {
+                confirmZone()
+            }
             if changes.deletions.contains(where: { $0.zoneID == SyncKey.zoneID }) {
-                // Deleted from another device (or from iCloud settings). Keep local clips.
-                log.info("sync zone was deleted remotely; turning sync off")
-                disable()
+                if metadata.value.zoneConfirmed == true {
+                    // Deleted from another device (or from iCloud settings). Keep local clips.
+                    log.info("sync zone was deleted remotely; turning sync off")
+                    disable()
+                } else {
+                    // A fresh engine is told about every past deletion, including the one
+                    // from an earlier "Delete iCloud Data". Turning sync off here would
+                    // make it impossible to turn back on; recreate the zone instead.
+                    log.info("ignoring an earlier deletion of the sync zone")
+                    engine?.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneID: SyncKey.zoneID))])
+                }
+            }
+
+        case .sentDatabaseChanges(let sent):
+            if sent.savedZones.contains(where: { $0.zoneID == SyncKey.zoneID }) {
+                confirmZone()
             }
 
         case .fetchedRecordZoneChanges(let changes):
+            if !changes.modifications.isEmpty { confirmZone() }
             applyRemote(modifications: changes.modifications.map(\.record), deletions: changes.deletions.map(\.recordID))
 
         case .sentRecordZoneChanges(let sent):
@@ -543,7 +563,7 @@ final class ClipSync {
                 Task { try? await pollServer() }
             }
 
-        case .sentDatabaseChanges, .willFetchRecordZoneChanges, .didFetchRecordZoneChanges:
+        case .willFetchRecordZoneChanges, .didFetchRecordZoneChanges:
             break
 
         @unknown default:
@@ -564,8 +584,14 @@ final class ClipSync {
         }
     }
 
+    private func confirmZone() {
+        guard metadata.value.zoneConfirmed != true else { return }
+        metadata.update { $0.zoneConfirmed = true }
+    }
+
     private func handleSent(_ sent: CKSyncEngine.Event.SentRecordZoneChanges) {
         guard let engine else { return }
+        if !sent.savedRecords.isEmpty { confirmZone() }
         for record in sent.savedRecords {
             metadata.remember(record)
             SyncImages.removeStaged(recordName: record.recordID.recordName)
