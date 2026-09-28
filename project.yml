@@ -109,6 +109,7 @@ targets:
       - path: Clipbara/Panel/PanelContentContainer.swift
       - path: Clipbara/Utilities/PasteKeyCode.swift
       - path: Clipbara/Utilities/ClipQueueList.swift
+      - path: Clipbara/Utilities/URLCommand.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.minsang.ClipbaraTests

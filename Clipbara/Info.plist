@@ -34,5 +34,16 @@
 	<string>https://raw.githubusercontent.com/mobrava/Clipbara/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>efeE/5xL1mDQvymboZUH7HsOsZeGejDyRAkd430s3aU=</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.minsang.Clipbara.commands</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>clipbara</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

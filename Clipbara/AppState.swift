@@ -42,6 +42,7 @@ final class AppState {
         hasStarted = true
         self.modelContainer = modelContainer
         clipQueue.attach(to: self)
+        URLCommandHandler.shared.install(appState: self)
         clipboardMonitor.onCapture = { [weak self] item in
             self?.clipQueue.capture(item)
         }
