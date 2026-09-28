@@ -42,9 +42,7 @@ struct CardGridView: View {
                                             appState.searchState.selectedIndex = index
                                         },
                                         onPaste: { selected in
-                                            appState.clipboardMonitor.skipNextChange()
-                                            appState.pasteService.paste(item: selected)
-                                            appState.hidePanel()
+                                            appState.paste(selected)
                                         },
                                         onDelete: {
                                             restoreSelectionAfterDeletingItem(at: index)

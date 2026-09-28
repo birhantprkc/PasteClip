@@ -178,6 +178,22 @@
         }
       }
     },
+    "Accessibility permission is off, so clips are only copied." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손쉬운 사용 권한이 꺼져 있어 복사만 합니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "辅助功能权限未开启，因此仅复制。"
+          }
+        }
+      }
+    },
     "Actual Size (double-click image)" : {
       "localizations" : {
         "ko" : {
@@ -222,6 +238,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已添加到“%@”"
+          }
+        }
+      }
+    },
+    "After the panel closes, Clipbara presses ⌘V for you. This needs Accessibility permission, which is used for nothing else." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "패널이 닫히면 Clipbara가 ⌘V를 대신 누릅니다. 이를 위해 손쉬운 사용 권한이 필요하며, 다른 용도로는 쓰지 않습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "面板关闭后，Clipbara 会替你按下 ⌘V。这需要辅助功能权限，且不会用于其他用途。"
           }
         }
       }
@@ -478,6 +510,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "点按后按下用于快速查看预览的按键"
+          }
+        }
+      }
+    },
+    "Clicking a clip or pressing Return pastes it where you were typing. When off, the clip is only copied." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "클립을 클릭하거나 Return을 누르면 입력하던 곳에 바로 붙여넣습니다. 끄면 복사만 합니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按剪贴内容或按下 Return 键，即可粘贴到正在输入的位置。关闭时仅复制。"
           }
         }
       }
@@ -1253,6 +1301,22 @@
         }
       }
     },
+    "If Clipbara isn't in the list, add it with the + button." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목록에 Clipbara가 없으면 + 버튼으로 추가하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果列表中没有 Clipbara，请点按 + 按钮添加。"
+          }
+        }
+      }
+    },
     "Image" : {
       "localizations" : {
         "ko" : {
@@ -1701,6 +1765,22 @@
         }
       }
     },
+    "Open Accessibility Settings…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손쉬운 사용 설정 열기…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开辅助功能设置…"
+          }
+        }
+      }
+    },
     "Open Clipbara" : {
       "localizations" : {
         "ko" : {
@@ -1793,6 +1873,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "以纯文本粘贴"
+          }
+        }
+      }
+    },
+    "Paste into the Active App" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앞에 있는 앱에 바로 붙여넣기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直接粘贴到当前应用"
           }
         }
       }

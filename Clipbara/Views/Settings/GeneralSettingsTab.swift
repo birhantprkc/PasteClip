@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import SwiftData
 import ServiceManagement
@@ -8,6 +9,10 @@ struct GeneralSettingsTab: View {
     @Environment(AppState.self) private var appState
     @AppStorage("historyLimit") private var historyLimit: Int = 500
     @AppStorage(PasteService.alwaysPlainTextDefaultsKey) private var alwaysPastePlainText: Bool = false
+    @AppStorage(DirectPaste.enabledDefaultsKey) private var pasteIntoActiveApp: Bool = false
+    @State private var hasPastePermission = DirectPaste.hasPermission
+    /// Permission is granted in System Settings, outside the app, so poll while visible.
+    private let permissionTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var launchAtLogin: Bool = SMAppService.mainApp.status == .enabled
     @State private var transferMessage: String?
     @State private var showTransferAlert = false
@@ -51,6 +56,50 @@ struct GeneralSettingsTab: View {
                     Toggle("", isOn: $alwaysPastePlainText)
                         .labelsHidden()
                 }
+
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 5) {
+                            Text("Paste into the Active App")
+                            InfoHoverButton(text: "After the panel closes, Clipbara presses \u{2318}V for you. This needs Accessibility permission, which is used for nothing else.")
+                        }
+                        Text("Clicking a clip or pressing Return pastes it where you were typing. When off, the clip is only copied.")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Toggle("", isOn: $pasteIntoActiveApp)
+                        .labelsHidden()
+                }
+                .onChange(of: pasteIntoActiveApp) { _, isOn in
+                    if isOn, !DirectPaste.hasPermission {
+                        DirectPaste.requestPermission()
+                    }
+                    hasPastePermission = DirectPaste.hasPermission
+                }
+
+                if pasteIntoActiveApp, !hasPastePermission {
+                    LabeledContent {
+                        Button("Open Accessibility Settings\u{2026}") {
+                            DirectPaste.requestPermission()
+                            DirectPaste.openAccessibilitySettings()
+                        }
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Label("Accessibility permission is off, so clips are only copied.", systemImage: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                            // App Store builds are sandboxed, and macOS neither prompts
+                            // for nor lists a sandboxed app, so the user adds it.
+                            Text("If Clipbara isn't in the list, add it with the + button.")
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            .onReceive(permissionTimer) { _ in
+                let current = DirectPaste.hasPermission
+                if current != hasPastePermission { hasPastePermission = current }
             }
 
             Section("Backup") {

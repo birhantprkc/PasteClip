@@ -211,7 +211,8 @@ final class PanelController {
         panel.makeFirstResponder(nil)
     }
 
-    func hidePanel() {
+    /// - Parameter completion: Runs after the panel has left the screen.
+    func hidePanel(then completion: (@MainActor @Sendable () -> Void)? = nil) {
         guard isVisible, let panel else { return }
         panel.makeFirstResponder(nil)
         onPanelWillHide?()
@@ -237,6 +238,7 @@ final class PanelController {
                 self?.contentHost?.frame.origin.y = 0
                 self?.presentedScreen = nil
                 self?.isVisible = false
+                completion?()
             }
         })
     }
@@ -527,18 +529,13 @@ final class PanelController {
 
         case 36: // Return - paste
             if let item = quickLookItem {
-                appState.clipboardMonitor.skipNextChange()
-                appState.pasteService.paste(item: item)
-                appState.hidePanel()
+                appState.paste(item)
                 return true
             }
 
             guard let idx = appState.searchState.selectedIndex,
                   idx < items.count else { return false }
-            let item = items[idx]
-            appState.clipboardMonitor.skipNextChange()
-            appState.pasteService.paste(item: item)
-            appState.hidePanel()
+            appState.paste(items[idx])
             return true
 
         default:
@@ -577,11 +574,8 @@ final class PanelController {
                 onClose: { [weak self] in
                     self?.hideQuickLook()
                 },
-                onPaste: { [weak self, weak appState] in
-                    guard let self, let appState else { return }
-                    appState.clipboardMonitor.skipNextChange()
-                    appState.pasteService.paste(item: item)
-                    self.hidePanel()
+                onPaste: { [weak appState] in
+                    appState?.paste(item)
                 }
             )
             .environment(appState)

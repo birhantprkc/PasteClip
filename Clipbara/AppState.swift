@@ -98,17 +98,23 @@ final class AppState {
     func paste(_ item: ClipboardItem, asPlainText: Bool? = nil) {
         clipboardMonitor.skipNextChange()
         pasteService.paste(item: item, asPlainText: asPlainText)
-        hidePanel()
+        // ⌘V has to reach the app behind the panel, so send it once the
+        // panel is off screen and no longer the key window.
+        if DirectPaste.isReady {
+            hidePanel(then: { _ = DirectPaste.sendPasteShortcut() })
+        } else {
+            hidePanel()
+        }
     }
 
-    func hidePanel() {
+    func hidePanel(then completion: (@MainActor @Sendable () -> Void)? = nil) {
         previewItem = nil
         panelToast = nil
         toastTask?.cancel()
         draggedClipboardItemID = nil
         searchState.reset()
         selectedTab = .history
-        panelController.hidePanel()
+        panelController.hidePanel(then: completion)
     }
 
     func finishClipboardDrag() {

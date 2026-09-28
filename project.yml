@@ -107,6 +107,7 @@ targets:
       - path: Clipbara/Utilities/ReviewPromptPolicy.swift
       - path: Clipbara/Utilities/AccessPolicy.swift
       - path: Clipbara/Panel/PanelContentContainer.swift
+      - path: Clipbara/Utilities/PasteKeyCode.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.minsang.ClipbaraTests
