@@ -131,7 +131,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: ClipbaraiOS/ClipbaraiOS.entitlements
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 5DH57J8HLC
-        TARGETED_DEVICE_FAMILY: "1,2"
+        TARGETED_DEVICE_FAMILY: "1"
         SWIFT_STRICT_CONCURRENCY: complete
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
@@ -163,7 +163,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: ClipbaraKeyboard/ClipbaraKeyboard.entitlements
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 5DH57J8HLC
-        TARGETED_DEVICE_FAMILY: "1,2"
+        TARGETED_DEVICE_FAMILY: "1"
         SWIFT_STRICT_CONCURRENCY: complete
         MARKETING_VERSION: "1.4"
         CURRENT_PROJECT_VERSION: "33"
@@ -184,7 +184,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: ClipbaraShare/ClipbaraShare.entitlements
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 5DH57J8HLC
-        TARGETED_DEVICE_FAMILY: "1,2"
+        TARGETED_DEVICE_FAMILY: "1"
         SWIFT_STRICT_CONCURRENCY: complete
         MARKETING_VERSION: "1.4"
         CURRENT_PROJECT_VERSION: "33"
