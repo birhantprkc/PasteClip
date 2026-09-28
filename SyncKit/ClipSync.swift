@@ -449,6 +449,12 @@ final class ClipSync {
             }
         } catch let error as CKError where error.code == .zoneNotFound || error.code == .changeTokenExpired {
             metadata.update { $0.pollToken = nil }
+            if error.code == .zoneNotFound, metadata.value.zoneConfirmed == true, let engine {
+                // Deleted from another device while this one is open. Let the engine
+                // fetch the database changes, which reports the deletion and turns sync
+                // off, instead of waiting for a push or the next launch.
+                try? await engine.fetchChanges()
+            }
             return
         }
 
