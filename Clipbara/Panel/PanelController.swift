@@ -114,7 +114,7 @@ final class PanelController {
             panel?.setFrame(endFrame, display: false)
         }
         resizeTargetFrame = nil
-        contentContainer?.fitHostedViewWidth()
+        refitContent()
 
         // The panel frame stays put; the content starts one panel height below
         // the window and rides up into it. Moving the window itself would push
@@ -192,13 +192,29 @@ final class PanelController {
                     // A newer resize may have started; only clear our own target.
                     if self.resizeTargetFrame == targetFrame {
                         self.resizeTargetFrame = nil
+                        self.refitContent()
                     }
                 }
             })
         } else {
             resizeTargetFrame = nil
             panel.setFrame(targetFrame, display: true)
+            refitContent()
         }
+    }
+
+    /// Sizes the content to the panel from the window's own frame, not from
+    /// whatever size the container ended up with. A report on macOS 26.7 (#38)
+    /// showed a correctly sized, centered panel whose content was narrower
+    /// from the first time it opened; this covers the case where the
+    /// container itself did not follow the window.
+    private func refitContent() {
+        guard let panel, let container = contentContainer else { return }
+        let size = panel.contentRect(forFrameRect: panel.frame).size
+        if container.frame.size != size {
+            container.frame = NSRect(origin: .zero, size: size)
+        }
+        container.fitHostedViewWidth()
     }
 
     func restoreKeyboardNavigationFocus(activateApp: Bool = false) {
