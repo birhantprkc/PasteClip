@@ -67,7 +67,7 @@ Clipbara 是一款免费开源（GPL-3.0）的 macOS 剪贴板管理器，用原
 
 [**从 Mac App Store 下载 Clipbara**](https://apps.apple.com/app/apple-store/id6803537696?pt=129317403&ct=github_readme_zh&mt=8)
 
-App Store 版开启了 App Sandbox，由 App Store 推送更新，新版本会先在这里上线；免费的 DMG 版使用 Sparkle 自动更新，会在几周后跟进。App Store 版不在欧盟地区提供，欧盟用户请使用 DMG 或 Homebrew 版本。两个版本的 bundle ID 不同，历史记录分开存储；迁移时在旧版本中使用 **Settings → General → Backup → Export** 导出 JSON，再在新版本中 Import。两个版本同时运行会重复注册 `⌘⇧V`，请只保留一个。
+App Store 版开启了 App Sandbox，由 App Store 推送更新，新版本会先在这里上线；免费的 DMG 版使用 Sparkle 自动更新，会在几周后跟进。两个版本的 bundle ID 不同，历史记录分开存储；迁移时在旧版本中使用 **Settings → General → Backup → Export** 导出 JSON，再在新版本中 Import。两个版本同时运行会重复注册 `⌘⇧V`，请只保留一个。
 
 ### Homebrew
 

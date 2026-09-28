@@ -61,8 +61,6 @@ Download the latest `.dmg` from [Releases](https://github.com/mobrava/Clipbara/r
 
 Both are built from this repository. The App Store build is a one-time purchase, is sandboxed, and updates through the App Store. New releases reach it first. The DMG build is free, updates itself through Sparkle, and gets each release a few weeks later.
 
-The App Store build is not offered in EU storefronts. If you are in the EU, use the DMG or Homebrew build.
-
 The two use different bundle identifiers, so they keep separate histories. To carry your clips across, open **Settings > General > Backup > Export** in one build and **Import** in the other. Existing clips are kept and duplicates are skipped.
 
 Run only one of them. Two copies register `⌘ ⇧ V` twice and open two panels.
