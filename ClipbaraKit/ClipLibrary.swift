@@ -34,7 +34,10 @@ struct ClipLibrary {
             .joined()
 
         // Same content again: move the existing clip to the top instead of duplicating it.
-        if let existing = existingClip(hash: hash, text: classified.type == .image ? nil : classified.text) {
+        // An image synced from the Mac arrives here as other bytes, so also match the picture.
+        let existing = existingClip(hash: hash, text: classified.type == .image ? nil : classified.text)
+            ?? (classified.type == .image ? ClipboardItem.recentImage(matching: classified.rawData, in: context) : nil)
+        if let existing {
             existing.copiedAt = Date()
             try? context.save()
             return existing

@@ -224,6 +224,7 @@ targets:
       - path: Clipbara/Models/Pinboard.swift
       - path: Clipbara/Models/PinboardEntry.swift
       - path: Clipbara/Models/ContentType.swift
+      - path: Shared/Models/ImageFingerprint.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.minsang.ClipbaraTests

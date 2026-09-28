@@ -750,13 +750,18 @@ final class ClipSync {
 
     /// Finds a local clip with the same content. Text is compared as text, because the
     /// devices hash different bytes for the same copy (HTML on the Mac, plain text on the
-    /// iPhone). Images are compared by hash.
+    /// iPhone). Images are compared by hash, then by picture: the Mac keeps TIFF while
+    /// the iPhone saves PNG or JPEG of the same copy.
     private func localTwin(of values: SyncSchema.ClipValues, excluding id: UUID, context: ModelContext) -> ClipboardItem? {
         if values.type == .image {
             let hash = values.hash
-            guard !hash.isEmpty else { return nil }
-            let matches = (try? context.fetch(FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.contentHash == hash }))) ?? []
-            return matches.first { $0.id != id }
+            if !hash.isEmpty,
+               let match = ((try? context.fetch(FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.contentHash == hash }))) ?? [])
+                .first(where: { $0.id != id }) {
+                return match
+            }
+            guard let data = values.imageData else { return nil }
+            return ClipboardItem.recentImage(matching: data, excluding: id, in: context)
         }
         let text: String? = values.text
         let matches = (try? context.fetch(FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.textContent == text }))) ?? []
