@@ -9,6 +9,12 @@ final class PanelController {
     /// The panel's SwiftUI content. Slid inside the fixed panel frame so the
     /// window itself never has to travel off screen to animate.
     private var contentHost: NSView?
+    private var contentContainer: PanelContentContainer?
+    /// Where the running resize animation is heading. `panel.frame` still
+    /// reports the old size until the animation ends, so comparing against it
+    /// let a quick tab switch back be skipped and the panel settle at the
+    /// width of the tab the user had already left.
+    private var resizeTargetFrame: NSRect?
     /// The screen the panel was opened on. `panel.screen` is unreliable while
     /// the panel sits flush against a screen edge next to another display.
     private var presentedScreen: NSScreen?
@@ -107,6 +113,8 @@ final class PanelController {
         } else {
             panel?.setFrame(endFrame, display: false)
         }
+        resizeTargetFrame = nil
+        contentContainer?.fitHostedViewWidth()
 
         // The panel frame stays put; the content starts one panel height below
         // the window and rides up into it. Moving the window itself would push
@@ -140,9 +148,9 @@ final class PanelController {
             NSAnimationContext.runAnimationGroup({ context in
                 context.duration = 0.25
                 context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-                var target = contentHost.frame
-                target.origin.y = 0
-                contentHost.animator().frame = target
+                // Only the origin moves. Animating the whole frame would also
+                // carry a width captured before any resize that lands mid-slide.
+                contentHost.animator().setFrameOrigin(.zero)
             }, completionHandler: {
                 Task { @MainActor [weak self] in
                     self?.panel?.hasShadow = true
@@ -166,18 +174,29 @@ final class PanelController {
         let screenFrame = screen.visibleFrame
         let targetFrame = panelFrame(in: screenFrame, itemCount: itemCount, y: panel.frame.origin.y)
 
-        guard abs(panel.frame.width - targetFrame.width) > 1 ||
-              abs(panel.frame.origin.x - targetFrame.origin.x) > 1 else {
+        let currentTarget = resizeTargetFrame ?? panel.frame
+        guard abs(currentTarget.width - targetFrame.width) > 1 ||
+              abs(currentTarget.origin.x - targetFrame.origin.x) > 1 else {
             return
         }
 
         if animated {
-            NSAnimationContext.runAnimationGroup { context in
+            resizeTargetFrame = targetFrame
+            NSAnimationContext.runAnimationGroup({ context in
                 context.duration = 0.18
                 context.timingFunction = CAMediaTimingFunction(name: .easeOut)
                 panel.animator().setFrame(targetFrame, display: true)
-            }
+            }, completionHandler: { [weak self] in
+                Task { @MainActor in
+                    guard let self else { return }
+                    // A newer resize may have started; only clear our own target.
+                    if self.resizeTargetFrame == targetFrame {
+                        self.resizeTargetFrame = nil
+                    }
+                }
+            })
         } else {
+            resizeTargetFrame = nil
             panel.setFrame(targetFrame, display: true)
         }
     }
@@ -210,11 +229,7 @@ final class PanelController {
         NSAnimationContext.runAnimationGroup({ [contentHost] context in
             context.duration = 0.2
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            if let contentHost {
-                var target = contentHost.frame
-                target.origin.y = -panelHeight
-                contentHost.animator().frame = target
-            }
+            contentHost?.animator().setFrameOrigin(NSPoint(x: 0, y: -panelHeight))
         }, completionHandler: { [weak self] in
             Task { @MainActor in
                 panel.orderOut(nil)
@@ -630,14 +645,15 @@ final class PanelController {
                 .modelContainer(modelContainer)
         )
         host.frame = NSRect(origin: .zero, size: size)
-        host.autoresizingMask = [.width]
 
-        let container = NSView(frame: NSRect(origin: .zero, size: size))
+        let container = PanelContentContainer(frame: NSRect(origin: .zero, size: size))
         container.wantsLayer = true
         container.layer?.masksToBounds = true
         container.addSubview(host)
+        container.hostedView = host
 
         contentHost = host
+        contentContainer = container
         return container
     }
 
