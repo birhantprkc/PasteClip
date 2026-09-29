@@ -108,7 +108,8 @@ struct NavigationBarView: View {
                     navTab(
                         label: String(localized: "History"),
                         icon: "clock",
-                        isActive: appState.selectedTab == .history
+                        isActive: appState.selectedTab == .history,
+                        shortcutNumber: 1
                     ) {
                         appState.panelController.selectTab(.history)
                     }
@@ -126,7 +127,8 @@ struct NavigationBarView: View {
                             label: pinboard.name,
                             icon: "folder",
                             isActive: appState.selectedTab == .pinboard(pinboard.id),
-                            isDropTargeted: targetedPinboardID == pinboard.id
+                            isDropTargeted: targetedPinboardID == pinboard.id,
+                            shortcutNumber: index + 2 <= 9 ? index + 2 : nil
                         ) {
                             appState.panelController.selectTab(.pinboard(pinboard.id))
                         }
@@ -238,6 +240,7 @@ struct NavigationBarView: View {
         icon: String? = nil,
         isActive: Bool,
         isDropTargeted: Bool = false,
+        shortcutNumber: Int? = nil,
         action: @escaping () -> Void
     ) -> some View {
         NavTabButton(
@@ -245,6 +248,7 @@ struct NavigationBarView: View {
             icon: icon,
             isActive: isActive,
             isDropTargeted: isDropTargeted,
+            shortcutNumber: appState.showsTabShortcutHints ? shortcutNumber : nil,
             colorScheme: colorScheme,
             action: action
         )
@@ -401,6 +405,8 @@ private struct NavTabButton: View {
     let icon: String?
     let isActive: Bool
     let isDropTargeted: Bool
+    /// Shown in place of the icon while ⌘ is held (#53).
+    let shortcutNumber: Int?
     let colorScheme: ColorScheme
     let action: () -> Void
 
@@ -410,8 +416,24 @@ private struct NavTabButton: View {
         Button(action: action) {
             HStack(spacing: 5) {
                 if let icon {
+                    // The number sits over the hidden icon so the tabs keep
+                    // their widths and don't shift while ⌘ is held.
                     Image(systemName: icon)
                         .font(.system(size: 11, weight: .medium))
+                        .opacity(shortcutNumber == nil ? 1 : 0)
+                        .overlay {
+                            if let shortcutNumber {
+                                Text(verbatim: "\(shortcutNumber)")
+                                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                                    .monospacedDigit()
+                                    .frame(width: 14, height: 14)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 3.5, style: .continuous)
+                                            .strokeBorder(.foreground.opacity(0.55), lineWidth: 1)
+                                    )
+                                    .transition(.opacity)
+                            }
+                        }
                 }
 
                 Text(label)
@@ -446,6 +468,7 @@ private struct NavTabButton: View {
         .animation(.easeInOut(duration: 0.15), value: isHovered)
         .animation(.easeInOut(duration: 0.15), value: isActive)
         .animation(.easeInOut(duration: 0.12), value: isDropTargeted)
+        .animation(.easeOut(duration: 0.1), value: shortcutNumber)
     }
 }
 

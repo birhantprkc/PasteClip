@@ -27,6 +27,8 @@ final class PanelController {
     private var scrollMonitor: Any?
     private var wheelTranslator = WheelScrollTranslation.Translator()
     private var keyMonitor: Any?
+    private var flagsMonitor: Any?
+    private var tabHintTask: Task<Void, Never>?
     var onPanelWillHide: (() -> Void)?
     weak var appState: AppState?
 
@@ -446,11 +448,20 @@ final class PanelController {
     // MARK: - Key Monitor (tab shortcuts, arrow keys, space, esc, return)
 
     private func installKeyMonitor() {
+        flagsMonitor = NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+            let commandOnly = event.modifierFlags.intersection([.command, .option, .control, .shift]) == .command
+            MainActor.assumeIsolated { [weak self] in
+                self?.commandHeldChanged(commandOnly)
+            }
+            return event
+        }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             let keyCode = event.keyCode
             let eventWindowNumber = event.windowNumber
             let handled: Bool = MainActor.assumeIsolated { [weak self] in
                 guard let self, self.isVisible else { return false }
+                // A ⌘ chord like ⌘Z or ⌘V is under way; don't flash the hints.
+                self.tabHintTask?.cancel()
 
                 // Pass through key events that target other windows (e.g. the rename
                 // alert), so their text fields receive Return/Escape as expected.
@@ -694,6 +705,27 @@ final class PanelController {
         if let monitor = keyMonitor {
             NSEvent.removeMonitor(monitor)
             keyMonitor = nil
+        }
+        if let monitor = flagsMonitor {
+            NSEvent.removeMonitor(monitor)
+            flagsMonitor = nil
+        }
+        commandHeldChanged(false)
+    }
+
+    /// Shows the tab numbers once ⌘ has been held on its own for a moment,
+    /// so quick chords (⌘Z, ⌘V, ⌘1) don't flash them (#53).
+    private func commandHeldChanged(_ held: Bool) {
+        tabHintTask?.cancel()
+        tabHintTask = nil
+        guard held, isVisible else {
+            appState?.showsTabShortcutHints = false
+            return
+        }
+        tabHintTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(120))
+            guard !Task.isCancelled, let self, self.isVisible else { return }
+            self.appState?.showsTabShortcutHints = true
         }
     }
 

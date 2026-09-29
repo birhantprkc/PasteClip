@@ -32,6 +32,9 @@ final class AppState {
     /// The card under the pointer. Space previews it instead of the selected
     /// card (#26).
     var hoveredClipID: UUID?
+    /// True while ⌘ alone is held with the panel open: tabs show the number
+    /// that ⌘-number jumps to (#53).
+    var showsTabShortcutHints = false
     @ObservationIgnored private var toastTask: Task<Void, Never>?
     private(set) var modelContainer: ModelContainer?
 
