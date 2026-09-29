@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import SwiftData
 
@@ -36,6 +37,7 @@ final class ClipUndoStack {
         /// `added` is the entry created in the destination, nil when the clip
         /// was already there.
         case move(EntrySnapshot, added: UUID?, destinationID: UUID)
+        case edit(clipID: UUID, text: String?, rawData: Data, contentHash: String)
     }
 
     private static let limit = 20
@@ -88,6 +90,17 @@ final class ClipUndoStack {
         renumber(pinboardID: snapshot.pinboardID, in: context)
     }
 
+    /// Replaces a plain text clip's content (#54). The clip keeps its id,
+    /// copy date and pinboard places, so the edit shows everywhere it is.
+    func editText(of item: ClipboardItem, to text: String, in context: ModelContext) {
+        push(.edit(clipID: item.id, text: item.textContent, rawData: item.rawData, contentHash: item.contentHash))
+        let data = Data(text.utf8)
+        item.textContent = text
+        item.rawData = data
+        item.contentHash = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        try? context.save()
+    }
+
     /// Restores the most recent deletion. Returns false when there is nothing
     /// to restore or it can no longer be restored.
     @discardableResult
@@ -131,6 +144,16 @@ final class ClipUndoStack {
             try? context.save()
             renumber(pinboardID: destinationID, in: context)
             return restored
+
+        case .edit(let clipID, let text, let rawData, let contentHash):
+            var descriptor = FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.id == clipID })
+            descriptor.fetchLimit = 1
+            guard let item = try? context.fetch(descriptor).first else { return false }
+            item.textContent = text
+            item.rawData = rawData
+            item.contentHash = contentHash
+            try? context.save()
+            return true
 
         case .entry(let entry):
             let clipID = entry.clipID

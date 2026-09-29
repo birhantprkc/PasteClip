@@ -154,4 +154,22 @@ final class ClipUndoStackTests: XCTestCase {
         let rows = try reopened.mainContext.fetch(FetchDescriptor<PinboardEntry>())
         XCTAssertEqual(rows.compactMap { $0.pinboard?.name }.sorted(), ["Destination"])
     }
+
+    func testEditingTextAndUndoing() {
+        let a = clip("before", copiedAt: Date(timeIntervalSince1970: 1))
+        let board = board("Board", [a])
+        let originalHash = a.contentHash
+        let stack = ClipUndoStack()
+
+        stack.editText(of: a, to: "after", in: context)
+        XCTAssertEqual(a.textContent, "after")
+        XCTAssertEqual(a.rawData, Data("after".utf8))
+        XCTAssertNotEqual(a.contentHash, originalHash)
+        XCTAssertEqual(order(of: board), ["after"])
+
+        XCTAssertTrue(stack.undo(in: context))
+        XCTAssertEqual(a.textContent, "before")
+        XCTAssertEqual(a.rawData, Data("before".utf8))
+        XCTAssertEqual(a.contentHash, originalHash)
+    }
 }

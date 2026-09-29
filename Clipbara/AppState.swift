@@ -37,6 +37,8 @@ final class AppState {
         let pinboardID: UUID
     }
     @ObservationIgnored var draggedPinboardEntry: DraggedPinboardEntry?
+    /// The clip whose text is being edited in the preview (#54).
+    var editingClipID: UUID?
     /// The card under the pointer. Space previews it instead of the selected
     /// card (#26).
     var hoveredClipID: UUID?
@@ -162,6 +164,29 @@ final class AppState {
         showToast(String(localized: "Removed from pinboard. Press \u{2318}Z to undo."), systemImage: "pin.slash")
     }
 
+    // MARK: - Editing (#54)
+
+    /// Only plain text for now: editing rich text or HTML as text would drop
+    /// its formatting.
+    nonisolated static func canEdit(_ item: ClipboardItem) -> Bool {
+        item.contentType == .plainText
+    }
+
+    func editClip(_ item: ClipboardItem) {
+        panelController.beginEditing(item)
+    }
+
+    func saveEdit(_ item: ClipboardItem, text: String) {
+        editingClipID = nil
+        guard let context = modelContainer?.mainContext, text != item.textContent else { return }
+        clipUndo.editText(of: item, to: text, in: context)
+        showToast(String(localized: "Saved. Press \u{2318}Z to undo."), systemImage: "pencil")
+    }
+
+    func cancelEdit() {
+        editingClipID = nil
+    }
+
     func moveToPinboard(_ entry: PinboardEntry, destination: Pinboard) {
         guard let context = modelContainer?.mainContext else { return }
         clipUndo.moveEntry(entry, to: destination, in: context)
@@ -197,6 +222,7 @@ final class AppState {
         previewItem = nil
         hoveredClipID = nil
         draggedPinboardEntry = nil
+        editingClipID = nil
         panelToast = nil
         toastTask?.cancel()
         draggedClipboardItemID = nil

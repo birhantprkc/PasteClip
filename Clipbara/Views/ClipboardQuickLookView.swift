@@ -9,6 +9,10 @@ struct ClipboardQuickLookView: View {
     @ObservedObject var zoom: ImageZoomController
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(AppState.self) private var appState
+    @State private var draft = ""
+
+    private var isEditing: Bool { appState.editingClipID == item.id }
     @State private var cachedImage: NSImage?
     @State private var imageMetadata: (width: Int, height: Int)?
     @State private var cachedCharCount: Int = 0
@@ -173,6 +177,23 @@ struct ClipboardQuickLookView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
             }
 
+            if isEditing {
+                editButtons
+            } else {
+            if AppState.canEdit(item) {
+                Button {
+                    appState.editingClipID = item.id
+                } label: {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 13, weight: .medium))
+                        .frame(width: 28, height: 28)
+                        .background(Color.primary.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .help("Edit Text (\u{2318}E)")
+            }
+
             Button(action: onPaste) {
                 HStack(spacing: 5) {
                     Image(systemName: "doc.on.clipboard")
@@ -187,6 +208,7 @@ struct ClipboardQuickLookView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
             }
             .buttonStyle(.plain)
+            }
         }
         .padding(.horizontal, 16)
         .frame(height: Self.toolbarHeight)
@@ -250,15 +272,55 @@ struct ClipboardQuickLookView: View {
         }
     }
 
+    @ViewBuilder
     private var textContent: some View {
-        SelectableTextView(
-            text: item.textContent ?? "...",
-            isMonospaced: cachedIsCodeLike,
-            fontSize: 14,
-            lineSpacing: 5
-        )
+        Group {
+            if isEditing {
+                EditableTextView(text: $draft, isMonospaced: cachedIsCodeLike, fontSize: 14, lineSpacing: 5)
+            } else {
+                SelectableTextView(
+                    text: item.textContent ?? "...",
+                    isMonospaced: cachedIsCodeLike,
+                    fontSize: 14,
+                    lineSpacing: 5
+                )
+            }
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(contentBackground)
+        .task(id: isEditing) {
+            if isEditing { draft = item.textContent ?? "" }
+        }
+    }
+
+    private var canSave: Bool {
+        draft != (item.textContent ?? "") && !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    @ViewBuilder
+    private var editButtons: some View {
+        Button("Cancel") { appState.cancelEdit() }
+            .buttonStyle(.plain)
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 10)
+            .frame(height: 28)
+
+        Button {
+            appState.saveEdit(item, text: draft)
+        } label: {
+            Text("Save")
+                .font(.system(size: 12, weight: .semibold))
+                .padding(.horizontal, 14)
+                .frame(height: 28)
+                .background(Color.accentColor.opacity(canSave ? 0.9 : 0.25))
+                .foregroundStyle(.white.opacity(canSave ? 1 : 0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(!canSave)
+        .keyboardShortcut("s", modifiers: .command)
+        .help("Save (\u{2318}S)")
     }
 
     private var imageContent: some View {
@@ -368,6 +430,9 @@ struct ClipboardQuickLookView: View {
 
     private var footer: some View {
         HStack(spacing: 10) {
+            if isEditing {
+                Text("Editing. \u{2318}S saves, Esc cancels. The change shows everywhere this clip is pinned.")
+            } else {
             Text(primaryMetadata)
 
             Text("·")
@@ -378,6 +443,7 @@ struct ClipboardQuickLookView: View {
             Spacer()
 
             Text(item.contentType.displayName)
+            }
         }
         .font(.system(size: 12, weight: .medium))
         .foregroundStyle(.secondary)

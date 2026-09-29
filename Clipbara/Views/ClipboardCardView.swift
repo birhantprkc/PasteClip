@@ -85,6 +85,9 @@ struct ClipboardCardView: View {
                 renameText = item.userTitle ?? ""
                 isRenaming = true
             }
+            if AppState.canEdit(item) {
+                Button("Edit Text\u{2026}") { appState.editClip(item) }
+            }
             if let onMoveToPinboard, !otherPinboards.isEmpty {
                 Menu("Move to Pinboard") {
                     ForEach(otherPinboards) { pinboard in

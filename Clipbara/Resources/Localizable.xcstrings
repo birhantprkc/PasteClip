@@ -1013,6 +1013,54 @@
         }
       }
     },
+    "Edit Text (⌘E)" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "텍스트 편집 (⌘E)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑文本 (⌘E)"
+          }
+        }
+      }
+    },
+    "Edit Text…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "텍스트 편집…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑文本…"
+          }
+        }
+      }
+    },
+    "Editing. ⌘S saves, Esc cancels. The change shows everywhere this clip is pinned." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "편집 중. ⌘S로 저장, Esc로 취소. 이 클립이 들어 있는 핀보드에도 함께 반영됩니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在编辑。⌘S 保存，Esc 取消。更改会同步到包含此剪贴内容的所有钉板。"
+          }
+        }
+      }
+    },
     "Empty Pinboard" : {
       "localizations" : {
         "ko" : {
@@ -1973,6 +2021,22 @@
         }
       }
     },
+    "Only plain text clips can be edited." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일반 텍스트 클립만 편집할 수 있습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只能编辑纯文本剪贴内容。"
+          }
+        }
+      }
+    },
     "Open Accessibility Settings…" : {
       "localizations" : {
         "ko" : {
@@ -2516,6 +2580,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "存储"
+          }
+        }
+      }
+    },
+    "Save (⌘S)" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장 (⌘S)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存 (⌘S)"
+          }
+        }
+      }
+    },
+    "Saved. Press ⌘Z to undo." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장했습니다. ⌘Z로 되돌릴 수 있습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已保存。按 ⌘Z 可撤销。"
           }
         }
       }

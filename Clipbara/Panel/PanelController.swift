@@ -29,6 +29,11 @@ final class PanelController {
     private var keyMonitor: Any?
     private var flagsMonitor: Any?
     private var tabHintTask: Task<Void, Never>?
+    /// Where the pointer was when the keyboard last took over: the panel
+    /// opening, a tab switch, an arrow key. A card under a pointer that
+    /// hasn't moved since is not what the user is pointing at; it just
+    /// happens to be there (or is a card from the previous tab).
+    private var keyboardAnchor: NSPoint?
     var onPanelWillHide: (() -> Void)?
     weak var appState: AppState?
 
@@ -107,6 +112,7 @@ final class PanelController {
 
     func showPanel(modelContainer: ModelContainer, appState: AppState) {
         guard !isVisible else { return }
+        anchorKeyboard()
         self.appState = appState
 
         let screen = activeScreen
@@ -438,6 +444,9 @@ final class PanelController {
     /// while SwiftUI is still rendering the new one.
     func selectTab(_ tab: PanelTab) {
         guard let appState, isVisible, appState.selectedTab != tab else { return }
+        // The cards leave without reporting that the pointer left them.
+        appState.hoveredClipID = nil
+        anchorKeyboard()
         if quickLookPanel != nil { hideQuickLook() }
         appState.selectForPreview(nil)
         appState.searchState.selectedIndex = nil
@@ -476,6 +485,19 @@ final class PanelController {
                       self.quickLookPanel?.attachedSheet == nil,
                       NSApp.modalWindow == nil else { return false }
 
+                // While a clip is edited in the preview the keys belong to the
+                // editor. Esc cancels (unless an input method is composing);
+                // ⌘S reaches the view's Save button (#54).
+                if self.appState?.editingClipID != nil, self.quickLookPanel != nil {
+                    let composing = (self.quickLookPanel?.firstResponder as? NSTextView)?.hasMarkedText() ?? false
+                    if keyCode == 53, !composing {
+                        self.appState?.cancelEdit()
+                        return true
+                    }
+                    return false
+                }
+                let isCommandOnly = event.modifierFlags.intersection([.command, .option, .control, .shift]) == .command
+
                 // Handle tab shortcuts before the search-field pass-through.
                 // Missing tabs are a no-op, not a shortcut for the frontmost app.
                 if let index = PanelTabShortcut.index(keyCode: keyCode, modifiers: event.modifierFlags) {
@@ -494,6 +516,10 @@ final class PanelController {
                 }
 
                 if self.quickLookPanel != nil {
+                    if isCommandOnly, keyCode == 14, let item = self.quickLookItem, AppState.canEdit(item) { // ⌘E
+                        self.appState?.editingClipID = item.id
+                        return true
+                    }
                     if let zoom = self.quickLookZoom,
                        let action = ImageZoomController.action(keyCode: keyCode, modifiers: event.modifierFlags) {
                         zoom.perform(action)
@@ -531,11 +557,52 @@ final class PanelController {
                 if modifiers.isEmpty, keyCode == 51 || keyCode == 117 { // Delete, Forward Delete
                     return self.deleteSelectedClip()
                 }
+                if modifiers == .command, keyCode == 14 { // ⌘E
+                    return self.editTargetClip()
+                }
 
                 return self.processKey(keyCode)
             }
             return handled ? nil : event
         }
+    }
+
+    private func anchorKeyboard() {
+        keyboardAnchor = NSEvent.mouseLocation
+    }
+
+    /// The card under the pointer, if the pointer has moved since the
+    /// keyboard last took over (#26).
+    private func pointedCardIndex(in items: [ClipboardItem]) -> Int? {
+        guard let appState, let hovered = appState.hoveredClipID,
+              NSEvent.mouseLocation != keyboardAnchor else { return nil }
+        return items.firstIndex { $0.id == hovered }
+    }
+
+    /// Opens the preview with the clip's text in an editor (#54).
+    func beginEditing(_ item: ClipboardItem) {
+        guard let appState, AppState.canEdit(item) else { return }
+        if let idx = appState.currentFilteredItems.firstIndex(where: { $0.id == item.id }) {
+            appState.searchState.selectedIndex = idx
+        }
+        showQuickLook(item: item)
+        appState.editingClipID = item.id
+    }
+
+    /// ⌘E edits the card under the pointer, like Space previews it, or
+    /// else the selected card.
+    private func editTargetClip() -> Bool {
+        guard let appState, appState.previewItem == nil else { return false }
+        let items = appState.currentFilteredItems
+        guard let idx = pointedCardIndex(in: items) ?? appState.searchState.selectedIndex,
+              idx < items.count else { return false }
+        guard AppState.canEdit(items[idx]) else {
+            // Say why nothing opened instead of ignoring the key.
+            appState.showToast(String(localized: "Only plain text clips can be edited."), systemImage: "pencil.slash")
+            return true
+        }
+        beginEditing(items[idx])
+        return true
     }
 
     /// Deletes the selected card from history, or on a pinboard tab removes
@@ -579,8 +646,7 @@ final class PanelController {
             }
             // The card under the pointer wins over the keyboard selection,
             // and becomes the selection so arrows continue from it (#26).
-            if let hovered = appState.hoveredClipID,
-               let idx = items.firstIndex(where: { $0.id == hovered }) {
+            if let idx = pointedCardIndex(in: items) {
                 appState.searchState.selectedIndex = idx
                 showQuickLook(item: items[idx])
                 return true
@@ -616,6 +682,7 @@ final class PanelController {
             return true
 
         case 123: // Left arrow
+            anchorKeyboard()
             appState.searchState.moveSelection(by: -1, maxIndex: maxIndex)
             if let idx = appState.searchState.selectedIndex, idx < items.count {
                 if quickLookPanel != nil {
@@ -627,6 +694,7 @@ final class PanelController {
             return true
 
         case 124: // Right arrow
+            anchorKeyboard()
             appState.searchState.moveSelection(by: 1, maxIndex: maxIndex)
             if let idx = appState.searchState.selectedIndex, idx < items.count {
                 if quickLookPanel != nil {
@@ -701,6 +769,7 @@ final class PanelController {
     }
 
     private func hideQuickLook() {
+        appState?.editingClipID = nil
         quickLookPanel?.orderOut(nil)
         quickLookPanel = nil
         quickLookItem = nil
@@ -807,3 +876,4 @@ final class PanelController {
         return min(max(minWidth, cardContentWidth), maxWidth)
     }
 }
+
