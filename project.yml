@@ -220,10 +220,10 @@ targets:
       - path: Clipbara/Utilities/ClipQueueList.swift
       - path: Clipbara/Utilities/URLCommand.swift
       - path: Clipbara/Services/ClipUndoStack.swift
-      - path: Clipbara/Models/ClipboardItem.swift
-      - path: Clipbara/Models/Pinboard.swift
-      - path: Clipbara/Models/PinboardEntry.swift
-      - path: Clipbara/Models/ContentType.swift
+      - path: Shared/Models/ClipboardItem.swift
+      - path: Shared/Models/Pinboard.swift
+      - path: Shared/Models/PinboardEntry.swift
+      - path: Shared/Models/ContentType.swift
       - path: Shared/Models/ImageFingerprint.swift
     settings:
       base:
