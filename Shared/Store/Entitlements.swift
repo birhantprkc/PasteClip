@@ -80,9 +80,30 @@ final class Entitlements {
             isGrandfathered = await Self.loadGrandfathered()
         }
         let purchases = await Self.loadPurchases()
-        hasLifetime = purchases.hasLifetime
-        trialStart = purchases.trialStart
+        hasLifetime = confirmedLifetime ? true : purchases.hasLifetime
+        trialStart = [purchases.trialStart, confirmedTrialStart].compactMap { $0 }.min()
         reevaluate()
+    }
+
+    /// Purchases this process saw complete. Right after a purchase,
+    /// `Transaction.currentEntitlements` can still leave it out: on an iPhone
+    /// (iOS 26.7.1) a just-started trial read "not started", and copying asked
+    /// for the trial again, until the app was relaunched. Others report the
+    /// same on 26.4. So the purchase result itself counts too.
+    private var confirmedLifetime = false
+    private var confirmedTrialStart: Date?
+
+    private func confirm(_ transaction: Transaction) {
+        guard transaction.revocationDate == nil else { return }
+        switch transaction.productID {
+        case ProductID.lifetime:
+            confirmedLifetime = true
+        case ProductID.trial:
+            let start = transaction.originalPurchaseDate
+            confirmedTrialStart = min(confirmedTrialStart ?? start, start)
+        default:
+            break
+        }
     }
 
     /// Recomputes the state against the current time without touching StoreKit.
@@ -142,6 +163,7 @@ final class Entitlements {
             case .success(let verification):
                 switch verification {
                 case .verified(let transaction):
+                    confirm(transaction)
                     await transaction.finish()
                     await refresh()
                     return .completed
