@@ -146,9 +146,19 @@ final class ClipbaraiOSUITests: XCTestCase {
         let shareTarget = app.cells.matching(clipbaraLabel).firstMatch.exists
             ? app.cells.matching(clipbaraLabel).firstMatch
             : app.buttons.matching(clipbaraLabel).firstMatch
-        if !shareTarget.waitForExistence(timeout: 5) {
-            // The extension may be tucked behind "More" in the app row.
-            let more = app.descendants(matching: .any).matching(NSPredicate(format: "label IN %@", ["More", "기타"])).firstMatch
+        // The app row shows about five apps; the rest only load as it scrolls.
+        // Drag the row by coordinates: the cells report empty frames to swipes.
+        let sheet = app.otherElements["ActivityListView"].firstMatch
+        for _ in 0..<4 where !(shareTarget.waitForExistence(timeout: 2) && shareTarget.isHittable) {
+            guard sheet.exists else { break }
+            sheet.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.45))
+                .press(forDuration: 0.05, thenDragTo: sheet.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.45)))
+        }
+        if !shareTarget.waitForExistence(timeout: 2) {
+            // The extension may be tucked behind "More" in the app row. Look only
+            // among the sheet's cells: the app's own toolbar also has a "More"
+            // button, and tapping that closed the sheet on a real device.
+            let more = app.collectionViews.cells.matching(NSPredicate(format: "label IN %@", ["More", "기타"])).firstMatch
             if more.waitForExistence(timeout: 2) { more.tap() }
         }
         attach("40-share-sheet")
@@ -378,6 +388,7 @@ final class ClipbaraiOSUITests: XCTestCase {
         let text = "CBTEST-paste-\(Int(Date().timeIntervalSince1970))"
         UIPasteboard.general.string = text
         RunLoop.current.run(until: Date().addingTimeInterval(1))
+        let firstBefore = cards.firstMatch.label
         let button = app.buttons["pasteButton"].firstMatch
         XCTAssertTrue(button.waitForExistence(timeout: 3))
         attach("60-before-paste-enabled-\(button.isEnabled)")
@@ -385,8 +396,14 @@ final class ClipbaraiOSUITests: XCTestCase {
         let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").buttons["Allow Paste"]
         if allow.waitForExistence(timeout: 2) { allow.tap() }
         attach("61-after-paste")
+        #if targetEnvironment(simulator)
         let saved = cards.matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
         XCTAssertTrue(saved.waitForExistence(timeout: 6), "PasteButton did not save the clipboard")
+        #else
+        // On a device the test runner, in the background, can't write the
+        // clipboard, so whatever was already there gets saved as a new card.
+        XCTAssertTrue(waitUntil(timeout: 6) { cards.firstMatch.label != firstBefore }, "PasteButton did not save the clipboard")
+        #endif
     }
 
     /// Live keyboard fetch against a Mac running the sync dev build. With the app closed,

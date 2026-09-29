@@ -239,6 +239,13 @@ struct OnboardingView: View {
                     isDone: keyboard.hasFullAccess
                 )
             }
+            // The system warning scares people off adding the keyboard at all,
+            // though it works without Full Access and has no keys to type with.
+            Text("iOS shows this same warning for every keyboard that asks for Full Access. Clipbara's keyboard has no letter keys and never sends what you type. Full Access only lets it read your own clips from your iCloud, and the keyboard works without it.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 4)
             Button {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     openURL(url)
