@@ -319,7 +319,7 @@ struct NavigationBarView: View {
 
     private func addDroppedClip(from providers: [NSItemProvider], to pinboardId: UUID) -> Bool {
         if let draggedID = appState.draggedClipboardItemID {
-            showDropResult(addClip(itemId: draggedID, toPinboard: pinboardId))
+            dropClip(itemId: draggedID, on: pinboardId)
             targetedPinboardID = nil
             appState.finishClipboardDrag()
             return true
@@ -339,13 +339,19 @@ struct NavigationBarView: View {
             else { return }
 
             Task { @MainActor in
-                showDropResult(addClip(itemId: itemId, toPinboard: pinboardId))
+                dropClip(itemId: itemId, on: pinboardId)
                 targetedPinboardID = nil
                 appState.finishClipboardDrag()
             }
         }
 
         return true
+    }
+
+    /// A card from another pinboard moves; one from History is added.
+    private func dropClip(itemId: UUID, on pinboardId: UUID) {
+        guard !appState.dropDraggedPinboardEntry(clipID: itemId, on: pinboardId) else { return }
+        showDropResult(addClip(itemId: itemId, toPinboard: pinboardId))
     }
 
     private func addClip(itemId: UUID, toPinboard pinboardId: UUID) -> DroppedClipResult {

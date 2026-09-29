@@ -33,6 +33,9 @@ final class ClipUndoStack {
     private enum Record {
         case clip(ClipSnapshot, entries: [EntrySnapshot])
         case entry(EntrySnapshot)
+        /// `added` is the entry created in the destination, nil when the clip
+        /// was already there.
+        case move(EntrySnapshot, added: UUID?, destinationID: UUID)
     }
 
     private static let limit = 20
@@ -66,6 +69,25 @@ final class ClipUndoStack {
         renumber(pinboardID: snapshot.pinboardID, in: context)
     }
 
+    /// Moves a clip from its pinboard to another one. When the destination
+    /// already has the clip, this only removes it from the source.
+    func moveEntry(_ entry: PinboardEntry, to destination: Pinboard, in context: ModelContext) {
+        guard let snapshot = Self.snapshot(of: entry), let item = entry.clipboardItem,
+              snapshot.pinboardID != destination.id else { return }
+        var addedID: UUID?
+        let alreadyThere = destination.entries.contains { !$0.isDeleted && $0.clipboardItem?.id == snapshot.clipID }
+        if !alreadyThere {
+            let nextOrder = (destination.entries.filter { !$0.isDeleted }.map(\.displayOrder).max() ?? -1) + 1
+            let added = PinboardEntry(clipboardItem: item, pinboard: destination, displayOrder: nextOrder)
+            context.insert(added)
+            addedID = added.id
+        }
+        push(.move(snapshot, added: addedID, destinationID: destination.id))
+        context.delete(entry)
+        try? context.save()
+        renumber(pinboardID: snapshot.pinboardID, in: context)
+    }
+
     /// Restores the most recent deletion. Returns false when there is nothing
     /// to restore or it can no longer be restored.
     @discardableResult
@@ -92,6 +114,23 @@ final class ClipUndoStack {
             }
             try? context.save()
             return true
+
+        case .move(let entry, let addedID, let destinationID):
+            if let addedID {
+                var descriptor = FetchDescriptor<PinboardEntry>(predicate: #Predicate { $0.id == addedID })
+                descriptor.fetchLimit = 1
+                if let added = try? context.fetch(descriptor).first {
+                    context.delete(added)
+                }
+            }
+            let clipID = entry.clipID
+            var descriptor = FetchDescriptor<ClipboardItem>(predicate: #Predicate { $0.id == clipID })
+            descriptor.fetchLimit = 1
+            guard let item = try? context.fetch(descriptor).first else { return false }
+            let restored = restore(entry, item: item, in: context)
+            try? context.save()
+            renumber(pinboardID: destinationID, in: context)
+            return restored
 
         case .entry(let entry):
             let clipID = entry.clipID
@@ -171,3 +210,4 @@ final class ClipUndoStack {
         )
     }
 }
+

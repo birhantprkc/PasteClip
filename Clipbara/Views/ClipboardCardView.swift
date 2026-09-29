@@ -14,6 +14,10 @@ struct ClipboardCardView: View {
     let onPaste: (ClipboardItem) -> Void
     var onDelete: (() -> Void)? = nil
     var onRemoveFromPinboard: (() -> Void)? = nil
+    /// The pinboard this card is shown in, if any. Its cards get Rename, Move
+    /// and Add to other pinboards.
+    var currentPinboardID: UUID? = nil
+    var onMoveToPinboard: ((Pinboard) -> Void)? = nil
 
     @Environment(AppState.self) private var appState
     @Environment(\.colorScheme) private var colorScheme
@@ -43,6 +47,7 @@ struct ClipboardCardView: View {
         .onTapGesture(perform: handleTap)
         .optionalDrag(enabled: enableDrag) {
             appState.draggedClipboardItemID = item.id
+            appState.draggedPinboardEntry = nil
             return item.dragProvider()
         } preview: {
             dragPreview
@@ -73,15 +78,23 @@ struct ClipboardCardView: View {
         } else {
             Button("Paste") { onPaste(item) }
         }
-        if showsManagementMenu {
+        let otherPinboards = pinboards.filter { $0.id != currentPinboardID }
+        if showsManagementMenu || currentPinboardID != nil {
             Divider()
             Button("Rename") {
                 renameText = item.userTitle ?? ""
                 isRenaming = true
             }
-            if !pinboards.isEmpty {
+            if let onMoveToPinboard, !otherPinboards.isEmpty {
+                Menu("Move to Pinboard") {
+                    ForEach(otherPinboards) { pinboard in
+                        Button(pinboard.name) { onMoveToPinboard(pinboard) }
+                    }
+                }
+            }
+            if !otherPinboards.isEmpty {
                 Menu("Add to Pinboard") {
-                    ForEach(pinboards) { pinboard in
+                    ForEach(otherPinboards) { pinboard in
                         let alreadyAdded = pinboard.entries.contains { $0.clipboardItem?.id == item.id }
                         Button {
                             addToPinboard(pinboard)
@@ -96,6 +109,8 @@ struct ClipboardCardView: View {
                     }
                 }
             }
+        }
+        if showsManagementMenu {
             Divider()
             Button("Delete Clip", role: .destructive) {
                 deleteItem()

@@ -69,6 +69,11 @@ struct PinboardGridView: View {
             }
         }
         .onAppear { syncEntries() }
+        // A drag that ended outside the grid (on a tab, or cancelled) never
+        // reaches the reorder delegate, which would leave the card dimmed.
+        .onChange(of: appState.draggedClipboardItemID) { _, id in
+            if id == nil { draggingEntry = nil }
+        }
         .onChange(of: pinboard?.entries.count) { _, _ in syncEntries() }
         .onChange(of: appState.panelPresentationID) { _, _ in
             if appState.selectedTab == .pinboard(pinboardId) {
@@ -98,6 +103,10 @@ struct PinboardGridView: View {
             },
             onRemoveFromPinboard: {
                 removeEntry(entry)
+            },
+            currentPinboardID: pinboardId,
+            onMoveToPinboard: { destination in
+                takeOut(entry) { appState.moveToPinboard(entry, destination: destination) }
             }
         )
         .opacity(isDragging ? 0.3 : 1.0)
@@ -105,6 +114,9 @@ struct PinboardGridView: View {
         .animation(.easeInOut(duration: 0.15), value: isDragging)
         .onDrag {
             draggingEntry = entry
+            // Dropping on another pinboard's tab moves the clip there.
+            appState.draggedClipboardItemID = item.id
+            appState.draggedPinboardEntry = .init(entryID: entry.id, clipID: item.id, pinboardID: pinboardId)
             return item.dragProvider()
         }
         .onDrop(of: [.text], delegate: ReorderDropDelegate(
@@ -138,9 +150,15 @@ struct PinboardGridView: View {
     }
 
     private func removeEntry(_ entry: PinboardEntry) {
+        takeOut(entry) { appState.removeFromPinboard(entry) }
+    }
+
+    /// Runs `change`, which takes `entry` out of this pinboard, and keeps the
+    /// selection on the card that slides into its place.
+    private func takeOut(_ entry: PinboardEntry, _ change: () -> Void) {
         let removedIndex = orderedEntries.firstIndex { $0.id == entry.id } ?? appState.searchState.selectedIndex ?? 0
         orderedEntries.removeAll { $0.id == entry.id }
-        appState.removeFromPinboard(entry)
+        change()
         syncNavigationItems(orderedEntries.compactMap(\.clipboardItem))
         if !orderedEntries.isEmpty {
             appState.searchState.selectedIndex = min(removedIndex, orderedEntries.count - 1)

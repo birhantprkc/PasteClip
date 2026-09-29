@@ -29,6 +29,14 @@ final class AppState {
     var panelToast: PanelToast?
     var panelPresentationID = 0
     var draggedClipboardItemID: UUID?
+    /// Set while a card is dragged out of a pinboard, so dropping it on
+    /// another pinboard's tab moves it there instead of copying it.
+    struct DraggedPinboardEntry {
+        let entryID: UUID
+        let clipID: UUID
+        let pinboardID: UUID
+    }
+    @ObservationIgnored var draggedPinboardEntry: DraggedPinboardEntry?
     /// The card under the pointer. Space previews it instead of the selected
     /// card (#26).
     var hoveredClipID: UUID?
@@ -154,6 +162,29 @@ final class AppState {
         showToast(String(localized: "Removed from pinboard. Press \u{2318}Z to undo."), systemImage: "pin.slash")
     }
 
+    func moveToPinboard(_ entry: PinboardEntry, destination: Pinboard) {
+        guard let context = modelContainer?.mainContext else { return }
+        clipUndo.moveEntry(entry, to: destination, in: context)
+        showToast(String(localized: "Moved to \(destination.name). Press \u{2318}Z to undo."), systemImage: "arrow.right.circle")
+    }
+
+    /// Handles a clip dropped on a pinboard tab. Returns false when the drag
+    /// did not come from a pinboard, so the caller adds the clip instead.
+    func dropDraggedPinboardEntry(clipID: UUID, on pinboardID: UUID) -> Bool {
+        guard let drag = draggedPinboardEntry, drag.clipID == clipID else { return false }
+        draggedPinboardEntry = nil
+        guard drag.pinboardID != pinboardID, let context = modelContainer?.mainContext else { return true }
+        let entryID = drag.entryID
+        var entries = FetchDescriptor<PinboardEntry>(predicate: #Predicate { $0.id == entryID })
+        entries.fetchLimit = 1
+        var boards = FetchDescriptor<Pinboard>(predicate: #Predicate { $0.id == pinboardID })
+        boards.fetchLimit = 1
+        if let entry = try? context.fetch(entries).first, let board = try? context.fetch(boards).first {
+            moveToPinboard(entry, destination: board)
+        }
+        return true
+    }
+
     /// Returns false when there was nothing to restore.
     @discardableResult
     func undoDeletion() -> Bool {
@@ -165,6 +196,7 @@ final class AppState {
     func hidePanel(then completion: (@MainActor @Sendable () -> Void)? = nil) {
         previewItem = nil
         hoveredClipID = nil
+        draggedPinboardEntry = nil
         panelToast = nil
         toastTask?.cancel()
         draggedClipboardItemID = nil

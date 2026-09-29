@@ -86,4 +86,72 @@ final class ClipUndoStackTests: XCTestCase {
         XCTAssertEqual(allClips().compactMap(\.textContent), ["a", "b"])
         XCTAssertFalse(stack.undo(in: context))
     }
+
+    private func board(_ name: String, _ items: [ClipboardItem]) -> Pinboard {
+        let board = Pinboard(name: name)
+        context.insert(board)
+        for (index, item) in items.enumerated() {
+            context.insert(PinboardEntry(clipboardItem: item, pinboard: board, displayOrder: index))
+        }
+        try? context.save()
+        return board
+    }
+
+    func testMovingToAnotherPinboardAndUndoing() {
+        let a = clip("a", copiedAt: Date(timeIntervalSince1970: 3))
+        let b = clip("b", copiedAt: Date(timeIntervalSince1970: 2))
+        let c = clip("c", copiedAt: Date(timeIntervalSince1970: 1))
+        let source = board("Source", [a, b])
+        let destination = board("Destination", [c])
+        let stack = ClipUndoStack()
+
+        stack.moveEntry(source.entries.first { $0.clipboardItem?.id == a.id }!, to: destination, in: context)
+        XCTAssertEqual(order(of: source), ["b"])
+        XCTAssertEqual(order(of: destination), ["c", "a"])
+        XCTAssertEqual(source.entries.map(\.displayOrder), [0])
+        XCTAssertEqual(allClips().count, 3)
+
+        XCTAssertTrue(stack.undo(in: context))
+        XCTAssertEqual(order(of: source), ["a", "b"])
+        XCTAssertEqual(order(of: destination), ["c"])
+    }
+
+    func testMovingIntoAPinboardThatHasTheClipOnlyRemovesItFromTheSource() {
+        let a = clip("a", copiedAt: Date(timeIntervalSince1970: 1))
+        let source = board("Source", [a])
+        let destination = board("Destination", [a])
+        let stack = ClipUndoStack()
+
+        stack.moveEntry(source.entries[0], to: destination, in: context)
+        XCTAssertEqual(order(of: source), [])
+        XCTAssertEqual(order(of: destination), ["a"])
+
+        XCTAssertTrue(stack.undo(in: context))
+        XCTAssertEqual(order(of: source), ["a"])
+        XCTAssertEqual(order(of: destination), ["a"])
+    }
+
+    func testMovingPersistsOnDisk() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("move-\(UUID()).store")
+        let schema = Schema([ClipboardItem.self, Pinboard.self, PinboardEntry.self])
+        var disk: ModelContainer? = try ModelContainer(for: schema, configurations: ModelConfiguration(url: url))
+        let ctx = disk!.mainContext
+        let a = ClipboardItem(contentType: .plainText, rawData: Data("a".utf8), textContent: "a", contentHash: "a")
+        ctx.insert(a)
+        let source = Pinboard(name: "Source"); ctx.insert(source)
+        let destination = Pinboard(name: "Destination"); ctx.insert(destination)
+        ctx.insert(PinboardEntry(clipboardItem: a, pinboard: source, displayOrder: 0))
+        try ctx.save()
+
+        // Fetch the way the panel does: pinboards from a query, entries via the relationship.
+        let boards = try ctx.fetch(FetchDescriptor<Pinboard>())
+        let src = boards.first { $0.name == "Source" }!
+        let dst = boards.first { $0.name == "Destination" }!
+        ClipUndoStack().moveEntry(src.entries[0], to: dst, in: ctx)
+        disk = nil
+
+        let reopened = try ModelContainer(for: schema, configurations: ModelConfiguration(url: url))
+        let rows = try reopened.mainContext.fetch(FetchDescriptor<PinboardEntry>())
+        XCTAssertEqual(rows.compactMap { $0.pinboard?.name }.sorted(), ["Destination"])
+    }
 }

@@ -1733,6 +1733,38 @@
         }
       }
     },
+    "Move to Pinboard" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "핀보드로 이동"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移动到钉板"
+          }
+        }
+      }
+    },
+    "Moved to %@. Press ⌘Z to undo." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에 옮겼습니다. ⌘Z로 되돌릴 수 있습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已移动到“%@”。按 ⌘Z 可撤销。"
+          }
+        }
+      }
+    },
     "Name" : {
       "localizations" : {
         "ko" : {
