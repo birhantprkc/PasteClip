@@ -9,6 +9,8 @@ struct ClipbaraApp: App {
     // was deallocated right after launch and the UI got one that never started.
     private let appState = AppState.shared
     @StateObject private var updaterViewModel = CheckForUpdatesViewModel()
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @AppStorage(AppState.showsMenuBarIconDefaultsKey) private var showsMenuBarIcon = true
 
     private var sharedModelContainer: ModelContainer { Self.sharedModelContainer }
 
@@ -49,7 +51,12 @@ struct ClipbaraApp: App {
     }()
 
     var body: some Scene {
-        MenuBarExtra("Clipbara", systemImage: "clipboard") {
+        // MenuBarExtra writes its own state back through `isInserted` whenever
+        // the app activates or is inspected. With Settings open, turning the
+        // icon off got that stale `true` written back before the scene saw
+        // `false`, and the toggle flipped back on (#25). The setting only
+        // changes from Settings, so the write-back is ignored.
+        MenuBarExtra("Clipbara", systemImage: "clipboard", isInserted: Binding(get: { showsMenuBarIcon }, set: { _ in })) {
             MenuBarContentView()
                 .environment(appState)
                 .environmentObject(updaterViewModel)
@@ -111,3 +118,15 @@ struct ClipbaraApp: App {
         }
     }
 }
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    /// Opening Clipbara again while it runs (Finder, Spotlight, `open -a`)
+    /// opens Settings, which is the way back when the menu bar icon is
+    /// hidden (#25). Rectangle and BetterDisplay do the same.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        AppState.shared.openSettings()
+        return false
+    }
+}
+
+

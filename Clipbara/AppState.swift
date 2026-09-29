@@ -42,6 +42,12 @@ final class AppState {
     var currentFilteredItems: [ClipboardItem] = []
 
     @ObservationIgnored private var hasStarted = false
+    /// Settings > General > Show Icon in Menu Bar. Missing means on (#25).
+    nonisolated static let showsMenuBarIconDefaultsKey = "showMenuBarIcon"
+    /// SwiftUI's `openSettings`, captured from the panel's content (built at
+    /// launch) so AppKit paths can open Settings without the menu bar item:
+    /// reopening the app and the panel's Settings item.
+    @ObservationIgnored var openSettingsAction: (@MainActor () -> Void)?
 
     func start(modelContext: ModelContext, modelContainer: ModelContainer) {
         // App.init may run more than once; start the monitor and hotkeys only once.
@@ -165,6 +171,19 @@ final class AppState {
         searchState.reset()
         selectedTab = .history
         panelController.hidePanel(then: completion)
+    }
+
+    /// Opens Settings in front, closing the panel first if it is open.
+    func openSettings() {
+        let open: @MainActor @Sendable () -> Void = { [weak self] in
+            self?.openSettingsAction?()
+            SettingsWindowFront.bring()
+        }
+        if panelController.isVisible {
+            hidePanel(then: open)
+        } else {
+            open()
+        }
     }
 
     func finishClipboardDrag() {

@@ -597,6 +597,22 @@
         }
       }
     },
+    "Clipbara keeps running. To open Settings again, open Clipbara from Applications or Spotlight, or press ⌘, in the panel." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clipbara는 계속 실행됩니다. 설정을 다시 열려면 응용 프로그램 폴더나 Spotlight에서 Clipbara를 실행하거나, 패널에서 ⌘,를 누르세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clipbara 会继续运行。要再次打开设置，请从“应用程序”或聚焦搜索打开 Clipbara，或在面板中按 ⌘,。"
+          }
+        }
+      }
+    },
     "Clipbara kept recording what you copy. Settings, including backup export, stay available." : {
       "localizations" : {
         "ko" : {
@@ -1669,6 +1685,22 @@
         }
       }
     },
+    "Menu Bar Icon Hidden" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대 아이콘을 숨겼습니다"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已隐藏菜单栏图标"
+          }
+        }
+      }
+    },
     "More actions" : {
       "localizations" : {
         "ko" : {
@@ -2536,6 +2568,22 @@
         }
       }
     },
+    "Show Icon in Menu Bar" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대에 아이콘 보기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在菜单栏中显示图标"
+          }
+        }
+      }
+    },
     "Show Welcome Tour…" : {
       "localizations" : {
         "ko" : {
@@ -2852,6 +2900,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "只会删除钉板本身，剪贴内容仍保留在剪贴板历史记录中。"
+          }
+        }
+      }
+    },
+    "To open Settings, open Clipbara again or press ⌘, in the panel." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정을 열려면 Clipbara를 다시 실행하거나 패널에서 ⌘,를 누르세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要打开设置，请再次打开 Clipbara，或在面板中按 ⌘,。"
           }
         }
       }

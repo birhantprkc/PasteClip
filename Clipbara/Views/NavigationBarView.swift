@@ -10,6 +10,7 @@ private enum DroppedClipResult {
 
 struct NavigationBarView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.openSettings) private var openSettings
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Pinboard.displayOrder) private var pinboards: [Pinboard]
@@ -28,7 +29,11 @@ struct NavigationBarView: View {
     var body: some View {
         navigationBar
         .frame(height: DesignTokens.Nav.height)
-        .onAppear { appState.orderedPinboardIDs = pinboards.map(\.id) }
+        .onAppear {
+            appState.orderedPinboardIDs = pinboards.map(\.id)
+            let openSettings = openSettings
+            appState.openSettingsAction = { openSettings() }
+        }
         .onChange(of: pinboards.map(\.id)) { _, ids in
             appState.orderedPinboardIDs = ids
         }
@@ -576,6 +581,15 @@ private struct OptionsMenuButton: View {
         shiftHint.isEnabled = false
         menu.addItem(shiftHint)
 
+        // A way to Settings that doesn't need the menu bar icon (#25).
+        menu.addItem(.separator())
+        let settingsItem = NSMenuItem(title: String(localized: "Settings..."), action: nil, keyEquivalent: ",")
+        settingsItem.keyEquivalentModifierMask = .command
+        settingsItem.target = MenuActionTarget.shared
+        settingsItem.representedObject = MenuAction.openSettings(AppState.shared)
+        settingsItem.action = #selector(MenuActionTarget.performAction(_:))
+        menu.addItem(settingsItem)
+
         // Show menu at mouse location
         menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
     }
@@ -588,6 +602,7 @@ private enum MenuAction {
     case clearContentTypes(SearchState)
     case setDateFilter(SearchState.DateFilter, SearchState)
     case toggleAlwaysPlainText
+    case openSettings(AppState)
 }
 
 @MainActor
@@ -607,6 +622,8 @@ private final class MenuActionTarget: NSObject {
             case .toggleAlwaysPlainText:
                 let key = PasteService.alwaysPlainTextDefaultsKey
                 UserDefaults.standard.set(!UserDefaults.standard.bool(forKey: key), forKey: key)
+            case .openSettings(let appState):
+                appState.openSettings()
             }
         }
     }

@@ -14,6 +14,8 @@ struct GeneralSettingsTab: View {
     /// Permission is granted in System Settings, outside the app, so poll while visible.
     private let permissionTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var launchAtLogin: Bool = SMAppService.mainApp.status == .enabled
+    @AppStorage(AppState.showsMenuBarIconDefaultsKey) private var showsMenuBarIcon = true
+    @State private var showHiddenIconNotice = false
     @State private var transferMessage: String?
     @State private var showTransferAlert = false
 
@@ -40,6 +42,36 @@ struct GeneralSettingsTab: View {
                         launchAtLogin = !newValue
                     }
                 }
+
+            // #25. Opening the app again (AppDelegate) and ⌘, or the … menu
+            // in the panel lead back here while the icon is hidden.
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Show Icon in Menu Bar")
+                    if !showsMenuBarIcon {
+                        Text("To open Settings, open Clipbara again or press \u{2318}, in the panel.")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+                Toggle("", isOn: $showsMenuBarIcon)
+                    .labelsHidden()
+            }
+            .onChange(of: showsMenuBarIcon) { _, isShown in
+                if !isShown { showHiddenIconNotice = true }
+            }
+            .alert("Menu Bar Icon Hidden", isPresented: $showHiddenIconNotice) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Clipbara keeps running. To open Settings again, open Clipbara from Applications or Spotlight, or press \u{2318}, in the panel.")
+            }
+
+            if !showsMenuBarIcon {
+                Button("Quit Clipbara") {
+                    NSApplication.shared.terminate(nil)
+                }
+            }
 
             Section("Pasting") {
                 HStack {

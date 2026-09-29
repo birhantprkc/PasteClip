@@ -486,6 +486,13 @@ final class PanelController {
                     return true
                 }
 
+                // ⌘, opens Settings, also from the search field (#25).
+                if keyCode == 43,
+                   event.modifierFlags.intersection([.command, .option, .control, .shift]) == .command {
+                    self.appState?.openSettings()
+                    return true
+                }
+
                 if self.quickLookPanel != nil {
                     if let zoom = self.quickLookZoom,
                        let action = ImageZoomController.action(keyCode: keyCode, modifiers: event.modifierFlags) {
