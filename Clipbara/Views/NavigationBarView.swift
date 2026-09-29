@@ -22,6 +22,10 @@ struct NavigationBarView: View {
     @State private var renamingPinboard: Pinboard?
     @State private var deletingPinboard: Pinboard?
     @State private var targetedPinboardID: UUID?
+    /// The pinboard tab being dragged to a new position (#3).
+    @State private var draggingPinboardID: UUID?
+    /// Where the dragged tab would land: a blue bar before or after a tab.
+    @State private var tabDropIndicator: TabDropIndicator?
     @State private var renameText = ""
     @State private var isShowingClearAlert = false
     @FocusState private var isSearchFocused: Bool
@@ -139,11 +143,38 @@ struct NavigationBarView: View {
                         }
                         .id(PanelTab.pinboard(pinboard.id))
                         .help(PanelTabShortcut.hint(at: index + 1).map { "\(pinboard.name) (\($0))" } ?? pinboard.name)
+                        .onDrag {
+                            draggingPinboardID = pinboard.id
+                            let provider = NSItemProvider()
+                            provider.registerDataRepresentation(
+                                forTypeIdentifier: UTType.clipbaraPinboardTab.identifier,
+                                visibility: .ownProcess
+                            ) { [id = pinboard.id] completion in
+                                completion(id.uuidString.data(using: .utf8), nil)
+                                return nil
+                            }
+                            return provider
+                        }
                         .onDrop(
-                            of: [.pasteClipClipboardItemID, .text, .url, .fileURL, .image, .data, .item],
-                            isTargeted: dropTargetBinding(for: pinboard.id)
-                        ) { providers in
-                            addDroppedClip(from: providers, to: pinboard.id)
+                            of: [.clipbaraPinboardTab, .pasteClipClipboardItemID, .text, .url, .fileURL, .image, .data, .item],
+                            delegate: PinboardTabDropDelegate(
+                                pinboardID: pinboard.id,
+                                draggingPinboardID: $draggingPinboardID,
+                                targetedPinboardID: $targetedPinboardID,
+                                indicator: $tabDropIndicator,
+                                landingEdge: landingEdge(on:),
+                                moveTab: moveDraggedTab(to:),
+                                dropClips: { providers in addDroppedClip(from: providers, to: pinboard.id) }
+                            )
+                        )
+                        .overlay(alignment: tabDropIndicator?.edge == .trailing ? .trailing : .leading) {
+                            if tabDropIndicator?.pinboardID == pinboard.id {
+                                RoundedRectangle(cornerRadius: 1, style: .continuous)
+                                    .fill(Color.accentColor)
+                                    .frame(width: 2, height: 20)
+                                    .offset(x: tabDropIndicator?.edge == .trailing ? 3 : -3)
+                                    .allowsHitTesting(false)
+                            }
                         }
                         .contextMenu {
                             Button("Rename Pinboard") {
@@ -288,13 +319,31 @@ struct NavigationBarView: View {
         clearableHistoryItems.count
     }
 
-    private func dropTargetBinding(for pinboardId: UUID) -> Binding<Bool> {
-        Binding(
-            get: { targetedPinboardID == pinboardId },
-            set: { isTargeted in
-                targetedPinboardID = isTargeted ? pinboardId : nil
+    /// A tab dragged leftward lands before the tab under the pointer, one
+    /// dragged rightward after it, so every gap is reachable. nil over itself.
+    private func landingEdge(on target: UUID) -> HorizontalEdge? {
+        guard let dragged = draggingPinboardID, dragged != target,
+              let from = pinboards.firstIndex(where: { $0.id == dragged }),
+              let to = pinboards.firstIndex(where: { $0.id == target }) else { return nil }
+        return to < from ? .leading : .trailing
+    }
+
+    /// Moves the dragged tab to `target`'s position and saves the order.
+    /// Tabs don't shuffle while dragging (a moving tab slid out from under
+    /// the pointer and swapped back); the blue bar shows the landing spot.
+    private func moveDraggedTab(to target: UUID) {
+        guard let dragged = draggingPinboardID, dragged != target else { return }
+        var order = pinboards
+        guard let from = order.firstIndex(where: { $0.id == dragged }),
+              let to = order.firstIndex(where: { $0.id == target }) else { return }
+        order.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+        withAnimation(.easeInOut(duration: 0.18)) {
+            for (index, pinboard) in order.enumerated() where pinboard.displayOrder != index {
+                pinboard.displayOrder = index
             }
-        )
+            try? modelContext.save()
+        }
+        appState.orderedPinboardIDs = order.map(\.id)
     }
 
     private func createPinboard() {
@@ -424,7 +473,22 @@ private struct NavTabButton: View {
     @State private var isHovered = false
 
     var body: some View {
-        Button(action: action) {
+        // A tap gesture rather than a Button: a Button keeps the mouse and a
+        // pinboard tab could never start a drag to reorder it (#3).
+        tabLabel
+            .contentShape(Rectangle())
+            .onTapGesture(perform: action)
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { action() }
+            .onHover { isHovered = $0 }
+            .animation(.easeInOut(duration: 0.15), value: isHovered)
+            .animation(.easeInOut(duration: 0.15), value: isActive)
+            .animation(.easeInOut(duration: 0.12), value: isDropTargeted)
+            .animation(.easeOut(duration: 0.1), value: shortcutNumber)
+    }
+
+    private var tabLabel: some View {
             HStack(spacing: 5) {
                 if let icon {
                     // The number sits over the hidden icon so the tabs keep
@@ -473,13 +537,6 @@ private struct NavTabButton: View {
                     )
             )
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Nav.tabCornerRadius, style: .continuous))
-        }
-        .buttonStyle(.plain)
-        .onHover { isHovered = $0 }
-        .animation(.easeInOut(duration: 0.15), value: isHovered)
-        .animation(.easeInOut(duration: 0.15), value: isActive)
-        .animation(.easeInOut(duration: 0.12), value: isDropTargeted)
-        .animation(.easeOut(duration: 0.1), value: shortcutNumber)
     }
 }
 
@@ -634,3 +691,66 @@ private final class MenuActionTarget: NSObject {
         }
     }
 }
+
+// MARK: - Pinboard tab drops
+
+extension UTType {
+    /// A pinboard tab dragged within the panel to reorder it (#3).
+    static let clipbaraPinboardTab = UTType(exportedAs: "com.minsang.PasteClip.pinboard-tab")
+}
+
+struct TabDropIndicator: Equatable {
+    let pinboardID: UUID
+    let edge: HorizontalEdge
+}
+
+/// A pinboard tab takes two kinds of drops: another pinboard tab, which moves
+/// there, and clips, which are added (or moved from another pinboard).
+private struct PinboardTabDropDelegate: DropDelegate {
+    let pinboardID: UUID
+    @Binding var draggingPinboardID: UUID?
+    @Binding var targetedPinboardID: UUID?
+    @Binding var indicator: TabDropIndicator?
+    let landingEdge: (UUID) -> HorizontalEdge?
+    let moveTab: (UUID) -> Void
+    let dropClips: ([NSItemProvider]) -> Bool
+
+    private static let clipTypes: [UTType] = [.pasteClipClipboardItemID, .text, .url, .fileURL, .image, .data, .item]
+
+    private func isTabDrag(_ info: DropInfo) -> Bool {
+        info.hasItemsConforming(to: [.clipbaraPinboardTab])
+    }
+
+    func validateDrop(info: DropInfo) -> Bool {
+        return isTabDrag(info) || info.hasItemsConforming(to: Self.clipTypes)
+    }
+
+    func dropEntered(info: DropInfo) {
+        if isTabDrag(info) {
+            indicator = landingEdge(pinboardID).map { TabDropIndicator(pinboardID: pinboardID, edge: $0) }
+        } else {
+            targetedPinboardID = pinboardID
+        }
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: isTabDrag(info) ? .move : .copy)
+    }
+
+    func dropExited(info: DropInfo) {
+        if targetedPinboardID == pinboardID { targetedPinboardID = nil }
+        if indicator?.pinboardID == pinboardID { indicator = nil }
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        if isTabDrag(info) {
+            indicator = nil
+            moveTab(pinboardID)
+            draggingPinboardID = nil
+            return true
+        }
+        targetedPinboardID = nil
+        return dropClips(info.itemProviders(for: Self.clipTypes))
+    }
+}
+
