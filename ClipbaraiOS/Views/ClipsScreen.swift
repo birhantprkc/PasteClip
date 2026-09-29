@@ -48,6 +48,7 @@ struct ClipsScreen: View {
                 .animation(.snappy, value: visibleItems.map(\.id))
             }
             .scrollDismissesKeyboard(.immediately)
+            .modifier(PullToSync(isOn: ClipSync.shared.phase != .off))
             .background(Color(.systemGroupedBackground))
             .overlay { emptyState }
             .overlay(alignment: .top) { toastView }
@@ -401,6 +402,22 @@ struct ClipsScreen: View {
                 .padding(.top, 6)
                 .transition(.move(edge: .top).combined(with: .opacity))
                 .id(toast.id)
+        }
+    }
+}
+
+/// Pulling the list down syncs with iCloud now. Only while sync is on, so the
+/// gesture never spins without doing anything. The app already syncs when it
+/// opens and every few seconds on screen; this is for when someone wants to
+/// see it happen.
+private struct PullToSync: ViewModifier {
+    let isOn: Bool
+
+    func body(content: Content) -> some View {
+        if isOn {
+            content.refreshable { await ClipSync.shared.refresh() }
+        } else {
+            content
         }
     }
 }

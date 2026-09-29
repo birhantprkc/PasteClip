@@ -173,6 +173,16 @@ final class ClipSync {
         Task { await syncNow() }
     }
 
+    /// Pull to refresh on the iPhone list: what opening the app does, but awaited
+    /// so the spinner stays until the round trip is done.
+    func refresh() async {
+        guard engine != nil else { return }
+        lastOpportunisticSync = Date()
+        lastActivityAt = Date()
+        enqueueUnsent()
+        await syncNow()
+    }
+
     /// While Clipbara is on screen, check for changes every few seconds instead of
     /// waiting for a push, which can arrive late or not at all. Polls every 4 seconds
     /// while things are changing and every 15 seconds after two quiet minutes; backs off
