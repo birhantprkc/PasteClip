@@ -110,12 +110,16 @@ enum AccessPolicy {
         return isGrandfathered(originalAppVersion: originalAppVersion)
     }
 
-    /// When the Mac App Store 1.4 build (the trial model) went on sale.
+    /// When the trial model goes on sale on the Mac App Store. 1.4 was approved
+    /// but never released; the trial ships with Mac 1.5, together with the
+    /// iPhone app, once the free week has ended (planned for October 3 or 4).
     ///
     /// On iPhone the app version reported for a purchase made on the Mac is not
     /// documented, so a Mac purchase made before this moment keeps full access
-    /// instead. Set it to the real release time before the iPhone app ships.
-    static let trialModelReleaseDate = Date(timeIntervalSince1970: 1791010800) // 2026-10-03 07:00 UTC
+    /// instead. It is set a little after the planned release on purpose: too
+    /// early would lock out people who paid $7.99 before the release, while too
+    /// late only lets the few trial downloads in between use the iPhone app.
+    static let trialModelReleaseDate = Date(timeIntervalSince1970: 1791212400) // 2026-10-05 15:00 UTC (Oct 6 00:00 KST)
 
     /// The iPhone rule: only people who first got Clipbara on the Mac before 1.4.
     /// The iPhone app never had a paid version, so an iPhone-first customer has
