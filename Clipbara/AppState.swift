@@ -105,6 +105,7 @@ final class AppState {
     }
 
     func toggleClipQueue() {
+        guard DirectPaste.isAvailable else { return }
         #if APPSTORE
         if !clipQueue.isActive, !Entitlements.shared.checkHistoryAccess() {
             PaywallWindowController.shared.show()
@@ -263,9 +264,11 @@ final class AppState {
                 self?.togglePanel()
             }
         }
-        KeyboardShortcuts.onKeyDown(for: .toggleClipQueue) { [weak self] in
-            Task { @MainActor in
-                self?.toggleClipQueue()
+        if DirectPaste.isAvailable {
+            KeyboardShortcuts.onKeyDown(for: .toggleClipQueue) { [weak self] in
+                Task { @MainActor in
+                    self?.toggleClipQueue()
+                }
             }
         }
         KeyboardShortcuts.onKeyDown(for: .clearHistory) { [weak self] in

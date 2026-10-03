@@ -64,21 +64,23 @@ struct MenuBarContentView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
 
-            Button {
-                appState.toggleClipQueue()
-            } label: {
-                HStack {
-                    appState.clipQueue.isActive ? Text("End Clip Queue") : Text("Start Clip Queue")
-                    Spacer()
-                    if let shortcut = KeyboardShortcuts.getShortcut(for: .toggleClipQueue) {
-                        Text(verbatim: shortcut.description)
-                            .foregroundStyle(.tertiary)
+            if DirectPaste.isAvailable {
+                Button {
+                    appState.toggleClipQueue()
+                } label: {
+                    HStack {
+                        appState.clipQueue.isActive ? Text("End Clip Queue") : Text("Start Clip Queue")
+                        Spacer()
+                        if let shortcut = KeyboardShortcuts.getShortcut(for: .toggleClipQueue) {
+                            Text(verbatim: shortcut.description)
+                                .foregroundStyle(.tertiary)
+                        }
                     }
                 }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 4)
 
             #if APPSTORE
             if showsPurchaseItems {

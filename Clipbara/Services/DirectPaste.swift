@@ -13,8 +13,18 @@ enum DirectPaste {
     /// them apart from the user's own ⌘V.
     nonisolated static let syntheticEventMarker: Int64 = 0x436C_6970 // "Clip"
 
+    /// Whether this build offers the features that need Accessibility: pasting
+    /// into the active app and the Clip Queue. App Review rejected them in the
+    /// App Store build under guideline 2.4.5 (Accessibility used for something
+    /// other than accessibility), so only the DMG build has them.
+    #if APPSTORE
+    nonisolated static let isAvailable = false
+    #else
+    nonisolated static let isAvailable = true
+    #endif
+
     static var isEnabled: Bool {
-        UserDefaults.standard.bool(forKey: enabledDefaultsKey)
+        isAvailable && UserDefaults.standard.bool(forKey: enabledDefaultsKey)
     }
 
     /// Reads the Accessibility grant live. `CGPreflightPostEventAccess` kept
@@ -22,7 +32,7 @@ enum DirectPaste {
     /// System Settings, so the settings warning never appeared and ⌘V was
     /// silently dropped. The Accessibility grant alone is enough to post it.
     static var hasPermission: Bool {
-        AXIsProcessTrusted()
+        isAvailable && AXIsProcessTrusted()
     }
 
     /// Whether the next paste should be followed by ⌘V.
@@ -35,6 +45,7 @@ enum DirectPaste {
     /// the user to add Clipbara with the + button.
     @discardableResult
     static func requestPermission() -> Bool {
+        guard isAvailable else { return false }
         let options = ["AXTrustedCheckOptionPrompt": true] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
     }
