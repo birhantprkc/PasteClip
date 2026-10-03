@@ -23,7 +23,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.5</string>
 	<key>CFBundleVersion</key>
-	<string>34</string>
+	<string>37</string>
 	<key>ClipbaraCloudKitContainer</key>
 	<string>$(CLIPBARA_CLOUDKIT_CONTAINER)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
